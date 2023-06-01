@@ -1,0 +1,12 @@
+{
+  "name": "tsconfig",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "clean": "pnpm rimraf .turbo"
+  },
+  "files": [
+    "base.json",
+    "server.json"
+  ]
+}

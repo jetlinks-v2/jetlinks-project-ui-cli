@@ -1,0 +1,21 @@
+{
+  "name": "@jetlinks/components",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.ts",
+  "module": "index.ts",
+  "scripts": {
+    "clean": "pnpm rimraf node_modules && pnpm rimraf .turbo"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@jetlinks/router": "workspace:^",
+    "ant-design-vue": "^3.2.20",
+    "jetlinks-ui-components": "^1.0.20",
+    "lodash-es": "^4.17.21",
+    "vue": "^3.3.4",
+    "vue-router": "^4.2.1"
+  }
+}

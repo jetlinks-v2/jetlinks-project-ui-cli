@@ -1,0 +1,41 @@
+{
+  "name": "@config/vite",
+  "version": "1.0.0",
+  "description": "",
+  "private": true,
+  "main": "dist/index.cjs",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "prepack": "pnpm unbuild --stub",
+    "clean": "pnpm rimraf node_modules && pnpm rimraf dist && pnpm rimraf .turbo"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@jetlinks/utils": "workspace:^",
+    "@vitejs/plugin-vue": "^4.2.3",
+    "@vitejs/plugin-vue-jsx": "^3.0.1",
+    "dayjs": "^1.11.7",
+    "dotenv": "^16.0.3",
+    "pkg-types": "^1.0.3",
+    "rollup": "^3.23.0",
+    "rollup-plugin-visualizer": "^5.9.0",
+    "tsconfig": "workspace:*",
+    "typescript": "^5.0.4",
+    "unocss": "^0.52.4",
+    "unplugin-auto-import": "^0.16.2",
+    "unplugin-vue-components": "^0.24.1",
+    "vite": "^4.3.9",
+    "vite-plugin-http2-proxy": "^0.4.1",
+    "vite-plugin-mkcert": "^1.15.0",
+    "vite-plugin-monaco-editor": "^1.1.0",
+    "vite-plugin-style-import": "^2.0.0",
+    "vite-plugin-vue-setup-extend": "^0.4.0",
+    "vue": "^3.3.4"
+  },
+  "dependencies": {
+    "ant-design-vue": "^3.2.20",
+    "jetlinks-ui-components": "^1.0.20"
+  }
+}

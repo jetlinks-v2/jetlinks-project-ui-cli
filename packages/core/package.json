@@ -1,0 +1,23 @@
+{
+  "name": "@jetlinks/core",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.ts",
+  "module": "index.ts",
+  "scripts": {
+    "clean": "pnpm rimraf node_modules && pnpm rimraf dist && pnpm rimraf .turbo"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@jetlinks/constants": "workspace:^",
+    "@jetlinks/router": "workspace:^",
+    "@jetlinks/types": "workspace:^",
+    "@jetlinks/utils": "workspace:^",
+    "@types/lodash-es": "^4.17.7",
+    "axios": "^1.4.0",
+    "jetlinks-ui-components": "^1.0.20",
+    "lodash-es": "^4.17.21"
+  }
+}
