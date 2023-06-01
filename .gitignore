@@ -10,7 +10,6 @@ pnpm-lock.yaml
 .history
 .pnp
 .pnp.js
-apps
 
 # testing
 coverage
