@@ -16,6 +16,7 @@
   "dependencies": {
     "@types/lodash-es": "^4.17.7",
     "jetlinks-ui-components": "^1.0.20",
-    "lodash-es": "^4.17.21"
+    "lodash-es": "^4.17.21",
+    "vue": "^3.3.4"
   }
 }

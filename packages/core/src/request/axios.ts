@@ -121,7 +121,7 @@ export class Axios {
     return Promise.reject(err)
   }
 
-  post<T = any>(url: string, data: undefined, ext?: any) {
+  post<T = any>(url: string, data: any = undefined, ext?: any) {
     return (this.axiosInstance<any, AxiosResponseRewrite<T>>({
       method: 'POST',
       url,
@@ -130,7 +130,7 @@ export class Axios {
     }))
   }
 
-  poetParams<T = any>(url: string, data: undefined, params = {}, ext?: any) {
+  poetParams<T = any>(url: string, data: any = undefined, params = {}, ext?: any) {
     return this.axiosInstance<any, AxiosResponseRewrite<T>>({
       method: 'POST',
       url,
@@ -149,7 +149,7 @@ export class Axios {
     })
   }
 
-  put<T = any>(url: string, data = {}, ext?: any) {
+  put<T = any>(url: string, data: any = undefined, ext?: any) {
     return this.axiosInstance<any, AxiosResponseRewrite<T>>({
       method: 'PUT',
       url,
@@ -158,7 +158,7 @@ export class Axios {
     })
   }
 
-  patch<T = any>(url: string, data = {}, ext?: any) {
+  patch<T = any>(url: string, data: any = undefined, ext?: any) {
     return this.axiosInstance<any, AxiosResponseRewrite<T>>({
       method: 'patch',
       url,
@@ -167,7 +167,7 @@ export class Axios {
     })
   }
 
-  remove<T = any>(url: string, params = {}, ext?: any) {
+  remove<T = any>(url: string, params: any = undefined, ext?: any) {
     return this.axiosInstance<any, AxiosResponseRewrite<T>>({
       method: 'DELETE',
       url,
@@ -184,7 +184,7 @@ export class Axios {
     return this.poetParams(url, data, params, { responseType: 'arraybuffer' })
   }
 
-  showNotification(description, key?: string | number, show: boolean = true) {
+   private showNotification(description, key?: string | number, show: boolean = true) {
     if (show) {
       Notification.error({
         key,
