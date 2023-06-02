@@ -58,16 +58,16 @@ const PermissionButton = defineComponent({
 
       const button = !slots.button ?
         h(Button, {...buttonProps, disabled: isPermission.value }, {
-          default: slots?.default(),
-          icon: slots?.icon?.()
+          default: () => slots?.default(),
+          icon: () => slots?.icon?.()
         }) :
         slots.button()
 
       // 文字提示
-      const _tooltip = tooltip ? h(Tooltip, { ...tooltip, disabled: isPermission.value }, [button]) : undefined
+      const _tooltip = tooltip ? h(Tooltip, { ...tooltip, disabled: isPermission.value }, { default: () => button}) : undefined
 
       // 无权限
-      const noPermissionButton = !permission.value ? h(Tooltip, { title: '暂无权限，请联系管理员' }, [button]) : undefined
+      const noPermissionButton = !permission.value ? h(Tooltip, { title: '暂无权限，请联系管理员' }, { default: () => button}) : undefined
 
       // 二次确认
       const _popConfirm = popConfirm ?
@@ -76,7 +76,7 @@ const PermissionButton = defineComponent({
             ...popConfirm,
             disabled: !permission.value || buttonProps.disabled,
             overlayStyle: { width: '220px' }
-          }, [ tooltip ? _tooltip : button  ])
+          }, { default: () => tooltip ? _tooltip : button })
         : undefined
 
       if (permission.value) {

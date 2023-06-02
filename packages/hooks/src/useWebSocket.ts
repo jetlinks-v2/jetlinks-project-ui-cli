@@ -1,4 +1,4 @@
-import { onUnmounted, ref} from 'vue'
+import { onBeforeUnmount, ref} from 'vue'
 import type { Ref } from 'vue'
 import { getWebSocket } from '@jetlinks/core'
 import { randomString } from '@jetlinks/utils'
@@ -15,7 +15,7 @@ interface WebSocketOptions<T> {
 export const useWebSocket = <T = any>(
   options?: WebSocketOptions<T>
 ): {
-  data: Ref<T>,
+  data: Ref<T | undefined>,
   send: (msg: Record<string, any>) => void
   unSubscribe: () => void
 } => {
@@ -52,7 +52,7 @@ export const useWebSocket = <T = any>(
     ws?.unsubscribe?.()
   }
 
-  onUnmounted(() => {
+  onBeforeUnmount(() => {
     unSubscribe()
   })
 
