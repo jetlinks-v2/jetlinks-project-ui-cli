@@ -12,6 +12,7 @@
   "license": "ISC",
   "dependencies": {
     "@jetlinks/router": "workspace:^",
+    "@vueuse/core": "^10.1.2",
     "ant-design-vue": "^3.2.20",
     "jetlinks-ui-components": "^1.0.20",
     "lodash-es": "^4.17.21",
