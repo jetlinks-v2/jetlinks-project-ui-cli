@@ -1,7 +1,4 @@
 import type { App } from 'vue'
-export { default as BlankLayoutPage} from './layout/BlankLayoutPage.vue'
-export { default as Iframe} from './layout/Iframe.vue'
-export { default as BasicLayoutPage} from './layout/BasicLayoutPage.vue'
 
 import FullPage from './FullPage/index.vue'
 import PermissionButton from './PermissionButton/index'
