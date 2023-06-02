@@ -8,15 +8,13 @@ export const usePermission = (code?: string | string[] | boolean): {
 } => {
   const hasPerm = ref(false)
 
-  computed(() => {
+  const init = () => {
     if (code) {
-      if (isBoolean(code)) {
-        hasPerm.value = code
-      } else {
-        hasPerm.value = store.AuthStore.hasPermission(code)
-      }
+      hasPerm.value = isBoolean(code) ? code : store.AuthStore.hasPermission(code)
     }
-  })
+  }
+
+  init()
 
   return {
     hasPerm
