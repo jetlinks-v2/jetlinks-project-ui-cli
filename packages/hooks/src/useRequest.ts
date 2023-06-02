@@ -16,6 +16,14 @@ interface RequestOptions<T> {
      * @returns 
      */
     formatName: string | [string]
+    /**
+     * 防抖， 使用后 polling 属性将失效
+     */
+    debounce?: number | boolean
+    /**
+     * 轮询, 使用后 debounce 属性将失效
+     */
+    polling?: number | boolean
 }
 
 const defaultOptions: any = {

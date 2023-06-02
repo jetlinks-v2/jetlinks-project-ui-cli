@@ -15,14 +15,19 @@ interface Http2ProxyOptions {
     rewrite?: (url: string) => string
     headers?: Record<string, number | string | string[] | undefined>
     secure?: boolean
+    changeOrigin?: boolean,
+    ws?: string
   }
 }
 
 const createHttp2Proxy = (list: ProxyList = []) => {
     const ret: Http2ProxyOptions = {}
     for (const [prefix, target] of list) {
+      const wsUrl = target.replace('http', 'ws')
       ret[`^${prefix}`] = {
         target,
+        changeOrigin: true,
+        ws: wsUrl,
         rewrite: (path) => path.replace(new RegExp(`^${prefix}`), ''),
       }
     }

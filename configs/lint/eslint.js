@@ -21,6 +21,9 @@ module.exports = {
       'plugin:@typescript-eslint/recommended',
       'plugin:prettier/recommended',
     ],
+    globals: {
+      NodeJS: 'readonly'
+    },
     rules: {
       'prettier/prettier': 'off',
       'no-unused-vars': 'off',
@@ -72,4 +75,3 @@ module.exports = {
       'vue/multi-word-component-names': 'off',
     },
   }
-  

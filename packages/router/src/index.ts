@@ -3,9 +3,6 @@ import { getToken, removeToken } from '@jetlinks/utils'
 import {
   BasicRoutes,
   LOGIN_ROUTE,
-  ACCOUNT_CENTER_BIND_ROUTE,
-  OAUTH_ROUTE,
-  INIT_HOME_ROUTE,
   NOT_FIND_ROUTE
 } from './routes'
 import { assign } from 'lodash-es'
@@ -19,9 +16,21 @@ interface Store {
     AuthStore?: any
 }
 
+interface RouteOptions {
+  tokenFilter?: string[]
+  /**
+   * 刷新页面不需要请求菜单
+   */
+  filterPath?: string[]
+}
+
 export const store: Store = {}
 
-export const initRoute = (): Router => {
+let TokenFilterRoute: string[] = []
+
+let FilterPath: string[] = []
+
+export const initRoute = (options?: RouteOptions): Router => {
     router = createRouter({
         history: createWebHashHistory(),
         routes: BasicRoutes,
@@ -29,6 +38,10 @@ export const initRoute = (): Router => {
             return savedPosition || { top: 0 }
         }
     })
+
+    TokenFilterRoute = options?.tokenFilter || []
+    FilterPath = options?.filterPath || []
+
     return router
 }
 
@@ -47,11 +60,6 @@ export const initRouteAssignStore = (s: Store) => {
     assign(store, s)
 }
 
-const TokenFilterRoute = [
-    ACCOUNT_CENTER_BIND_ROUTE.path,
-    OAUTH_ROUTE.path
-]
-
 const NoTokenJump = (to: any, next: any, isLogin: boolean) => {
     // 登录页，不需要token 的页面直接放行，否则跳转登录页
     if (isLogin || TokenFilterRoute.includes(to.path)) {
@@ -63,14 +71,15 @@ const NoTokenJump = (to: any, next: any, isLogin: boolean) => {
 
 const getRoutesByServer = async (to: any, next: any) => {
     const { UserInfoStore, SystemStore, MenuStore } = store
-    const FilterPath = [ INIT_HOME_ROUTE.path ]
+
     if (!Object.keys(UserInfoStore.userInfo).length) { // 是否有用户信息
       await UserInfoStore.getUserInfo()
       //
       await SystemStore.queryInfo()
     }
-  // 没有菜单的情况下获取菜单
-    if (!MenuStore.menu.length && !FilterPath.includes(to.path)) {
+
+    // 没有菜单的情况下获取菜单
+    if (!MenuStore.menu.length && !FilterPath.includes(to.path as string)) {
         //
         await MenuStore.queryMenus()
         if (!MenuStore.menu) { // 请求之后还是没有页面，跳转异常处理页面

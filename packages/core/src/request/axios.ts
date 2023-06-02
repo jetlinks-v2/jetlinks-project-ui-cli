@@ -140,7 +140,7 @@ export class Axios {
     })
   }
 
-  get<T = any>(url: string, params = {}, ext?: any) {
+  get<T = any>(url: string, params: any = undefined, ext?: any) {
     return this.axiosInstance<any, AxiosResponseRewrite<T>>({
       method: 'GET',
       url,
