@@ -10,7 +10,9 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@jetlinks/core": "workspace:^",
     "@jetlinks/types": "workspace:^",
+    "@jetlinks/utils": "workspace:^",
     "@types/lodash-es": "^4.17.7",
     "lodash-es": "^4.17.21",
     "vue": "^3.3.4",

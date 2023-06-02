@@ -1,0 +1,64 @@
+import { onUnmounted, ref} from 'vue'
+import type { Ref } from 'vue'
+import { getWebSocket } from '@jetlinks/core'
+import { randomString } from '@jetlinks/utils'
+import {debounce, isNumber, throttle} from 'lodash-es'
+
+interface WebSocketOptions<T> {
+  onMessage?: (data: T) => void
+
+  debounce?: number | boolean
+
+  throttle?: number | boolean
+}
+
+export const useWebSocket = <T = any>(
+  options?: WebSocketOptions<T>
+): {
+  data: Ref<T>,
+  send: (msg: Record<string, any>) => void
+  unSubscribe: () => void
+} => {
+
+  const data = ref<T>()
+  const id = randomString()
+  let ws: any = null
+
+  const handleMsg = (msgData: T) => {
+    data.value = msgData
+    options?.onMessage?.(msgData)
+  }
+
+  const debounceMsg = debounce(handleMsg, isNumber(options?.debounce) ? options?.debounce : 300)
+
+  const throttleMsg = throttle(handleMsg, isNumber(options?.throttle) ? options?.throttle : 300)
+  /**
+   * 消息发送
+   * @param msg
+   */
+  const send = (msg: Record<string, any>) => {
+    ws = getWebSocket(id, msg)
+
+    if (options?.throttle) {
+      ws.subscribe(throttleMsg)
+    } else if (options?.debounce) {
+      ws.subscribe(debounceMsg)
+    } else {
+      ws.subscribe((msgData: any) => handleMsg(msgData))
+    }
+  }
+
+  const unSubscribe = () => {
+    ws?.unsubscribe?.()
+  }
+
+  onUnmounted(() => {
+    unSubscribe()
+  })
+
+  return {
+    data,
+    send,
+    unSubscribe
+  }
+}
