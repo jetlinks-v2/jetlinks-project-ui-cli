@@ -20,9 +20,11 @@
       </div>
     </template>
 
-    <router-view v-slot="{ Component }">
-      <component :is="Component" />
-    </router-view>
+      <router-view v-slot="{ Component }">
+        <keep-alive>
+          <component :is="components || Component" />
+        </keep-alive>
+      </router-view>
   </j-pro-layout>
 </template>
 
@@ -31,7 +33,7 @@ import { store } from '@jetlinks/router'
 import { clearMenuItem } from 'jetlinks-ui-components/es/ProLayout/util';
 import { reactive, computed, watchEffect } from 'vue'
 import { User } from './components'
-import { useRouter } from '@jetlinks/router'
+import { useRouter, useRoute } from '@jetlinks/router'
 
 type StateType = {
   collapsed: boolean;
@@ -41,6 +43,10 @@ type StateType = {
 };
 
 const router = useRouter();
+const route = useRoute();
+
+const components = computed(() => route.matched[route.matched.length - 1]?.components?.default)
+console.log(route)
 
 const config = reactive({
   theme: store.SystemStore.theme,
@@ -84,7 +90,7 @@ const jumpPage = (route: { path: string}) => {
 }
 
 /**
- * 处理菜单状态
+ * 处理菜单选中，展开状态
  */
 watchEffect(() => {
   if (router.currentRoute) {
