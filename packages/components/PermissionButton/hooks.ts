@@ -1,4 +1,4 @@
-import {computed, ref} from 'vue'
+import {watch, ref} from 'vue'
 import type { Ref } from 'vue'
 import { store } from '@jetlinks/router'
 import {isBoolean} from "lodash-es";
@@ -8,13 +8,11 @@ export const usePermission = (code?: string | string[] | boolean): {
 } => {
   const hasPerm = ref(false)
 
-  const init = () => {
+  watch(() => code, () => {
     if (code) {
       hasPerm.value = isBoolean(code) ? code : store.AuthStore.hasPermission(code)
     }
-  }
-
-  init()
+  }, { immediate: true })
 
   return {
     hasPerm
