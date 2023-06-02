@@ -54,30 +54,31 @@ const PermissionButton = defineComponent({
     const hasPopConfirm = computed(() => !!popConfirm) // 是否包含确认弹窗
     const hasTooltip = computed(() => !!tooltip) // 是否包含文字提示
 
-    const button = !slots.button ?
-      h(Button, {...buttonProps, disabled: isPermission.value }, {
-        default: slots?.default(),
-        icon: slots?.icon?.()
-      }) :
-      slots.button()
-
-    // 文字提示
-    const _tooltip = tooltip ? h(Tooltip, { ...tooltip, disabled: isPermission.value }, [button]) : undefined
-
-    // 无权限
-    const noPermissionButton = !permission.value ? h(Tooltip, { title: '暂无权限，请联系管理员' }, [button]) : undefined
-
-    // 二次确认
-    const _popConfirm = popConfirm ?
-      h(Popconfirm,
-        {
-          ...popConfirm,
-          disabled: !permission.value || buttonProps.disabled,
-          overlayStyle: { width: '220px' }
-        }, [ tooltip ? _tooltip : button  ])
-      : undefined
-
     return () => {
+
+      const button = !slots.button ?
+        h(Button, {...buttonProps, disabled: isPermission.value }, {
+          default: slots?.default(),
+          icon: slots?.icon?.()
+        }) :
+        slots.button()
+
+      // 文字提示
+      const _tooltip = tooltip ? h(Tooltip, { ...tooltip, disabled: isPermission.value }, [button]) : undefined
+
+      // 无权限
+      const noPermissionButton = !permission.value ? h(Tooltip, { title: '暂无权限，请联系管理员' }, [button]) : undefined
+
+      // 二次确认
+      const _popConfirm = popConfirm ?
+        h(Popconfirm,
+          {
+            ...popConfirm,
+            disabled: !permission.value || buttonProps.disabled,
+            overlayStyle: { width: '220px' }
+          }, [ tooltip ? _tooltip : button  ])
+        : undefined
+
       if (permission.value) {
         if(hasPopConfirm.value) {
           return _popConfirm
