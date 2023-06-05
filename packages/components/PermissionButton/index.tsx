@@ -34,7 +34,7 @@ const PermissionButton = defineComponent({
   props: definedProps,
   setup(props, { slots }) {
 
-    const { popConfirm, tooltip, hasPermission, ...buttonProps } = props
+    const { popConfirm, tooltip } = props
     const { hasPerm } = usePermission(props.hasPermission as PermissionType)
 
     const permission = computed(() => {
@@ -55,7 +55,7 @@ const PermissionButton = defineComponent({
     const hasTooltip = computed(() => !!tooltip) // 是否包含文字提示
 
     return () => {
-
+      const { popConfirm, tooltip, hasPermission, ...buttonProps } = props
       const button = !slots.button ?
         h(Button, {...buttonProps, disabled: isPermission.value }, {
           default: () => slots?.default(),
