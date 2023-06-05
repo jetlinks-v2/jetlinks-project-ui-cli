@@ -16,15 +16,15 @@
     "@jetlinks/utils": "workspace:^",
     "@vitejs/plugin-vue": "^4.2.3",
     "@vitejs/plugin-vue-jsx": "^3.0.1",
-    "dayjs": "^1.11.7",
-    "dotenv": "^16.0.3",
+    "dayjs": "^1.11.8",
+    "dotenv": "^16.1.4",
     "pkg-types": "^1.0.3",
-    "rollup": "^3.23.0",
+    "rollup": "^3.23.1",
     "rollup-plugin-visualizer": "^5.9.0",
     "tsconfig": "workspace:*",
-    "typescript": "^5.0.4",
-    "unocss": "^0.52.4",
-    "unplugin-auto-import": "^0.16.2",
+    "typescript": "^5.1.3",
+    "unocss": "^0.52.7",
+    "unplugin-auto-import": "^0.16.4",
     "unplugin-vue-components": "^0.24.1",
     "vite": "^4.3.9",
     "vite-plugin-http2-proxy": "^0.4.1",
@@ -36,6 +36,6 @@
   },
   "dependencies": {
     "ant-design-vue": "^3.2.20",
-    "jetlinks-ui-components": "^1.0.20"
+    "jetlinks-ui-components": "^1.0.21"
   }
 }

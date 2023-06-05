@@ -14,10 +14,10 @@
     "@jetlinks/router": "workspace:^",
     "@vueuse/core": "^10.1.2",
     "ant-design-vue": "^3.2.20",
-    "jetlinks-ui-components": "^1.0.20",
+    "jetlinks-ui-components": "^1.0.21",
     "lodash-es": "^4.17.21",
     "pinia": "^2.1.3",
     "vue": "^3.3.4",
-    "vue-router": "^4.2.1"
+    "vue-router": "^4.2.2"
   }
 }

@@ -18,7 +18,7 @@
     "@types/lodash-es": "^4.17.7",
     "@types/node": "^20.2.5",
     "axios": "^1.4.0",
-    "jetlinks-ui-components": "^1.0.20",
+    "jetlinks-ui-components": "^1.0.21",
     "lodash-es": "^4.17.21",
     "rxjs": "^7.8.1"
   }
