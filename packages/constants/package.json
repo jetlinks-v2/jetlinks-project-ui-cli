@@ -5,6 +5,10 @@
   "main": "index.ts",
   "module": "index.ts",
   "keywords": [],
+  "files": [
+    "src",
+    "index.ts"
+  ],
   "author": "",
   "license": "ISC"
 }

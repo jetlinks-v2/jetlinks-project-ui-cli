@@ -8,6 +8,10 @@
     "clean": "pnpm rimraf node_modules && pnpm rimraf dist && pnpm rimraf .turbo"
   },
   "keywords": [],
+  "files": [
+    "src",
+    "index.ts"
+  ],
   "author": "",
   "license": "ISC",
   "devDependencies": {

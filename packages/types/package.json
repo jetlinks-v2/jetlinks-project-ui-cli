@@ -8,6 +8,12 @@
     "clean": "pnpm rimraf node_modules && pnpm rimraf .turbo"
   },
   "keywords": [],
+  "files": [
+    "src",
+    "shims",
+    "index.ts",
+    "tsconfig.json"
+  ],
   "author": "",
   "license": "ISC",
   "dependencies": {
