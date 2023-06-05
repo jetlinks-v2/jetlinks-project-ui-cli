@@ -10,12 +10,12 @@ export const getImage = (path: string) => {
 
 /**
  * 单个message提示，根据类型只提示一次
- * @param message
+ * @param msg
  * @param type
  */
-export const onlyMessage = ( message: string, type: 'success' | 'error' | 'warning' = 'success') => {
+export const onlyMessage = ( msg: string, type: 'success' | 'error' | 'warning' = 'success') => {
   message[type]({
-    content: message,
+    content: msg,
     key: type
   })
 }
