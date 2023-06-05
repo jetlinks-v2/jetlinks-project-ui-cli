@@ -3,6 +3,7 @@ import type { App } from 'vue'
 import FullPage from './FullPage/index.vue'
 import PermissionButton from './PermissionButton/index'
 import { PageContainer, AIcon } from 'jetlinks-ui-components'
+import BadgeStatus from './BadgeStatus'
 
 export default {
   install(app: App) {
@@ -10,5 +11,6 @@ export default {
       .component('AIcon', AIcon)
       .component('PermissionButton', PermissionButton)
       .component('FullPage', FullPage)
+      .component('BadgeStatus', BadgeStatus)
   }
 }
