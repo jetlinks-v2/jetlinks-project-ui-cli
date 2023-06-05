@@ -1,4 +1,4 @@
-import { ref, onBeforeUnmount } from 'vue'
+import { ref, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
 import type { Ref } from 'vue'
 
@@ -12,7 +12,7 @@ export const userRouterParams = (): {params: Ref<Record<string, any>>, setParams
     const routerName = router.currentRoute.value.name as string
     params.value = routerParams.code === routerName ? routerParams.value : {}
 
-    onBeforeUnmount(() => {
+    onUnmounted(() => {
         if (routerName && routerParams.code) {
             params.value = {}
         }

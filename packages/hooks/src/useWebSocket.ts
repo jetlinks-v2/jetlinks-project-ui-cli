@@ -16,12 +16,11 @@ export const useWebSocket = <T = any>(
   options?: WebSocketOptions<T>
 ): {
   data: Ref<T | undefined>,
-  send: (msg: Record<string, any>) => void
+  send: (id: string, topic: string, parameter?: Record<string, any>) => void
   unSubscribe: () => void
 } => {
 
   const data = ref<T>()
-  const id = randomString()
   let ws: any = null
 
   const handleMsg = (msgData: T) => {
@@ -34,10 +33,12 @@ export const useWebSocket = <T = any>(
   const throttleMsg = throttle(handleMsg, isNumber(options?.throttle) ? options?.throttle : 300)
   /**
    * 消息发送
-   * @param msg
+   * @param id {String}
+   * @param topic {String}
+   * @param parameter {Object}
    */
-  const send = (msg: Record<string, any>) => {
-    ws = getWebSocket(id, msg)
+  const send = (id: string, topic: string ,parameter?: Record<string, any>) => {
+    ws = getWebSocket(id, topic, parameter)
 
     if (options?.throttle) {
       ws.subscribe(throttleMsg)

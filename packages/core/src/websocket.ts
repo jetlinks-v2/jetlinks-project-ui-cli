@@ -85,7 +85,7 @@ function createWebSocket() {
   }
 
   if (!ws) {
-
+    console.log(webSocketUrl)
     ws = new WebSocket(webSocketUrl)
 
     ws.onopen = () => {
@@ -125,6 +125,7 @@ function createWebSocket() {
           })
         }
       }
+
     }
 
     ws.onclose = () => {
@@ -136,8 +137,8 @@ function createWebSocket() {
   return ws
 }
 
-export const getWebSocket = (id: string, data: Record<string, any>) => new Observable(subscriber => {
-  if (subs[id]) {
+export const getWebSocket = (id: string, topic: string, parameter: Record<string, any> = {}) => new Observable(subscriber => {
+  if (!subs[id]) {
     subs[id] = []
   }
 
@@ -150,7 +151,7 @@ export const getWebSocket = (id: string, data: Record<string, any>) => new Obser
     }
   })
 
-  const msg = JSON.stringify({...data, type: 'sub'})
+  const msg = JSON.stringify({id, topic, parameter, type: 'sub'})
   const thatWs = createWebSocket()
   if (thatWs) {
     if (thatWs.readyState === WebSocket.OPEN) {
