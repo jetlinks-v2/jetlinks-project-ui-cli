@@ -1,5 +1,5 @@
 {
-  "name": "@config/lint",
+  "name": "@jetlinks/lint",
   "version": "1.0.0",
   "description": "",
   "scripts": {
@@ -30,7 +30,7 @@
     "less": "^4.1.3",
     "pkg-types": "^1.0.3",
     "rollup-plugin-visualizer": "^5.9.0",
-    "tsconfig": "workspace:*",
+    "@jetlinks/tsconfig": "workspace:*",
     "vite": "^4.3.9",
     "vite-plugin-monaco-editor": "^1.1.0"
   }

@@ -1,1 +1,1 @@
-module.exports = require('@config/lint/lintstaged')
+module.exports = require('@jetlinks/lint/lintstaged')

@@ -2,7 +2,6 @@ import { green, red } from "picocolors";
 import { load as yamlLoad } from "js-yaml";
 import { readFile } from "fs-extra";
 import { IGNORE_WORKSPACE } from "./constant";
-// import minimist = require('minimist')
 import minimist from "minimist";
 import { execa } from "execa";
 

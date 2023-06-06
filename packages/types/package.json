@@ -5,7 +5,7 @@
   "main": "index.ts",
   "module": "index.ts",
   "scripts": {
-    "clean": "pnpm rimraf node_modules && pnpm rimraf .turbo"
+    "clean": "pnpm rimraf .turbo"
   },
   "keywords": [],
   "files": [
