@@ -48,7 +48,7 @@ export async function configVitePlugins(
     }),
   ];
 
-  // vitePlugins.push(createConfigPlugin()); //window undefined 问题
+  vitePlugins.push(createConfigPlugin());
 
   // rollup-plugin-visualizer 需要时再开启
   // vitePlugins.push(configVisualizerConfig())

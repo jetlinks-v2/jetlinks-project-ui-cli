@@ -76,10 +76,10 @@ const createConfig = (params: Options) => {
 
 export const runBuildConfig = () => {
   const config = getEnvConfig();
-  const configFileName = getAppConfigFileName(config);
+  // const configFileName = getAppConfigFileName(config);
   createConfig({
     config,
-    configName: configFileName,
+    configName: '__PRODUCTION__JetLinks-Admin__APP__CONF__',
     configFileName: GLOB_CONFIG_FILE_NAME,
   });
 };

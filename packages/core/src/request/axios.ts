@@ -130,7 +130,7 @@ export class Axios {
     }))
   }
 
-  poetParams<T = any>(url: string, data: any = undefined, params = {}, ext?: any) {
+  postParams<T = any>(url: string, data: any = undefined, params = {}, ext?: any) {
     return this.axiosInstance<any, AxiosResponseRewrite<T>>({
       method: 'POST',
       url,
@@ -181,7 +181,7 @@ export class Axios {
   }
 
   postStream(url: string, data: any, params: any) {
-    return this.poetParams(url, data, params, { responseType: 'arraybuffer' })
+    return this.postParams(url, data, params, { responseType: 'arraybuffer' })
   }
 
    private showNotification(description, key?: string | number, show: boolean = true) {

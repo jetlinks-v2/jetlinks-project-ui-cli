@@ -7,6 +7,9 @@ export interface ViteEnv {
   VITE_PROXY: [string, string][];
   VITE_GLOB_APP_TITLE: string;
   VITE_USE_HTTPS: boolean;
+
+  VITE_DROP_CONSOLE: boolean
+  VITE_GLOB_APP_SHORT_NAME: string
 }
 
 const handleRealName = (name: any): any => {

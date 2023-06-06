@@ -1,6 +1,5 @@
 import { notification } from 'jetlinks-ui-components'
 import { Observable } from 'rxjs'
-import {isObject, isString} from "lodash-es";
 
 let webSocketUrl = ''
 let ws: WebSocket | null = null // websocket实例
