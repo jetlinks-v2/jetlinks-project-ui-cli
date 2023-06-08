@@ -93,7 +93,10 @@ const matchComponents: IMatcher[] = [
     pattern: /^Menu|^SubMenu/,
     styleDir: 'Menu'
   },
-
+  {
+    pattern: /^TableCard/,
+    styleDir: 'TableCard'
+  },
   {
     pattern: /^Table/,
     styleDir: 'Table'
@@ -182,10 +185,6 @@ const matchComponents: IMatcher[] = [
   {
     pattern: /^ScrollTable/,
     styleDir: 'ScrollTable'
-  },
-  {
-    pattern: /^TableCard/,
-    styleDir: 'TableCard'
   },
   {
     pattern: /^Scrollbar/,
@@ -332,13 +331,12 @@ export function JetlinksVueResolver(options: JetlinksVueResolverOptions = {}): a
       }
       const _isJetlinks = isJetlinks(name)
       const _isAntd = isAntdv(name)
-      console.log('stylePath ======',name, _isAntd)
+      console.log('stylePath ======',name, _isJetlinks, _isAntd, !options?.exclude?.includes(name))
       if ((_isJetlinks || _isAntd) && !options?.exclude?.includes(name)) {
         const importName = filterName.includes(name) ? name : name.slice(1)
         options.packageName = _isJetlinks ? 'jetlinks-ui-components' : 'ant-design-vue'
         const path = `${options.packageName}/${options.cjs ? 'lib' : 'es'}`
         const stylePath = getSideEffects(importName, options, _isAntd)
-
         return {
           name: importName,
           from: path,
