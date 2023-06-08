@@ -5,6 +5,7 @@ import PermissionButton from './src/PermissionButton/index'
 import BadgeStatus from './src/BadgeStatus'
 
 import { PageContainer, AIcon } from 'jetlinks-ui-components'
+import { InitAMap } from './src/AMap'
 
 export default {
   install(app: App) {
@@ -13,5 +14,6 @@ export default {
       .component('PermissionButton', PermissionButton)
       .component('FullPage', FullPage)
       .component('BadgeStatus', BadgeStatus)
+      .component('InitAmap', InitAMap)
   }
 }

@@ -1,6 +1,6 @@
 import {watch, ref} from 'vue'
 import type { Ref } from 'vue'
-import { store } from '@jetlinks/router'
+import { store } from '@jetlinks/stores'
 import {isBoolean} from "lodash-es";
 
 export const usePermission = (code?: string | string[] | boolean): {

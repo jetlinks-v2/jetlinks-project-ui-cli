@@ -7,6 +7,7 @@ import VueSetupExtend from "vite-plugin-vue-setup-extend";
 import AutoImport from "unplugin-auto-import/vite";
 import Components from 'unplugin-vue-components/vite'
 import { createStyleImportPlugin, AndDesignVueResolve } from 'vite-plugin-style-import'
+import { VueAmapResolver } from '@vuemap/unplugin-resolver'
 
 import { configVisualizerConfig } from "./visualizer";
 import { createConfigPlugin } from "./config";
@@ -31,12 +32,13 @@ export async function configVitePlugins(
     AutoImport({
       imports: ["vue", "vue-router"],
       dts: "src/auto-imports.d.ts",
+      resolvers: [VueAmapResolver()]
     }),
 
     optimizeDeps(),
 
     Components({
-        resolvers: [JetlinksVueResolver({ importStyle: 'less' })],
+        resolvers: [JetlinksVueResolver({ importStyle: 'less' }), VueAmapResolver()],
         directoryAsNamespace: true
     }),
 

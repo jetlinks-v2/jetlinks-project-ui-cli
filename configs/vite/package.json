@@ -3,7 +3,6 @@
   "version": "1.0.0",
   "description": "",
   "main": "dist/index.cjs",
-
   "module": "dist/index.d.ts",
   "scripts": {
     "prepack": "pnpm unbuild --stub",
@@ -18,15 +17,16 @@
   "author": "",
   "license": "ISC",
   "devDependencies": {
+    "@jetlinks/tsconfig": "workspace:*",
     "@jetlinks/utils": "workspace:^",
     "@vitejs/plugin-vue": "^4.2.3",
     "@vitejs/plugin-vue-jsx": "^3.0.1",
+    "@vuemap/unplugin-resolver": "^2.0.0",
     "dayjs": "^1.11.8",
     "dotenv": "^16.1.4",
     "pkg-types": "^1.0.3",
     "rollup": "^3.23.1",
     "rollup-plugin-visualizer": "^5.9.0",
-    "@jetlinks/tsconfig": "workspace:*",
     "typescript": "^5.1.3",
     "unocss": "^0.52.7",
     "unplugin-auto-import": "^0.16.4",

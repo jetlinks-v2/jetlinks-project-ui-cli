@@ -8,3 +8,5 @@ export function setupPinia(app: App) {
 }
 
 export * from 'pinia'
+
+export * from './global'

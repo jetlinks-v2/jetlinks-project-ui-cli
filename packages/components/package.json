@@ -15,7 +15,9 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@jetlinks/router": "workspace:^",
+    "@jetlinks/stores": "workspace:^",
+    "@jetlinks/utils": "workspace:^",
+    "@vuemap/vue-amap": "^2.0.13",
     "@vueuse/core": "^10.1.2",
     "ant-design-vue": "^3.2.20",
     "jetlinks-ui-components": "^1.0.21",
