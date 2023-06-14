@@ -5,7 +5,11 @@
   >
     <el-amap
       v-if="amapKey"
-      v-bind="$attrs"
+      v-bind="{
+        ...props,
+        ...$attrs
+      }"
+      :map-style="_mapStyle"
       @init="initMap"
       @click="(e) => emit('click', e)"
       @dblclick="(e) => emit('dblclick', e)"
@@ -43,7 +47,14 @@ const systemStore = store.SystemStore
 
 const amapKey = systemStore.systemInfo.apiKey
 
-const emit = defineEmits(['initMap', 'click', 'dblclick', 'movestart', 'moveend', 'rightclick'])
+const emit = defineEmits([
+  'initMap',
+  'click',
+  'dblclick',
+  'movestart',
+  'moveend',
+  'rightclick',
+])
 
 const props = defineProps({
   ...MapProps(),
@@ -57,6 +68,10 @@ const props = defineProps({
     default: [3, 20]
   }
 });
+
+const _mapStyle = computed(() => {
+  return props.mapStyle ? `amap://styles/${props.mapStyle}` : undefined
+})
 
 initAMapApiLoader({
   key: amapKey || '',
