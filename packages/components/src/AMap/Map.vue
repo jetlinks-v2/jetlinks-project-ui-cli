@@ -3,7 +3,16 @@
     :style="props.style || { width: '100%', height: '100%' }"
     :class="props.class"
   >
-    <el-amap v-if="amapKey" :zooms="[3, 20]" @init="initMap" ref="mapRef">
+    <el-amap
+      v-if="amapKey"
+      v-bind="$attrs"
+      @init="initMap"
+      @click="(e) => emit('click', e)"
+      @dblclick="(e) => emit('dblclick', e)"
+      @movestart="(e) => emit('movestart', e)"
+      @moveend="(e) => emit('moveend', e)"
+      @rightclick="(e) => emit('rightclick', e)"
+    >
       <template v-if="isOpenUi">
         <template v-if="uiLoading">
           <slot></slot>
@@ -22,6 +31,7 @@ import { initAMapApiLoader, ElAmap } from '@vuemap/vue-amap';
 import '@vuemap/vue-amap/dist/style.css';
 import { store } from '@jetlinks/stores'
 import { getAMapUiPromise } from '@jetlinks/utils'
+import { MapProps } from './util'
 interface AMapProps {
   style?: CSSProperties;
   class?: string;
@@ -33,18 +43,25 @@ const systemStore = store.SystemStore
 
 const amapKey = systemStore.systemInfo.apiKey
 
-initAMapApiLoader({
-  key: amapKey || '',
-});
+const emit = defineEmits(['initMap', 'click', 'dblclick', 'movestart', 'moveend', 'rightclick'])
 
 const props = defineProps({
+  ...MapProps(),
   style: Object as PropType<AMapProps['style']>,
   class: String as PropType<AMapProps['class']>,
   AMapUI: [String, Boolean],
   center: Array,
+  plugin: Array,
+  zooms: {
+    type: Array,
+    default: [3, 20]
+  }
 });
 
-const mapRef = ref();
+initAMapApiLoader({
+  key: amapKey || '',
+  plugin: props.plugin
+});
 
 const uiLoading = ref<boolean>(false);
 
@@ -62,6 +79,7 @@ const getAMapUI = () => {
 
 const initMap = (e: any) => {
   map.value = e;
+  emit('initMap', e)
   if (isOpenUi.value) {
     getAMapUI();
   }
