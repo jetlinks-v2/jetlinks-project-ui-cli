@@ -7,3 +7,5 @@ export * from './util'
 export * from './amap'
 
 export * from './amap'
+
+export * from './encrypt'
