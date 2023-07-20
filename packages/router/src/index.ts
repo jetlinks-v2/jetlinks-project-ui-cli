@@ -89,7 +89,7 @@ const getRoutesByServer = async (to: any, next: any) => {
             router.addRoute('base', r)
           })
           router.addRoute('base', NOT_FIND_ROUTE)
-          next({ ...to, replace: true })
+          await next({ ...to, replace: true })
         }
     } else {
         next()
