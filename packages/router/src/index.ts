@@ -48,7 +48,9 @@ export const initRoute = (options?: RouteOptions): Router => {
 export const jumpLogin = () => {
     setTimeout(() => {
         removeToken()
-        location.href = `#${LOGIN_ROUTE.path}`
+        router.replace({
+          path: LOGIN_ROUTE.path
+        })
     })
 }
 
@@ -62,6 +64,7 @@ export const initRouteAssignStore = (s: Store) => {
 
 const NoTokenJump = (to: any, next: any, isLogin: boolean) => {
     // 登录页，不需要token 的页面直接放行，否则跳转登录页
+    console.log('createAuthRoute', TokenFilterRoute.includes(to.path), isLogin)
     if (isLogin || TokenFilterRoute.includes(to.path)) {
         next()
     } else {
@@ -103,6 +106,7 @@ export const createAuthRoute = () => {
     router.beforeEach((to, from, next) => {
         const token = getToken()
         const isLogin = to.path === LOGIN_ROUTE.path
+        console.log('createAuthRoute', token, isLogin)
         if (token) {
             if (isLogin) {
                 next({ path: '/'})
