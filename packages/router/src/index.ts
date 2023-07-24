@@ -86,7 +86,7 @@ const getRoutesByServer = async (to: any, next: any) => {
         //
         await MenuStore.queryMenus()
         if (!MenuStore.menu) { // 请求之后还是没有页面，跳转异常处理页面
-
+          next()
         } else {
           MenuStore.menu.forEach(r => {
             router.addRoute('base', r)
