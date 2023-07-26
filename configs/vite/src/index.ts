@@ -14,14 +14,15 @@ type commandType = "build" | "serve";
 export const createViteConfig = async (
   command: commandType,
   mode: string,
-  cwd: string
+  cwd: string,
+  config?: UserConfig
 ): Promise<UserConfig> => {
   const preset = "jetlinks";
   const root = cwd;
   const env = loadEnv(mode, root);
 
   const viteEnv = wrapperEnv(env);
-  const { VITE_PUBLIC_PATH, VITE_PROXY, VITE_DROP_CONSOLE, VITE_USE_HTTPS } =
+  const { VITE_PUBLIC_PATH, VITE_PROXY, VITE_DROP_CONSOLE, VITE_PORT } =
     viteEnv;
 
   const commonConfig: UserConfig = {
@@ -33,7 +34,7 @@ export const createViteConfig = async (
       },
     },
     server: {
-      port: 8080,
+      port: VITE_PORT || 8080,
       host: true,
       proxy: resolveProxy(VITE_PROXY),
     },
@@ -58,11 +59,12 @@ export const createViteConfig = async (
           },
         },
       },
+      ...(config?.build || {})
     },
     optimizeDeps: {
-      include: ["dayjs/locale/zh-cn"],
+      include: ['pinia', 'vue-router', 'axios', 'lodash-es', '@vueuse/core', 'echarts', 'dayjs', "dayjs/locale/zh-cn"],
     },
-    plugins: await configVitePlugins(root, viteEnv, command === "build"),
+    plugins: await configVitePlugins(root, viteEnv, command === "build", config?.plugins),
   };
   
   return mergeConfig(commonConfig, await createPreset(preset)());

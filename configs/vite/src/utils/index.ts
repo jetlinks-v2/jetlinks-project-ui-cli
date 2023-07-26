@@ -10,6 +10,7 @@ export interface ViteEnv {
 
   VITE_DROP_CONSOLE: boolean
   VITE_GLOB_APP_SHORT_NAME: string
+  VITE_PORT: number
 }
 
 const handleRealName = (name: any): any => {
@@ -64,7 +65,7 @@ export const resolveProxy = (proxyList: [string, string][] = []) => {
       return proxy
 }
 
-export function JetLinksVueResolve(): Lib {
+export function JetLinksStyleResolve(): Lib {
   return {
     ensureStyleFile: true,
     libraryName: 'jetlinks-ui-components',

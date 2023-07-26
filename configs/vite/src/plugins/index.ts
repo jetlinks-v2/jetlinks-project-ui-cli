@@ -1,6 +1,5 @@
 import type { PluginOption } from "vite";
 import type { ViteEnv } from "../utils";
-import { JetLinksVueResolve } from "../utils";
 import vue from "@vitejs/plugin-vue";
 import vueJsx from "@vitejs/plugin-vue-jsx";
 import VueSetupExtend from "vite-plugin-vue-setup-extend";
@@ -13,14 +12,16 @@ import { configVisualizerConfig } from "./visualizer";
 import { createConfigPlugin } from "./config";
 import { configHttpsPlugin } from "./https";
 import { optimizeDeps } from './optimize'
-import { JetlinksVueResolver } from './jetlinks'
+import { JetlinksVueResolver } from 'jetlinks-ui-components/es/plugin'
+import { JetLinksStyleResolve } from '../utils'
 
 import monacoEditorPlugin from "vite-plugin-monaco-editor";
 
 export async function configVitePlugins(
   root: string,
   viteEnv: ViteEnv,
-  isBuild: boolean
+  isBuild: boolean,
+  extraPlugins?: PluginOption[]
 ) {
   const vitePlugins: (PluginOption | PluginOption[])[] = [
     vue(),
@@ -45,7 +46,7 @@ export async function configVitePlugins(
     createStyleImportPlugin({
       resolves: [
         AndDesignVueResolve(),
-        JetLinksVueResolve()
+        JetLinksStyleResolve()
       ]
     }),
   ];
@@ -62,5 +63,8 @@ export async function configVitePlugins(
   // monacoEditorPlugin
   vitePlugins.push(monacoEditorPlugin({}));
 
+  if (extraPlugins) {
+    return vitePlugins.concat(extraPlugins)
+  }
   return vitePlugins;
 }
