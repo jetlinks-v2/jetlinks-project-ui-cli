@@ -16,6 +16,7 @@ interface RequestOptions<T> {
      * @returns 
      */
     formatName: string | [string]
+    onError: (e: any) => void
 }
 
 const defaultOptions: any = {
@@ -43,20 +44,26 @@ export const useRequest = <T = any, S = any>(
     async function run(...arg: any) {
         if (request && isFunction(request)) {
             loading.value = true
-            // @ts-ignore
-            const resp = await request.apply(this, arg).catch((err) => { 
+            try {
+              // @ts-ignore
+              const resp = await request.apply(this, arg).catch((err) => {
                 return {
-                    success: false
+                  success: false
                 }
-             })
+              })
 
-            loading.value = false
-            
-            _options.onSuccess?.(resp as any)
+              loading.value = false
 
-            if (resp?.success) {
+              _options.onSuccess?.(resp as any)
+
+              if (resp?.success) {
                 data.value = get(resp, _options.formatName!)
+              }
+            } catch (e) {
+              loading.value = false
+              _options.onError?.(e)
             }
+
         }
     }
 

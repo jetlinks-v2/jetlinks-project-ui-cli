@@ -41,6 +41,6 @@
   },
   "dependencies": {
     "ant-design-vue": "^3.2.20",
-    "jetlinks-ui-components": "^1.0.21"
+    "jetlinks-ui-components": "^1.0.26"
   }
 }
