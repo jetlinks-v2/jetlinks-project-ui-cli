@@ -9,3 +9,5 @@ export * from './amap'
 export * from './document'
 
 export * from './encrypt'
+
+export * from './regular'

@@ -1,0 +1,15 @@
+export const componentsType = {
+    int: 'inputNumber',
+    long: 'inputNumber',
+    float: 'inputNumber',
+    double: 'inputNumber',
+    string: 'input',
+    array: 'input',
+    password: 'password',
+    enum: 'select',
+    boolean: 'select',
+    date: 'date',
+    object: 'object',
+    geoPoint: 'geoPoint',
+    file: 'file',
+}
