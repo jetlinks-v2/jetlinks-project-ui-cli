@@ -49,3 +49,16 @@ export const randomString = (length: number = 32) => {
   }
   return pwd;
 };
+
+/**
+ * 转换图片为base64
+ * @param img
+ * @param callback
+ */
+export const getBase64ByImg = (img: File, callback: (base64Url: string) => void) => {
+  const reader = new FileReader();
+  reader.readAsDataURL(img);
+  reader.onload = (result: any) => {
+    callback(result.target.result)
+  }
+}
