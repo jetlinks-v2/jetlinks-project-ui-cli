@@ -61,6 +61,7 @@ export const createViteConfig = async (
       },
       ...(config?.build || {})
     },
+    css: { ...config?.css},
     optimizeDeps: {
       include: ['pinia', 'vue-router', 'axios', 'lodash-es', '@vueuse/core', 'echarts', 'dayjs', "dayjs/locale/zh-cn"],
     },
