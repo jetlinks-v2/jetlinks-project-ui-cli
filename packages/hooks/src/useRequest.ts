@@ -1,16 +1,16 @@
-import { ref } from 'vue'
+import {onUnmounted, ref} from 'vue'
 import type { Ref } from 'vue'
 import { isFunction, get } from 'lodash-es'
 import type { AxiosResponseRewrite } from '@jetlinks/types'
 
-interface RequestOptions<T> {
+interface RequestOptions<T, S> {
     immediate: boolean
     /**
      * 成功回调
      * @param data 
      * @returns 
      */
-    onSuccess: (data: T) => void
+    onSuccess: (data: AxiosResponseRewrite<S>) => S | void
     /**
      * 返回参数处理
      * @returns 
@@ -28,7 +28,7 @@ type Run = (...args: any[]) => void
 
 export const useRequest = <T = any, S = any>(
   request: (...args: any[]) => Promise<AxiosResponseRewrite<T>>,
-  options: Partial<RequestOptions<S>> = defaultOptions
+  options: Partial<RequestOptions<T, S>> = defaultOptions
 ): {
   data: Ref<S | undefined>,
   loading: Ref<boolean>,
@@ -46,18 +46,15 @@ export const useRequest = <T = any, S = any>(
             loading.value = true
             try {
               // @ts-ignore
-              const resp = await request.apply(this, arg).catch((err) => {
-                return {
-                  success: false
-                }
-              })
+              const resp = await request.apply(this, arg)
 
               loading.value = false
 
-              _options.onSuccess?.(resp as any)
-
               if (resp?.success) {
-                data.value = get(resp, _options.formatName!)
+                const successData = await _options.onSuccess?.(resp)
+                data.value = successData || get(resp, _options.formatName!)
+              } else {
+                _options.onError?.(resp)
               }
             } catch (e) {
               loading.value = false
@@ -70,6 +67,10 @@ export const useRequest = <T = any, S = any>(
     if (_options.immediate) { // 主动触发
         run()
     }
+
+    onUnmounted(() => {
+      // request()
+    })
 
     return {
         data,

@@ -102,11 +102,11 @@ const getRoutesByServer = async (to: any, next: any) => {
 /**
  * 创建动态菜单
  */
-export const createAuthRoute = () => {
+export const createAuthRoute = (beforeEachFn?: Function) => {
     router.beforeEach((to, from, next) => {
         const token = getToken()
         const isLogin = to.path === LOGIN_ROUTE.path
-        console.log('createAuthRoute', token, isLogin)
+        beforeEachFn?.(to, from, next)
         if (token) {
             if (isLogin) {
                 next({ path: '/'})

@@ -4,7 +4,6 @@ import type { UserConfig } from "vite";
 import { loadEnv, mergeConfig } from "vite";
 import { resolveProxy, wrapperEnv } from "./utils";
 import { configVitePlugins } from "./plugins";
-import { OUTPUT_DIR } from "./constants";
 import { createPreset } from "./presets";
 
 export * from "./constants";
@@ -42,7 +41,7 @@ export const createViteConfig = async (
       pure: VITE_DROP_CONSOLE ? ["console.log", "debugger"] : [],
     },
     build: {
-      outDir: OUTPUT_DIR,
+      outDir: 'dist',
       sourcemap: false,
       cssCodeSplit: false,
       manifest: true,
