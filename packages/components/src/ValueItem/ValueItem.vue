@@ -51,10 +51,7 @@
         <j-upload
           name="file"
           :action="action"
-          :headers="{
-            [TOKEN_KEY]: getToken(),
-            ...headers,
-          }"
+          :headers="headers"
           :showUploadList="false"
           @change="handleFileChange"
         >
@@ -98,10 +95,8 @@
 </template>
 
 <script setup lang="ts">
-import { getToken } from '@jetlinks/utils'
-import { CSSProperties, PropType } from 'vue'
+import { CSSProperties, PropType, ref, watch } from 'vue'
 import { componentsType } from './util'
-import { TOKEN_KEY } from '../../../constants'
 
 type Emits = {
   (e: 'update:modelValue', data: string | number | boolean): void
@@ -142,7 +137,7 @@ const props = defineProps({
 
 const typeMap = new Map(Object.entries(componentsType))
 
-const myValue = ref(undefined)
+const myValue = ref<any>(undefined)
 const modalVisible = ref<boolean>(false)
 const objectValue = ref<string>('')
 

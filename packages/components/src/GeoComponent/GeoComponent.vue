@@ -36,7 +36,7 @@
 import { store } from '@jetlinks/stores'
 import { initAMapApiLoader } from '@vuemap/vue-amap'
 import '@vuemap/vue-amap/dist/style.css'
-import { CSSProperties, PropType } from 'vue'
+import { computed, CSSProperties, PropType, ref } from 'vue'
 
 interface AMapProps {
   style?: CSSProperties
@@ -57,7 +57,7 @@ const props = defineProps({
   style: Object as PropType<AMapProps['style']>,
   class: String as PropType<AMapProps['class']>,
   AMapUI: [String, Boolean],
-  center: Array,
+  center: Array as PropType<number[]>,
   plugin: Array,
   zoom: {
     type: Number,
@@ -70,7 +70,7 @@ const emit = defineEmits<EmitProps>()
 
 
 initAMapApiLoader({
-  key: amapKey || 'a0415acfc35af15f10221bfa5a6850b4',
+  key: amapKey,
   securityJsCode: props.securityJsCode
 })
 
@@ -98,7 +98,7 @@ const handleModalSubmit = () => {
 const mapPoint = ref('')
 
 const _zoom = ref<number>(props.zoom)
-const _center = ref<number[]>(props.center)
+const _center = ref<number[]>(props?.center || [])
 let map: any = null
 
 // 地图经纬度
