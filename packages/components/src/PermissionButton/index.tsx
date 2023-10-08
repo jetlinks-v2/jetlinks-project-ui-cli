@@ -22,6 +22,9 @@ const definedProps = {
   style: {
     type: Object as PropType<CSSProperties>
   },
+  noPermissionTitle: {
+    type: String
+  },
   ...omit(buttonProps(), 'icon')
 }
 
@@ -55,10 +58,16 @@ const PermissionButton = defineComponent({
     const hasTooltip = computed(() => !!tooltip) // 是否包含文字提示
 
     return () => {
-      const { popConfirm, tooltip, hasPermission, ...buttonProps } = props
+      const { popConfirm, tooltip, hasPermission, noPermissionTitle, ...buttonProps } = props
+
       const button = !slots.button ?
-        h(Button, {...buttonProps, disabled: isPermission.value }, {
-          default: () => slots?.default(),
+        h(Button,
+          {
+            ...buttonProps,
+            disabled: isPermission.value,
+          },
+          {
+          default: () => slots?.default?.(),
           icon: () => slots?.icon?.()
         }) :
         slots.button()
@@ -67,7 +76,7 @@ const PermissionButton = defineComponent({
       const _tooltip = tooltip ? h(Tooltip, { ...tooltip, disabled: isPermission.value }, { default: () => button}) : undefined
 
       // 无权限
-      const noPermissionButton = !permission.value ? h(Tooltip, { title: '暂无权限，请联系管理员' }, { default: () => button}) : undefined
+      const noPermissionButton = !permission.value ? h(Tooltip, { title: noPermissionTitle || '暂无权限，请联系管理员' }, { default: () => button}) : undefined
 
       // 二次确认
       const _popConfirm = popConfirm ?
