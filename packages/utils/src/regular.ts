@@ -33,5 +33,8 @@ export const regular = {
   isEmail: (value: string) => regular.emailReg.test(value),
   /* 密码强度校验 必须至少包含大小写英文和数字 */
   passwordReg: /^\S*(?=\S{8,})(?=\S*\d)(?=\S*[A-Z])(?=\S*[a-z])\S*$/,
-  isPassword: (value: string) => regular.passwordReg.test(value)
+  isPassword: (value: string) => regular.passwordReg.test(value),
+  // 用于校验只允许输入英文或者数字或者-或者_
+  inputReg:/^[a-zA-Z0-9_\-]+$/,
+  isInput : (value: string) => regular.inputReg.test(value)
 }
