@@ -1,6 +1,6 @@
 {
-  "name": "@jetlinks/utils",
-  "version": "1.0.0",
+  "name": "@jetlinks-web/utils",
+  "version": "1.0.2",
   "description": "",
   "main": "index.ts",
   "module": "index.ts",
@@ -13,15 +13,21 @@
     "index.ts"
   ],
   "author": "",
+  "private": false,
   "license": "ISC",
   "devDependencies": {
-    "@jetlinks/constants": "workspace:^"
+    "@jetlinks-web/constants": "workspace:^"
   },
   "dependencies": {
     "@types/lodash-es": "^4.17.7",
     "jetlinks-ui-components": "^1.0.26",
     "jsencrypt": "^3.3.2",
     "lodash-es": "^4.17.21",
+    "pubsub-js": "^1.9.4",
     "vue": "^3.3.4"
+  },
+  "publishConfig": {
+    "registry": "https://registry.npmjs.org/",
+    "access": "public"
   }
 }

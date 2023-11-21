@@ -1,13 +1,14 @@
 import { createRouter, createWebHashHistory, Router } from 'vue-router'
-import { getToken, removeToken } from '@jetlinks/utils'
+import { getToken, removeToken } from '@jetlinks-web/utils'
 import {
-  BasicRoutes,
-  LOGIN_ROUTE,
   NOT_FIND_ROUTE
 } from './routes'
 import { assign } from 'lodash-es'
+import {RouteRecordItem} from "@jetlinks-web/types";
 
 export let router: Router
+
+let LOGIN_ROUTE_ITEM:any
 
 interface Store {
     UserInfoStore?: any
@@ -17,6 +18,7 @@ interface Store {
 }
 
 interface RouteOptions {
+  Login: RouteRecordItem
   tokenFilter?: string[]
   /**
    * 刷新页面不需要请求菜单
@@ -31,9 +33,11 @@ let TokenFilterRoute: string[] = []
 let FilterPath: string[] = []
 
 export const initRoute = (options?: RouteOptions): Router => {
+  LOGIN_ROUTE_ITEM = options?.Login
+    const routes = LOGIN_ROUTE_ITEM ? [LOGIN_ROUTE_ITEM] : []
     router = createRouter({
         history: createWebHashHistory(),
-        routes: BasicRoutes,
+        routes: routes,
         scrollBehavior(to, form, savedPosition) {
             return savedPosition || { top: 0 }
         }
@@ -49,7 +53,7 @@ export const jumpLogin = () => {
     setTimeout(() => {
         removeToken()
         router.replace({
-          path: LOGIN_ROUTE.path
+          path: LOGIN_ROUTE_ITEM?.path
         })
     })
 }
@@ -64,11 +68,10 @@ export const initRouteAssignStore = (s: Store) => {
 
 const NoTokenJump = (to: any, next: any, isLogin: boolean) => {
     // 登录页，不需要token 的页面直接放行，否则跳转登录页
-    console.log('createAuthRoute', TokenFilterRoute.includes(to.path), isLogin)
     if (isLogin || TokenFilterRoute.includes(to.path)) {
         next()
     } else {
-        next({ path: LOGIN_ROUTE.path })
+        next({ path: LOGIN_ROUTE_ITEM?.path })
     }
 }
 
@@ -105,7 +108,7 @@ const getRoutesByServer = async (to: any, next: any) => {
 export const createAuthRoute = (beforeEachFn?: Function) => {
     router.beforeEach((to, from, next) => {
         const token = getToken()
-        const isLogin = to.path === LOGIN_ROUTE.path
+        const isLogin = to.path === LOGIN_ROUTE_ITEM?.path
         beforeEachFn?.(to, from, next)
         if (token) {
             if (isLogin) {

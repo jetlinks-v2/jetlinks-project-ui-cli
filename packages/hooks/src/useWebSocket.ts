@@ -1,7 +1,7 @@
 import { onBeforeUnmount, ref} from 'vue'
 import type { Ref } from 'vue'
-import { getWebSocket } from '@jetlinks/core'
-import { randomString } from '@jetlinks/utils'
+import { getWebSocket } from '@jetlinks-web/core'
+import { randomString } from '@jetlinks-web/utils'
 import {debounce, isNumber, throttle} from 'lodash-es'
 
 interface WebSocketOptions<T> {

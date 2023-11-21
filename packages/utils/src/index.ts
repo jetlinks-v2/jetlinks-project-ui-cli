@@ -11,3 +11,5 @@ export * from './document'
 export * from './encrypt'
 
 export * from './regular'
+
+export * from './pubsub'

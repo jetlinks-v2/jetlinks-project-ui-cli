@@ -1,10 +1,10 @@
 <template>
   <div ref="echartsDom" class="echarts-warp" :style="style"></div>
 </template>
-  
+
   <script lang="ts" name="Echarts" setup>
 import { CSSProperties, nextTick, ref, watch, Ref } from 'vue'
-import { useECharts } from '@jetlinks/hooks'
+import { useECharts } from '@jetlinks-web/hooks'
 
 interface Props {
   style?: CSSProperties
@@ -34,7 +34,7 @@ watch(
   { immediate: true, deep: true },
 )
 </script>
-  
+
 <style scoped>
 .echarts-warp {
   width: 100%;

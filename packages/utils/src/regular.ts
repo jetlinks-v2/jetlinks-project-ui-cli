@@ -17,7 +17,7 @@ export const regular = {
   telephoneReg: /(0[0-9]{2,3})([2-9][0-9]{6,7})+([0-9]{8,11})?$/,
   isTelephone: (phone: string) => regular.telephoneReg.test(phone),
   /* 手机号码验证 */
-  cellphoneReg: /^(((\\+86)|(\\+86-))|((86)|(86\\-))|((0086)|(0086\\-)))?1[3|5|7|8|9]\\d{9}$/,
+  cellphoneReg: /^(((\+86)|(\+86-))|((86)|(86\-))|((0086)|(0086\-)))?1[3|5|7|8|9]\d{9}$/,
   isCellphone: (phone: string) => regular.cellphoneReg.test(phone),
   /* ip地址校验 */
   ipReg: /^([0-9]|[1-9]\d|1\d\d|2[0-4]\d|25[0-5])\.([0-9]|[1-9]\d|1\d\d|2[0-4]\d|25[0-5])\.([0-9]|[1-9]\d|1\d\d|2[0-4]\d|25[0-5])\.([0-9]|[1-9]\d|1\d\d|2[0-4]\d|25[0-5])$/,
@@ -34,7 +34,17 @@ export const regular = {
   /* 密码强度校验 必须至少包含大小写英文和数字 */
   passwordReg: /^\S*(?=\S{8,})(?=\S*\d)(?=\S*[A-Z])(?=\S*[a-z])\S*$/,
   isPassword: (value: string) => regular.passwordReg.test(value),
-  // 用于校验只允许输入英文或者数字或者-或者_
-  inputReg:/^[a-zA-Z0-9_\-]+$/,
-  isInput : (value: string) => regular.inputReg.test(value)
+  /*数字字母，小写字母开头*/
+  inputReg: /^[a-z][a-zA-Z0-9_]*$/,
+  isInputReg: (value: string) => regular.inputReg.test(value),
+  /*数字字母下划线，字母开头*/
+  modalReg: /^[a-zA-Z][a-zA-Z0-9_]*$/,
+  isModalReg: (value: string) => regular.modalReg.test(value),
+  /*中文*/
+  textReg: /^[\u4e00-\u9fa5]{0,}$/,
+  isTextReg: (value: string) => regular.textReg.test(value),
+  colorReg: /^#?([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/,
+  isColorReg: (value: string) => regular.colorReg.test(value),
+  sqlReg: /^SELECT|INSERT|UPDATE|DELETE|CREATE|DROP|ALTER|TRUNCATE|COPY|GRANT|REVOKE|COMMIT|ROLLBACK|SAVEPOINT|RELEASE|LOCK|UNLOCK|EXPLAIN|ANALYZE|OPTIMIZE|PRAGMA|REINDEX|SHOW|DESCRIBE|ATTACH|DETACH|CHECKPOINT|RENAME|SET|BEGIN|START TRANSACTION|COMMIT TRANSACTION|ROLLBACK TRANSACTION|SHOW TRANSACTION STATUS|DECLARE CURSOR|FETCH|CLOSE CURSOR|PREPARE|EXECUTE|DESCRIBE INPUT|DESCRIBE OUTPUT|OPEN|CLOSE|START SAVEPOINT|RELEASE SAVEPOINT|SET TRANSACTION|VACUUM|PRAGMA user_version = \d+|PRAGMA page_size = \d+/i,
+  isSql: (value: string) => regular.sqlReg.test(value),
 }

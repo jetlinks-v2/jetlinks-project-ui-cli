@@ -1,1 +1,1 @@
-module.exports = require('@jetlinks/lint/prettier')
+module.exports = require('@jetlinks-web/lint/prettier')

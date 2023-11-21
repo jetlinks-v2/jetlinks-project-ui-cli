@@ -1,1 +1,1 @@
-module.exports = require('@jetlinks/lint/commitlint')
+module.exports = require('@jetlinks-web/lint/commitlint')

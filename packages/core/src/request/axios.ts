@@ -1,6 +1,6 @@
-import { TOKEN_KEY } from '@jetlinks/constants'
-import { getToken } from '@jetlinks/utils'
-import { jumpLogin } from '@jetlinks/router'
+import { TOKEN_KEY, BASE_API } from '@jetlinks-web/constants'
+import { getToken } from '@jetlinks-web/utils'
+import { jumpLogin } from '@jetlinks-web/router'
 import axios from 'axios'
 import type {
   AxiosRequestConfig,
@@ -11,7 +11,7 @@ import type {
 } from 'axios'
 import { notification as Notification } from 'jetlinks-ui-components'
 import { isFunction } from 'lodash-es'
-import type { AxiosResponseRewrite } from '@jetlinks/types'
+import type { AxiosResponseRewrite } from '@jetlinks-web/types'
 
 export interface ContextOptions {
   filterUrl?: string[]
@@ -32,14 +32,13 @@ export class Axios {
 
   constructor(options: CreateAxiosOptions) {
     this.options = options
-    const api = import.meta.env.VITE_APP_BASE_API
     this.axiosInstance = axios.create({
       withCredentials: false,
       timeout: 1000 * 15,
-      baseURL: api
+      baseURL: BASE_API
     })
     this.axiosInstance.interceptors.request.use(
-      this.request.bind(this), 
+      this.request.bind(this),
       this.errorHandler.bind(this)
     )
     this.axiosInstance.interceptors.response.use(

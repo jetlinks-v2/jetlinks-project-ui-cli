@@ -33,7 +33,7 @@
 </template>
 
 <script setup lang="ts">
-import { store } from '@jetlinks/stores'
+import { store } from '@jetlinks-web/stores'
 import { initAMapApiLoader } from '@vuemap/vue-amap'
 import '@vuemap/vue-amap/dist/style.css'
 import { computed, CSSProperties, PropType, ref } from 'vue'

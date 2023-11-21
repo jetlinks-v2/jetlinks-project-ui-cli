@@ -1,5 +1,5 @@
 {
-  "name": "@jetlinks/tsconfig",
+  "name": "@jetlinks-web/tsconfig",
   "version": "0.0.0",
   "private": true,
   "files": [

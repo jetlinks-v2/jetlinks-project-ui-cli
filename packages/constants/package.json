@@ -1,6 +1,6 @@
 {
-  "name": "@jetlinks/constants",
-  "version": "1.0.0",
+  "name": "@jetlinks-web/constants",
+  "version": "1.0.1",
   "description": "",
   "main": "index.ts",
   "module": "index.ts",
@@ -9,6 +9,11 @@
     "src",
     "index.ts"
   ],
+  "private": false,
   "author": "",
-  "license": "ISC"
+  "license": "ISC",
+  "publishConfig": {
+    "registry": "https://registry.npmjs.org/",
+    "access": "public"
+  }
 }

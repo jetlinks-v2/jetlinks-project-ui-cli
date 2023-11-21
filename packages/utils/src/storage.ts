@@ -1,4 +1,4 @@
-import { TOKEN_KEY } from '@jetlinks/constants'
+import { TOKEN_KEY } from '@jetlinks-web/constants'
 
 export const LocalStore = {
   set(key: string, data: any) {

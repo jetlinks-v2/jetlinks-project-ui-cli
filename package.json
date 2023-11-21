@@ -10,12 +10,12 @@
     "clean": "pnpm turbo run clean && rimraf node_modules",
     "changeset": "changeset",
     "version": "pnpm run changeset version",
-    "release:only": "changeset publish --registry=http://registry.jetlinks.cn/"
+    "release:only": "changeset publish --access=public"
   },
   "devDependencies": {
-    "@jetlinks/lint": "workspace:^",
-    "@jetlinks/tsconfig": "workspace:*",
-    "@jetlinks/types": "workspace:^",
+    "@jetlinks-web/lint": "workspace:^",
+    "@jetlinks-web/tsconfig": "workspace:*",
+    "@jetlinks-web/types": "workspace:^",
     "@turbo/gen": "^1.10.12",
     "@types/fs-extra": "^11.0.1",
     "@types/lodash-es": "^4.17.8",
@@ -33,7 +33,7 @@
   "packageManager": "pnpm@7.15.0",
   "dependencies": {
     "@changesets/cli": "^2.26.2",
-    "@jetlinks/utils": "workspace:^",
+    "@jetlinks-web/utils": "workspace:^",
     "echarts": "^5.4.3",
     "jetlinks-ui-components": "^1.0.27",
     "lodash-es": "^4.17.21"

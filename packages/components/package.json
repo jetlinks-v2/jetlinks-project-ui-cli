@@ -1,6 +1,6 @@
 {
-  "name": "@jetlinks/components",
-  "version": "1.0.1",
+  "name": "@jetlinks-web/components",
+  "version": "1.0.3",
   "description": "",
   "main": "index.ts",
   "module": "index.ts",
@@ -12,19 +12,26 @@
     "src",
     "index.ts"
   ],
+  "private": false,
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@jetlinks/hooks": "workspace:^",
-    "@jetlinks/stores": "workspace:^",
-    "@jetlinks/utils": "workspace:^",
+    "@jetlinks-web/hooks": "workspace:^",
+    "@jetlinks-web/stores": "workspace:^",
+    "@jetlinks-web/utils": "workspace:^",
     "@vuemap/vue-amap": "^2.0.17",
     "@vueuse/core": "^10.2.1",
     "ant-design-vue": "^3.2.20",
     "jetlinks-ui-components": "^1.0.27",
-    "lodash-es": "^4.17.21",
+    "lodash-es": "^4.17.21"
+  },
+  "devDependencies": {
     "pinia": "^2.1.6",
     "vue": "^3.3.4",
     "vue-router": "^4.2.4"
+  },
+  "publishConfig": {
+    "registry": "https://registry.npmjs.org/",
+    "access": "public"
   }
 }

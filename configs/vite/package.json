@@ -1,5 +1,5 @@
 {
-  "name": "@jetlinks/vite",
+  "name": "@jetlinks-web/vite",
   "version": "1.0.0",
   "description": "",
   "main": "dist/index.cjs",
@@ -17,8 +17,8 @@
   "author": "",
   "license": "ISC",
   "devDependencies": {
-    "@jetlinks/tsconfig": "workspace:*",
-    "@jetlinks/utils": "workspace:^",
+    "@jetlinks-web/tsconfig": "workspace:*",
+    "@jetlinks-web/utils": "workspace:^",
     "@vitejs/plugin-vue": "^4.2.3",
     "@vitejs/plugin-vue-jsx": "^3.0.1",
     "@vuemap/unplugin-resolver": "^2.0.0",
@@ -42,5 +42,9 @@
   "dependencies": {
     "ant-design-vue": "^3.2.20",
     "jetlinks-ui-components": "^1.0.26"
+  },
+  "publishConfig": {
+    "registry": "https://registry.npmjs.org/",
+    "access": "public"
   }
 }

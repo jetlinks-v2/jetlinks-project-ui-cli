@@ -3,7 +3,7 @@ import { writeFileSync, mkdirp, readFileSync } from "fs-extra";
 import { GLOB_CONFIG_FILE_NAME, OUTPUT_DIR, APP_NAME } from "../constants";
 import { resolve } from "path";
 import dotenv from "dotenv";
-import { getAppConfigFileName } from "@jetlinks/utils";
+import { getAppConfigFileName } from "@jetlinks-web/utils";
 
 interface Options {
   configName: string;

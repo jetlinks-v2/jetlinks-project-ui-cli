@@ -13,7 +13,7 @@
   "author": "",
   "license": "ISC",
   "devDependencies": {
-    "@jetlinks/utils": "workspace:^",
+    "@jetlinks-web/utils": "workspace:^",
     "@types/fs-extra": "^11.0.1",
     "@types/inquirer": "^9.0.3",
     "@types/js-yaml": "^4.0.5",

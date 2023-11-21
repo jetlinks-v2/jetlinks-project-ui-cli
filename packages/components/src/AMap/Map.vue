@@ -33,8 +33,8 @@ import type { CSSProperties, PropType } from 'vue';
 import { ref, computed } from 'vue'
 import { initAMapApiLoader, ElAmap } from '@vuemap/vue-amap';
 import '@vuemap/vue-amap/dist/style.css';
-import { store } from '@jetlinks/stores'
-import { getAMapUiPromise } from '@jetlinks/utils'
+import { store } from '@jetlinks-web/stores'
+import { getAMapUiPromise } from '@jetlinks-web/utils'
 import { MapProps } from './util'
 interface AMapProps {
   style?: CSSProperties;

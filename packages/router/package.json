@@ -1,6 +1,6 @@
 {
-  "name": "@jetlinks/router",
-  "version": "1.0.0",
+  "name": "@jetlinks-web/router",
+  "version": "1.0.5",
   "description": "",
   "main": "index.ts",
   "module": "index.ts",
@@ -14,14 +14,19 @@
     "tsconfig.json"
   ],
   "author": "",
+  "private": false,
   "license": "ISC",
   "dependencies": {
-    "@jetlinks/stores": "workspace:^",
-    "@jetlinks/types": "workspace:^",
-    "@jetlinks/utils": "workspace:^",
-    "nprogress": "^0.2.0",
-    "path-to-regexp": "^6.2.1",
+    "@jetlinks-web/stores": "workspace:^",
+    "@jetlinks-web/types": "workspace:^",
+    "@jetlinks-web/utils": "workspace:^"
+  },
+  "devDependencies": {
     "vue": "^3.3.4",
     "vue-router": "^4.2.2"
+  },
+  "publishConfig": {
+    "registry": "https://registry.npmjs.org/",
+    "access": "public"
   }
 }

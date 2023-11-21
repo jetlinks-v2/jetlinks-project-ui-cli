@@ -1,7 +1,7 @@
 import {onUnmounted, ref} from 'vue'
 import type { Ref } from 'vue'
 import { isFunction, get } from 'lodash-es'
-import type { AxiosResponseRewrite } from '@jetlinks/types'
+import type { AxiosResponseRewrite } from '@jetlinks-web/types'
 
 interface RequestOptions<T, S> {
     immediate: boolean
