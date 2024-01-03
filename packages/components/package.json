@@ -1,6 +1,6 @@
 {
   "name": "@jetlinks-web/components",
-  "version": "1.0.3",
+  "version": "1.0.5",
   "description": "",
   "main": "index.ts",
   "module": "index.ts",
@@ -18,14 +18,14 @@
   "dependencies": {
     "@jetlinks-web/hooks": "workspace:^",
     "@jetlinks-web/stores": "workspace:^",
-    "@jetlinks-web/utils": "workspace:^",
+    "@jetlinks-web/utils": "workspace:^"
+  },
+  "devDependencies": {
     "@vuemap/vue-amap": "^2.0.17",
     "@vueuse/core": "^10.2.1",
     "ant-design-vue": "^3.2.20",
-    "jetlinks-ui-components": "^1.0.27",
-    "lodash-es": "^4.17.21"
-  },
-  "devDependencies": {
+    "jetlinks-ui-components": "^1.0.34-16",
+    "lodash-es": "^4.17.21",
     "pinia": "^2.1.6",
     "vue": "^3.3.4",
     "vue-router": "^4.2.4"

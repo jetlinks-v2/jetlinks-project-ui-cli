@@ -166,11 +166,12 @@ export class Axios {
     })
   }
 
-  remove<T = any>(url: string, params: any = undefined, ext?: any) {
+  remove<T = any>(url: string, params: any = undefined, data?: any, ext?: any) {
     return this.axiosInstance<any, AxiosResponseRewrite<T>>({
       method: 'DELETE',
       url,
       params,
+      data,
       ...ext,
     })
   }

@@ -35,7 +35,7 @@
     "@changesets/cli": "^2.26.2",
     "@jetlinks-web/utils": "workspace:^",
     "echarts": "^5.4.3",
-    "jetlinks-ui-components": "^1.0.27",
+    "jetlinks-ui-components": "^1.0.34-16",
     "lodash-es": "^4.17.21"
   }
 }

@@ -1,4 +1,5 @@
-import { createRouter, createWebHashHistory, Router } from 'vue-router'
+import { createRouter, createWebHashHistory } from 'vue-router'
+import type { Router } from 'vue-router'
 import { getToken, removeToken } from '@jetlinks-web/utils'
 import {
   NOT_FIND_ROUTE
@@ -19,6 +20,7 @@ interface Store {
 
 interface RouteOptions {
   Login: RouteRecordItem
+  base?: RouteRecordItem[]
   tokenFilter?: string[]
   /**
    * 刷新页面不需要请求菜单
@@ -33,11 +35,11 @@ let TokenFilterRoute: string[] = []
 let FilterPath: string[] = []
 
 export const initRoute = (options?: RouteOptions): Router => {
-  LOGIN_ROUTE_ITEM = options?.Login
-    const routes = LOGIN_ROUTE_ITEM ? [LOGIN_ROUTE_ITEM] : []
+    LOGIN_ROUTE_ITEM = options?.Login
+    const baseRoute = [...(options?.base || []), LOGIN_ROUTE_ITEM]
     router = createRouter({
         history: createWebHashHistory(),
-        routes: routes,
+        routes: baseRoute,
         scrollBehavior(to, form, savedPosition) {
             return savedPosition || { top: 0 }
         }
@@ -52,7 +54,7 @@ export const initRoute = (options?: RouteOptions): Router => {
 export const jumpLogin = () => {
     setTimeout(() => {
         removeToken()
-        router.replace({
+        router?.replace({
           path: LOGIN_ROUTE_ITEM?.path
         })
     })
