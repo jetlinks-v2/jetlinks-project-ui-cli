@@ -18,6 +18,8 @@ interface RequestOptions<T, S> {
   formatName: string | [string]
   onError: (e: any) => void
 
+  onWarn: (e: any) => void
+
   defaultParams: S | any | any[]
 
   handleResponse: (data: any) => any
@@ -62,8 +64,9 @@ export const useRequest = <T = any, S = any>(
           _options.onError?.(resp)
         }
       } catch (e) {
+        console.warn(e)
         loading.value = false
-        _options.onError?.(e)
+        _options.onWarn?.(e)
       }
     }
   }

@@ -1,6 +1,5 @@
 import { TOKEN_KEY, BASE_API } from '@jetlinks-web/constants'
-import { getToken } from '@jetlinks-web/utils'
-import { jumpLogin } from '@jetlinks-web/router'
+import { getToken, removeToken } from '@jetlinks-web/utils'
 import axios from 'axios'
 import type {
   AxiosRequestConfig,
@@ -10,8 +9,9 @@ import type {
   InternalAxiosRequestConfig,
 } from 'axios'
 import { notification as Notification } from 'jetlinks-ui-components'
-import { isFunction } from 'lodash-es'
+import { isFunction, merge } from 'lodash-es'
 import type { AxiosResponseRewrite } from '@jetlinks-web/types'
+import { context } from './context'
 
 export interface ContextOptions {
   filterUrl?: string[]
@@ -20,6 +20,8 @@ export interface ContextOptions {
   ) => InternalAxiosRequestConfig
   handleResponse?: (response: AxiosResponse) => AxiosResponse
   errorHandler?: (error: AxiosError) => void
+
+  loginInvalid?: () => void
 }
 
 export interface CreateAxiosOptions extends AxiosRequestConfig, ContextOptions {}
@@ -31,7 +33,7 @@ export class Axios {
   private readonly options: CreateAxiosOptions
 
   constructor(options: CreateAxiosOptions) {
-    this.options = options
+    this.options = merge(context, options)
     this.axiosInstance = axios.create({
       withCredentials: false,
       timeout: 1000 * 15,
@@ -47,13 +49,18 @@ export class Axios {
     )
   }
 
+  jumpLogin() {
+    removeToken()
+    this.options.loginInvalid?.()
+  }
+
   request(config: InternalAxiosRequestConfig) {
     const token = getToken()
     const filterUrl = this.options.filterUrl // 不需要token校验接口
     // 没有token，并且该接口需要token校验
     if (!token && !filterUrl?.some((url) => config.url?.includes(url))) {
       // 跳转登录页
-      jumpLogin()
+      this.jumpLogin()
       return config
     }
 
@@ -107,7 +114,7 @@ export class Axios {
           break;
         case 401:
           this.showNotification('用户未登录', status)
-          jumpLogin()
+          this.jumpLogin()
           break;
         default:
           break;
