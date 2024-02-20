@@ -31,6 +31,7 @@ const defaultOptions: any = {
 }
 
 type Run = (...args: any[]) => void
+type Reload = () => void
 
 export const useRequest = <T = any, S = any>(
   request: (...args: any[]) => Promise<AxiosResponseRewrite<T>>,
@@ -38,7 +39,8 @@ export const useRequest = <T = any, S = any>(
 ): {
   data: Ref<S | undefined>,
   loading: Ref<boolean>,
-  run: Run
+  run: Run,
+  reload: Reload,
 } => {
   const data = ref<S>()
   const loading = ref(false)
@@ -71,12 +73,16 @@ export const useRequest = <T = any, S = any>(
     }
   }
 
-  if (_options.immediate) { // 主动触发
+  function reload () { // 重新触发
     if (_options.defaultParams) {
       isArray(_options.defaultParams) ? run(..._options.defaultParams) : run(_options.defaultParams)
     } else {
       run()
     }
+  }
+
+  if (_options.immediate) { // 主动触发
+    reload()
   }
 
   onUnmounted(() => {
@@ -90,6 +96,7 @@ export const useRequest = <T = any, S = any>(
   return {
     data,
     loading,
-    run
+    run,
+    reload,
   }
 }
