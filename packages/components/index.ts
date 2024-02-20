@@ -10,6 +10,9 @@ import Echarts from './src/Echarts'
 import { PageContainer, AIcon } from 'jetlinks-ui-components'
 import { InitAMap } from './src/AMap'
 
+export { default as ConfigProvider } from './src/ConfigProvider'
+export { default as Icon} from './src/Icon/icon'
+
 export default {
   install(app: App) {
     app.component('PageContainer', PageContainer)
