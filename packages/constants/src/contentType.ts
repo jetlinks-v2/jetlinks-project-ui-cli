@@ -5,5 +5,6 @@ export const ContentTypeEnum = {
 }
 
 export const ComponentsEnum = {
-  Icon: Symbol('jetlinks-icon')
+  Icon: Symbol('jetlinks-icon'),
+  Permission: Symbol('permission')
 }

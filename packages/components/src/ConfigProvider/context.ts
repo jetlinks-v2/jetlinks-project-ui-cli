@@ -1,6 +1,7 @@
 import type {PropType} from "vue";
-
-export const configProviderProps = () => ({
+import { configProviderProps } from 'ant-design-vue/lib/config-provider/context';
+export const configProps = () => ({
+  ...configProviderProps(),
   IconConfig: {
     type: Object as PropType<{ scriptUrl: string }>
   }

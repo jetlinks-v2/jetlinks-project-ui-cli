@@ -4,7 +4,7 @@ import { Button, Tooltip, Popconfirm } from 'jetlinks-ui-components'
 import {PopconfirmProps, TooltipProps} from "ant-design-vue/es";
 import {omit} from "lodash-es";
 import {buttonProps} from "ant-design-vue/es/button/button";
-import { usePermission } from './hooks'
+import { usePermission } from './usePermission'
 
 type PermissionType = string | Array<string> | boolean
 

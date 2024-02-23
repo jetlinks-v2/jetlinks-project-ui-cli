@@ -1,11 +1,11 @@
 import type { App } from 'vue'
 
-import FullPage from './src/FullPage/index.vue'
-import PermissionButton from './src/PermissionButton/index'
-import BadgeStatus from './src/BadgeStatus'
-import GeoComponent from './src/GeoComponent'
-import ValueItem from './src/ValueItem'
-import Echarts from './src/Echarts'
+import { default as FullPage} from './src/FullPage/index.vue'
+import { default as PermissionButton} from './src/PermissionButton/index'
+import { default as BadgeStatus} from './src/BadgeStatus'
+import { default as GeoComponent} from './src/GeoComponent'
+import { default as ValueItem} from './src/ValueItem'
+import { default as Echarts} from './src/Echarts'
 
 import { PageContainer, AIcon } from 'jetlinks-ui-components'
 import { InitAMap } from './src/AMap'
@@ -15,14 +15,14 @@ export { default as Icon} from './src/Icon/icon'
 
 export default {
   install(app: App) {
-    app.component('PageContainer', PageContainer)
+    app.component('JPageContainer', PageContainer)
       .component('AIcon', AIcon)
-      .component('PermissionButton', PermissionButton)
-      .component('FullPage', FullPage)
-      .component('BadgeStatus', BadgeStatus)
-      .component('InitAmap', InitAMap)
-      .component('GeoComponent', GeoComponent)
-      .component('ValueItem', ValueItem)
-      .component('Echarts', Echarts)
+      .component('JPermissionButton', PermissionButton)
+      .component('JFullPage', FullPage)
+      .component('JBadgeStatus', BadgeStatus)
+      .component('JAMap', InitAMap)
+      .component('jGeoComponent', GeoComponent)
+      .component('JValueItem', ValueItem)
+      .component('JEcharts', Echarts)
   }
 }
