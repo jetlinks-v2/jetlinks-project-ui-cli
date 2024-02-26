@@ -5,17 +5,12 @@
   >
     <el-amap
       v-if="hasAMapKey"
+      :map-style="_mapStyle"
       v-bind="{
         ...props,
         ...$attrs
       }"
-      :map-style="_mapStyle"
       @init="initMap"
-      @click="(e) => emit('click', e)"
-      @dblclick="(e) => emit('dblclick', e)"
-      @movestart="(e) => emit('movestart', e)"
-      @moveend="(e) => emit('moveend', e)"
-      @rightclick="(e) => emit('rightclick', e)"
     >
       <template v-if="uiLoading">
         <slot></slot>
@@ -45,11 +40,6 @@ interface AMapProps {
 
 const emit = defineEmits([
   'initMap',
-  'click',
-  'dblclick',
-  'movestart',
-  'moveend',
-  'rightclick',
 ])
 
 const props = defineProps({
