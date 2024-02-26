@@ -8,6 +8,7 @@
 <script setup lang="ts" name="BadgeStatus">
 import { defineProps, computed } from 'vue'
 import { getHexColor } from './color'
+
 const props = defineProps({
   text: {
     type: String,
@@ -35,6 +36,6 @@ const props = defineProps({
 });
 
 const _color = computed(() => {
-  return getHexColor(props.statusNames[props.status], 1)
+  return getHexColor(props.status, props.statusNames, 1)
 })
 </script>

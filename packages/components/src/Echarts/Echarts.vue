@@ -2,9 +2,9 @@
   <div ref="echartsDom" class="echarts-warp" :style="style"></div>
 </template>
 
-  <script lang="ts" name="Echarts" setup>
-import { CSSProperties, nextTick, ref, watch, Ref } from 'vue'
-import { useECharts } from '@jetlinks-web/hooks'
+<script lang="ts" name="Echarts" setup>
+import {CSSProperties, nextTick, ref, watch, Ref} from 'vue'
+import {useECharts} from '@jetlinks-web/hooks'
 
 interface Props {
   style?: CSSProperties
@@ -20,10 +20,10 @@ const props = defineProps({
 
 const echartsDom = ref<Ref<HTMLDivElement> | HTMLDivElement>()
 
-const { setOptions } = useECharts(echartsDom.value)
+const {setOptions} = useECharts(echartsDom.value)
 
 watch(
-  () => props.options,
+  () => JSON.stringify(props.options),
   () => {
     if (props.options) {
       nextTick(() => {
@@ -31,7 +31,7 @@ watch(
       })
     }
   },
-  { immediate: true, deep: true },
+  {immediate: true},
 )
 </script>
 

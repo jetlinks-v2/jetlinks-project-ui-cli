@@ -1,6 +1,7 @@
 import {defineComponent, provide, reactive} from 'vue'
 import { configProps } from './context'
-import { ComponentsEnum } from '@jetlinks-web/constants'
+import type { MapConfigType } from './context'
+import { ComponentsEnum, MAPConfig } from '@jetlinks-web/constants'
 import { ConfigProvider } from 'ant-design-vue'
 import {omit} from 'lodash-es'
 import Empty from '../Empty'
@@ -13,15 +14,17 @@ const JConfigProvider = defineComponent({
   },
   setup(props, { slots }) {
 
-    const IconConfig = reactive(props.IconConfig || {})
+    const _iconConfig = reactive(props.IconConfig || {})
+    const _mapConfig = reactive<MapConfigType>(props.MapConfig || {})
 
-    provide(ComponentsEnum.Icon, IconConfig) // 全局Icon 配置
-    // TODO 地图key配置
+    provide(ComponentsEnum.Icon, _iconConfig) // 全局Icon 配置
+
+    provide(MAPConfig, _mapConfig) // 全局地图配置
 
     return () => {
       return (
         <ConfigProvider
-          {...omit(props, ['IconConfig'])}
+          {...omit(props, ['IconConfig', 'MapConfig'])}
           v-slots={{
             renderEmpty: () => (slots.renderEmpty?.() || <Empty />),
             ...slots,

@@ -1,54 +1,65 @@
 <!-- 参数类型输入组件 -->
 <template>
   <div class="value-item-warp">
-    <j-select
+    <Select
       v-if="typeMap.get(itemType) === 'select'"
-      v-model:value="myValue"
       allowClear
-      @change="(_, options) => onChange(options)"
       v-bind="props"
+      v-model:value="myValue"
+      @change="(_, options) => onChange(options)"
     />
-    <j-date-picker
+    <DatePicker
       v-else-if="typeMap.get(itemType) === 'date'"
       :valueFormat="valueFormat || 'YYYY-MM-DD HH:mm:ss'"
-      v-model:value="myValue"
       allowClear
       showTime
-      @change="onChange"
-    />
-    <j-input-number
-      v-else-if="typeMap.get(itemType) === 'inputNumber'"
       v-bind="props"
       v-model:value="myValue"
-      allowClear
       @change="onChange"
+
     />
-    <j-input
+    <TimePicker
+      v-else-if="typeMap.get(itemType) === 'time'"
+      :valueFormat="valueFormat || 'HH:mm:ss'"
+      allowClear
+      v-model:value="myValue"
+      @change="onChange"
+      v-bind="props"
+    />
+    <InputNumber
+      v-else-if="typeMap.get(itemType) === 'inputNumber'"
       allowClear
       v-bind="props"
+      v-model:value="myValue"
+      @change="onChange"
+    />
+    <Input
+      allowClear
       v-else-if="typeMap.get(itemType) === 'object'"
+      v-bind="props"
       v-model:value="myValue"
       @change="onChange"
     >
       <template #addonAfter>
         <AIcon type="FormOutlined" @click="modalVisible = true" />
       </template>
-    </j-input>
+    </Input>
     <GeoComponent
       v-else-if="typeMap.get(itemType) === 'geoPoint'"
+      v-bind="props"
       v-model:point="myValue"
       @change="onChange"
-      v-bind="props"
     />
-    <j-input
+    <Input
       v-else-if="typeMap.get(itemType) === 'file'"
       v-model:value="myValue"
       placeholder="请输入链接"
+      v-bind="props"
       allowClear
       @change="onChange"
     >
       <template #addonAfter>
-        <j-upload
+        <Upload
           name="file"
           :action="action"
           :headers="headers"
@@ -56,10 +67,10 @@
           @change="handleFileChange"
         >
           <AIcon type="UploadOutlined" />
-        </j-upload>
+        </Upload>
       </template>
-    </j-input>
-    <j-input-password
+    </Input>
+    <InputPassword
       v-else-if="typeMap.get(itemType) === 'password'"
       allowClear
       v-bind="props"
@@ -67,7 +78,7 @@
       v-model:value="myValue"
       @change="onChange"
     />
-    <j-input
+    <Input
       v-else
       allowClear
       v-bind="props"
@@ -97,6 +108,7 @@
 <script setup lang="ts">
 import { CSSProperties, PropType, ref, watch } from 'vue'
 import { componentsType } from './util'
+import { Select, DatePicker, TimePicker, Input, InputNumber, InputPassword, Upload } from 'ant-design-vue'
 
 type Emits = {
   (e: 'update:modelValue', data: string | number | boolean): void

@@ -4,7 +4,7 @@
     :class="props.class"
   >
     <el-amap
-      v-if="amapKey"
+      v-if="hasAMapKey"
       v-bind="{
         ...props,
         ...$attrs
@@ -17,14 +17,12 @@
       @moveend="(e) => emit('moveend', e)"
       @rightclick="(e) => emit('rightclick', e)"
     >
-      <template v-if="isOpenUi">
-        <template v-if="uiLoading">
-          <slot></slot>
-        </template>
+      <template v-if="uiLoading">
+        <slot></slot>
       </template>
       <template v-else><slot></slot></template>
     </el-amap>
-    <JEmpty v-else description="请配置高德地图key" style="padding: 20%" />
+    <Empty v-else description="请配置高德地图key" style="padding: 20%" />
   </div>
 </template>
 
@@ -32,20 +30,18 @@
 import type { CSSProperties, PropType } from 'vue';
 import { ref, computed } from 'vue'
 import { initAMapApiLoader, ElAmap } from '@vuemap/vue-amap';
-import '@vuemap/vue-amap/dist/style.css';
-import { store } from '@jetlinks-web/stores'
 import { getAMapUiPromise } from '@jetlinks-web/utils'
 import { MapProps } from './util'
+import { MAPConfig } from "@jetlinks-web/constants";
+import Empty from '../Empty'
+import '@vuemap/vue-amap/dist/style.css';
+
 interface AMapProps {
   style?: CSSProperties;
   class?: string;
   AMapUI?: string | boolean;
   plugins?: string[]
 }
-
-const systemStore = store.SystemStore
-
-const amapKey = systemStore.systemInfo.apiKey
 
 const emit = defineEmits([
   'initMap',
@@ -62,20 +58,37 @@ const props = defineProps({
   class: String as PropType<AMapProps['class']>,
   AMapUI: [String, Boolean],
   center: Array,
-  plugin: Array,
+  plugins: Array as PropType<string[]>,
   zooms: {
     type: Array,
     default: [3, 20]
-  }
+  },
+  JSKey: String,
+  WebKey: String,
 });
 
+const config = inject<{ mapStyle: any, JSKey: string, WebKey: string }>(MAPConfig)
+
 const _mapStyle = computed(() => {
-  return props.mapStyle ? `amap://styles/${props.mapStyle}` : undefined
+  if (props.mapStyle) {
+    return `amap://styles/${props.mapStyle}`
+  }
+
+  if (config.mapStyle) {
+    return config.mapStyle
+  }
+
+  return undefined
+})
+
+const hasAMapKey = computed(() => {
+  return !!(props.JSKey || config.JSKey)
 })
 
 initAMapApiLoader({
-  key: amapKey || '',
-  plugin: props.plugin
+  key: props.JSKey || config.JSKey || '',
+  securityJsCode: props.WebKey || config.WebKey,
+  plugins: props.plugins
 });
 
 const uiLoading = ref<boolean>(false);

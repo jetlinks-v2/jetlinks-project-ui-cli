@@ -1,23 +1,25 @@
-
-const color = {
-  'processing': '9, 46, 231',
-  'error': '229, 0, 18',
+const colorMap = {
   'success': '36, 178, 118',
   'warning': '255, 144, 0',
+  'error': '229, 0, 18',
+  'processing': '9, 46, 231',
   'default': '102, 102, 102',
-  //告警颜色
-  'level1': '229, 0,  18',
-  'level2': '255, 148,  87',
-  'level3': '250, 189,  71',
-  'level4': '153, 153, 153',
-  'level5': '196, 196,  196'
-}
-export const getHexColor = (code: string, pe: number = 0.1) => {
-  const _color = color[code] || color.default
-  if (code === 'default') {
-    pe = 0.1
-  }
-  return `rgba(${_color}, ${pe})`
 }
 
-export default color
+export const getHexColor = (code: string | number, statusNames: Record<string | number, any>,  pe: number = 0.1) => {
+  if (!code) {
+    return `rgba(102, 102, 102, ${pe})`
+  }
+
+  if (colorMap[code]) {
+    return `rgba(${colorMap[code]}, ${pe})`
+  }
+
+  if (Object.keys(statusNames).length) {
+    return statusNames[code]
+  }
+
+  return
+}
+
+export default colorMap

@@ -8,3 +8,5 @@ export const ComponentsEnum = {
   Icon: Symbol('jetlinks-icon'),
   Permission: Symbol('permission')
 }
+
+export const MAPConfig = Symbol('map_key')

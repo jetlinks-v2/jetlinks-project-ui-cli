@@ -9,6 +9,7 @@ export const componentsType = {
     enum: 'select',
     boolean: 'select',
     date: 'date',
+    time: 'time',
     object: 'object',
     geoPoint: 'geoPoint',
     file: 'file',
