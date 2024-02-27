@@ -108,6 +108,7 @@ watch(() => props.value, () => {
 
 <style lang="less">
 @import 'ant-design-vue/lib/style/themes/index.less';
+@import '../style/variable.less';
 
 .j-card-select {
   display: grid;
@@ -126,6 +127,10 @@ watch(() => props.value, () => {
     &.disabled {
       cursor: not-allowed;
       opacity: 0.75;
+    }
+
+    .j-card-select-describe {
+      color: @text-color-subtitle;
     }
   }
 }
