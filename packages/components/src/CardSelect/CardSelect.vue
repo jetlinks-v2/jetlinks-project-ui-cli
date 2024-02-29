@@ -107,7 +107,6 @@ watch(() => props.value, () => {
 </script>
 
 <style lang="less">
-@import 'ant-design-vue/lib/style/themes/index.less';
 @import '../style/variable.less';
 
 .j-card-select {

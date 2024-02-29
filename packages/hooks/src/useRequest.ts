@@ -4,6 +4,10 @@ import {isFunction, get, isArray} from 'lodash-es'
 import type { AxiosResponseRewrite } from '@jetlinks-web/types'
 
 interface RequestOptions<T, S> {
+  /**
+   * 是否立即执行
+   * @default true
+   */
   immediate: boolean
   /**
    * 成功回调
