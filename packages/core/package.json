@@ -20,14 +20,13 @@
     "@jetlinks-web/router": "workspace:^",
     "@jetlinks-web/types": "workspace:^",
     "@jetlinks-web/utils": "workspace:^",
-    "lodash-es": "^4.17.21",
     "axios": "^1.4.0",
+    "lodash-es": "^4.17.21",
     "rxjs": "^7.8.1"
   },
   "devDependencies": {
     "@types/lodash-es": "^4.17.7",
-    "@types/node": "^20.2.5",
-    "jetlinks-ui-components": "^1.0.34-16"
+    "@types/node": "^20.2.5"
   },
   "publishConfig": {
     "registry": "https://registry.npmjs.org/",

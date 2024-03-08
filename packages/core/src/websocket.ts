@@ -1,4 +1,4 @@
-import { notification } from 'jetlinks-ui-components'
+import { notification } from 'ant-design-vue'
 import { Observable } from 'rxjs'
 
 let webSocketUrl = ''

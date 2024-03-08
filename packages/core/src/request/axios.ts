@@ -8,7 +8,7 @@ import type {
   AxiosError,
   InternalAxiosRequestConfig,
 } from 'axios'
-import { notification as Notification } from 'jetlinks-ui-components'
+import { notification as Notification } from 'ant-design-vue'
 import { isFunction, merge } from 'lodash-es'
 import type { AxiosResponseRewrite } from '@jetlinks-web/types'
 import { context } from './context'

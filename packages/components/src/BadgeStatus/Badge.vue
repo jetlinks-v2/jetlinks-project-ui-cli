@@ -6,7 +6,7 @@
 </template>
 
 <script setup lang="ts" name="BadgeStatus">
-import { defineProps, computed } from 'vue'
+import { computed } from 'vue'
 import { getHexColor } from './color'
 
 const props = defineProps({
