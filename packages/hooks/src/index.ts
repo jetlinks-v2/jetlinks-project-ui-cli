@@ -1,7 +1,5 @@
 export * from './useContext'
-export * from './useRequest'
 export * from './useRouterParams'
-export * from './useWebSocket'
 export * from './useECharts/index'
 export * from './useNetwork'
 export * from './useIcon'

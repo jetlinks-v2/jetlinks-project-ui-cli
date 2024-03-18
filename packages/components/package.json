@@ -19,9 +19,9 @@
     "@ant-design/icons-vue": "^7.0.1",
     "@jetlinks-web/constants": "workspace:^",
     "@jetlinks-web/hooks": "workspace:^",
-    "@jetlinks-web/stores": "workspace:^",
     "@jetlinks-web/utils": "workspace:^",
-    "sortablejs": "^1.15.2"
+    "sortablejs": "^1.15.2",
+    "echarts": "^5.4.3"
   },
   "devDependencies": {
     "@vuemap/vue-amap": "^2.0.17",

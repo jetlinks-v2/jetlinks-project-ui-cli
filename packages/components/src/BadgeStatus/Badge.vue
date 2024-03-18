@@ -1,8 +1,8 @@
 <template>
-  <j-badge
+  <a-badge
     :color="_color"
     :text="text"
-  ></j-badge>
+  ></a-badge>
 </template>
 
 <script setup lang="ts" name="BadgeStatus">

@@ -21,6 +21,7 @@
     "@types/node": "^20.4.5",
     "@vue/shared": "^3.4.21",
     "eslint": "^7.32.0",
+    "eslint-plugin-vue": "^9.23.0",
     "esno": "^0.16.3",
     "lodash-es": "^4.17.21",
     "prettier": "^2.8.8",
@@ -34,7 +35,6 @@
   "dependencies": {
     "@changesets/cli": "^2.26.2",
     "ant-design-vue": "^3.2.20",
-    "echarts": "^5.4.3",
     "vue": "^3.3.4"
   }
 }

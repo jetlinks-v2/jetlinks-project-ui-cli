@@ -3,67 +3,60 @@
   <div class="value-item-warp">
     <Select
       v-if="typeMap.get(itemType) === 'select'"
+      v-model:value="myValue"
       allowClear
       v-bind="props"
-      v-model:value="myValue"
       @change="(_, options) => onChange(options)"
     />
     <DatePicker
       v-else-if="typeMap.get(itemType) === 'date'"
+      v-model:value="myValue"
       :valueFormat="valueFormat || 'YYYY-MM-DD HH:mm:ss'"
       allowClear
       showTime
       v-bind="props"
-      v-model:value="myValue"
       @change="onChange"
-
     />
     <TimePicker
       v-else-if="typeMap.get(itemType) === 'time'"
+      v-model:value="myValue"
       :valueFormat="valueFormat || 'HH:mm:ss'"
       allowClear
-      v-model:value="myValue"
-      @change="onChange"
       v-bind="props"
+      @change="onChange"
     />
     <InputNumber
       v-else-if="typeMap.get(itemType) === 'inputNumber'"
+      v-model:value="myValue"
       allowClear
       v-bind="props"
-      v-model:value="myValue"
       @change="onChange"
     />
     <Input
-      allowClear
       v-else-if="typeMap.get(itemType) === 'object'"
-      v-bind="props"
       v-model:value="myValue"
+      allowClear
+      v-bind="props"
       @change="onChange"
     >
       <template #addonAfter>
         <AIcon type="FormOutlined" @click="modalVisible = true" />
       </template>
     </Input>
-    <GeoComponent
-      v-else-if="typeMap.get(itemType) === 'geoPoint'"
-      v-bind="props"
-      v-model:point="myValue"
-      @change="onChange"
-    />
     <Input
       v-else-if="typeMap.get(itemType) === 'file'"
       v-model:value="myValue"
+      allowClear
       placeholder="请输入链接"
       v-bind="props"
-      allowClear
       @change="onChange"
     >
       <template #addonAfter>
         <Upload
-          name="file"
           :action="action"
           :headers="headers"
           :showUploadList="false"
+          name="file"
           @change="handleFileChange"
         >
           <AIcon type="UploadOutlined" />
@@ -72,43 +65,53 @@
     </Input>
     <InputPassword
       v-else-if="typeMap.get(itemType) === 'password'"
-      allowClear
-      v-bind="props"
-      type="password"
       v-model:value="myValue"
+      allowClear
+      type="password"
+      v-bind="props"
       @change="onChange"
     />
     <Input
       v-else
-      allowClear
-      v-bind="props"
-      type="text"
       v-model:value="myValue"
+      allowClear
+      type="text"
+      v-bind="props"
       @change="onChange"
     />
 
     <!-- 代码编辑器弹窗 -->
-    <j-modal
-      title="编辑"
-      ok-text="确认"
-      cancel-text="取消"
+    <Modal
       v-model:visible="modalVisible"
+      :zIndex="1100"
+      cancel-text="取消"
+      ok-text="确认"
+      title="编辑"
       width="700px"
       @cancel="modalVisible = false"
       @ok="handleItemModalSubmit"
-      :zIndex="1100"
     >
       <div style="width: 100%; height: 300px">
-        <JMonacoEditor v-model:modelValue="objectValue" />
+        <MonacoEditor v-model:modelValue="objectValue" />
       </div>
-    </j-modal>
+    </Modal>
   </div>
 </template>
 
-<script setup lang="ts">
+<script lang="ts" setup>
 import { CSSProperties, PropType, ref, watch } from 'vue'
 import { componentsType } from './util'
-import { Select, DatePicker, TimePicker, Input, InputNumber, InputPassword, Upload } from 'ant-design-vue'
+import { MonacoEditor } from '../../'
+import {
+  Select,
+  DatePicker,
+  TimePicker,
+  Input,
+  InputNumber,
+  InputPassword,
+  Upload,
+  Modal,
+} from 'ant-design-vue'
 
 type Emits = {
   (e: 'update:modelValue', data: string | number | boolean): void

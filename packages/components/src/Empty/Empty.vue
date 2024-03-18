@@ -7,14 +7,14 @@
 </template>
 
 <script lang="ts" setup name="JEmpty">
-import {Empty} from 'ant-design-vue';
-import {useSlots} from 'vue';
-import NoData from './image';
-import {omit} from 'lodash-es';
-import type {PropType, CSSProperties} from 'vue';
+import { Empty } from 'ant-design-vue'
+import { useSlots } from 'vue'
+import NoData from './image'
+import { omit } from 'lodash-es'
+import type { PropType, CSSProperties } from 'vue'
 
-const slots = useSlots();
-const renderArr = Object.keys(slots);
+const slots = useSlots()
+const renderArr = Object.keys(slots)
 
 const props = defineProps({
   description: {
@@ -28,12 +28,12 @@ const props = defineProps({
   imageStyle: {
     type: Object as PropType<CSSProperties>,
     default: () => {
-      return {height: '60px'};
+      return { height: '60px' }
     },
   },
-});
+})
 
-const baseProps = omit(props, ...renderArr);
+const baseProps = omit(props, ...renderArr)
 </script>
 <style lang="less">
 .@{ant-prefix}-empty-description {
