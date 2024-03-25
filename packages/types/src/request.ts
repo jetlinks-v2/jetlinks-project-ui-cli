@@ -1,8 +1,7 @@
-import type {
-  AxiosResponse,
-} from 'axios'
+import type { AxiosResponse } from 'axios'
 
-export interface AxiosResponseRewrite<T extends any> extends AxiosResponse<T, any> {
+export interface AxiosResponseRewrite<T extends any>
+  extends AxiosResponse<T, any> {
   result: T
   success: boolean
 }

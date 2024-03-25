@@ -1,102 +1,117 @@
 <!-- 参数类型输入组件 -->
 <template>
   <div class="value-item-warp">
-    <j-select
+    <Select
       v-if="typeMap.get(itemType) === 'select'"
       v-model:value="myValue"
       allowClear
-      @change="(_, options) => onChange(options)"
       v-bind="props"
+      @change="(_, options) => onChange(options)"
     />
-    <j-date-picker
+    <DatePicker
       v-else-if="typeMap.get(itemType) === 'date'"
-      :valueFormat="valueFormat || 'YYYY-MM-DD HH:mm:ss'"
       v-model:value="myValue"
+      :valueFormat="valueFormat || 'YYYY-MM-DD HH:mm:ss'"
       allowClear
       showTime
+      v-bind="props"
       @change="onChange"
     />
-    <j-input-number
-      v-else-if="typeMap.get(itemType) === 'inputNumber'"
+    <TimePicker
+      v-else-if="typeMap.get(itemType) === 'time'"
+      v-model:value="myValue"
+      :valueFormat="valueFormat || 'HH:mm:ss'"
+      allowClear
       v-bind="props"
+      @change="onChange"
+    />
+    <InputNumber
+      v-else-if="typeMap.get(itemType) === 'inputNumber'"
       v-model:value="myValue"
       allowClear
+      v-bind="props"
       @change="onChange"
     />
-    <j-input
-      allowClear
-      v-bind="props"
+    <Input
       v-else-if="typeMap.get(itemType) === 'object'"
       v-model:value="myValue"
+      allowClear
+      v-bind="props"
       @change="onChange"
     >
       <template #addonAfter>
         <AIcon type="FormOutlined" @click="modalVisible = true" />
       </template>
-    </j-input>
-    <GeoComponent
-      v-else-if="typeMap.get(itemType) === 'geoPoint'"
-      v-model:point="myValue"
-      @change="onChange"
-      v-bind="props"
-    />
-    <j-input
+    </Input>
+    <Input
       v-else-if="typeMap.get(itemType) === 'file'"
       v-model:value="myValue"
-      placeholder="请输入链接"
       allowClear
+      placeholder="请输入链接"
+      v-bind="props"
       @change="onChange"
     >
       <template #addonAfter>
-        <j-upload
-          name="file"
+        <Upload
           :action="action"
           :headers="headers"
           :showUploadList="false"
+          name="file"
           @change="handleFileChange"
         >
           <AIcon type="UploadOutlined" />
-        </j-upload>
+        </Upload>
       </template>
-    </j-input>
-    <j-input-password
+    </Input>
+    <InputPassword
       v-else-if="typeMap.get(itemType) === 'password'"
-      allowClear
-      v-bind="props"
-      type="password"
       v-model:value="myValue"
+      allowClear
+      type="password"
+      v-bind="props"
       @change="onChange"
     />
-    <j-input
+    <Input
       v-else
-      allowClear
-      v-bind="props"
-      type="text"
       v-model:value="myValue"
+      allowClear
+      type="text"
+      v-bind="props"
       @change="onChange"
     />
 
     <!-- 代码编辑器弹窗 -->
-    <j-modal
-      title="编辑"
-      ok-text="确认"
-      cancel-text="取消"
+    <Modal
       v-model:visible="modalVisible"
+      :zIndex="1100"
+      cancel-text="取消"
+      ok-text="确认"
+      title="编辑"
       width="700px"
       @cancel="modalVisible = false"
       @ok="handleItemModalSubmit"
-      :zIndex="1100"
     >
       <div style="width: 100%; height: 300px">
-        <JMonacoEditor v-model:modelValue="objectValue" />
+        <MonacoEditor v-model:modelValue="objectValue" />
       </div>
-    </j-modal>
+    </Modal>
   </div>
 </template>
 
-<script setup lang="ts">
+<script lang="ts" setup>
 import { CSSProperties, PropType, ref, watch } from 'vue'
 import { componentsType } from './util'
+import { MonacoEditor } from '../../'
+import {
+  Select,
+  DatePicker,
+  TimePicker,
+  Input,
+  InputNumber,
+  InputPassword,
+  Upload,
+  Modal,
+} from 'ant-design-vue'
 
 type Emits = {
   (e: 'update:modelValue', data: string | number | boolean): void

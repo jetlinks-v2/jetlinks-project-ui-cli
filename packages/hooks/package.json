@@ -15,11 +15,11 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@jetlinks-web/core": "workspace:^",
+    "@jetlinks-web/constants": "workspace:^",
     "@jetlinks-web/types": "workspace:^",
     "@jetlinks-web/utils": "workspace:^",
-    "lodash-es": "^4.17.21",
-    "echarts": "^5.4.3"
+    "echarts": "^5.4.3",
+    "lodash-es": "^4.17.21"
   },
   "devDependencies": {
     "@types/lodash-es": "^4.17.7",
