@@ -1,5 +1,5 @@
 import type { Slots } from 'vue'
-import { message } from 'jetlinks-ui-components'
+import { message } from 'ant-design-vue';
 import { regular } from './regular'
 /**
  * 静态图片资源处理
@@ -113,3 +113,4 @@ export const filterTreeNodes = (tree, condition, key) => {
     return false
   })
 }
+
