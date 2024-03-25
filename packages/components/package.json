@@ -19,15 +19,16 @@
     "@ant-design/icons-vue": "^7.0.1",
     "@jetlinks-web/constants": "workspace:^",
     "@jetlinks-web/hooks": "workspace:^",
-    "@jetlinks-web/stores": "workspace:^",
-    "@jetlinks-web/utils": "workspace:^"
+    "@jetlinks-web/utils": "workspace:^",
+    "sortablejs": "^1.15.2",
+    "echarts": "^5.4.3"
   },
   "devDependencies": {
     "@vuemap/vue-amap": "^2.0.17",
     "@vueuse/core": "^10.2.1",
-    "ant-design-vue": "^3.2.20",
-    "jetlinks-ui-components": "^1.0.34-16",
+    "@vueuse/router": "^10.9.0",
     "lodash-es": "^4.17.21",
+    "monaco-editor": "^0.40.0",
     "pinia": "^2.1.6",
     "vue": "^3.3.4",
     "vue-router": "^4.2.4"

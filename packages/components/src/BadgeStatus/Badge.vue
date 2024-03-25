@@ -1,12 +1,12 @@
 <template>
-  <j-badge
+  <a-badge
     :color="_color"
     :text="text"
-  ></j-badge>
+  ></a-badge>
 </template>
 
 <script setup lang="ts" name="BadgeStatus">
-import { defineProps, computed } from 'vue'
+import { computed } from 'vue'
 import { getHexColor } from './color'
 
 const props = defineProps({

@@ -1,10 +1,5 @@
 <template>
-  <Tooltip
-    ref="tooltipRef"
-    placement="top"
-    v-bind="tooltip"
-    :visible="visible"
-  >
+  <Tooltip ref="tooltipRef" placement="top" v-bind="tooltip" :visible="visible">
     <template v-if="tooltip">
       <div :class="[jEllipsisLineClampClass, jEllipsis, 'j-ellipsis-deep']">
         <slot></slot>
@@ -16,23 +11,24 @@
       v-bind="triggerAttrs()"
       @click="handleClickRef"
       @mouseleave="visible = false"
-      @mouseenter="[
-                    props.expandTrigger === 'click'
-                        ? getTooltipDisabled()
-                        : showTooltip(),
-                ]"
+      @mouseenter="
+        ;[
+          props.expandTrigger === 'click'
+            ? getTooltipDisabled()
+            : showTooltip(),
+        ]
+      "
     >
-
     </span>
   </Tooltip>
 </template>
 
 <script setup>
-import {Tooltip} from 'ant-design-vue'
-import {computed, mergeProps, ref, useAttrs} from 'vue';
+import { Tooltip } from 'ant-design-vue'
+import { computed, mergeProps, ref, useAttrs } from 'vue'
 
 defineOptions({
-  name: 'Ellipsis'
+  name: 'Ellipsis',
 })
 
 const props = defineProps({
@@ -47,128 +43,119 @@ const props = defineProps({
   },
   tooltip: {
     type: [Boolean, Object],
-    default: true
-  }
+    default: true,
+  },
 })
 
 // define class name
-const jEllipsis = 'j-ellipsis';
-const jEllipsisCursorClass = 'j-ellipsis-cursor';
-const jEllipsisLineClampClass = 'j-ellipsis-line-clamp';
+const jEllipsis = 'j-ellipsis'
+const jEllipsisCursorClass = 'j-ellipsis-cursor'
+const jEllipsisLineClampClass = 'j-ellipsis-line-clamp'
 
-const expandedRef = ref(false);
-const tooltipRef = ref(null);
-const triggerRef = ref(null);
-const visible = ref(false);
+const expandedRef = ref(false)
+const tooltipRef = ref(null)
+const triggerRef = ref(null)
+const visible = ref(false)
 
-const attrs = useAttrs();
+const attrs = useAttrs()
 
 const handleClickRef = computed(() => {
   return props.expandTrigger === 'click'
     ? () => {
-      const {value: expanded} = expandedRef;
-      expandedRef.value = !expanded;
-    }
-    : undefined;
-});
+        const { value: expanded } = expandedRef
+        expandedRef.value = !expanded
+      }
+    : undefined
+})
 
 function triggerAttrs() {
   return {
     ...mergeProps(attrs, {
       class: [
         jEllipsis,
-        props.lineClamp !== undefined
-          ? jEllipsisLineClampClass
-          : undefined,
-        props.expandTrigger === 'click'
-          ? jEllipsisCursorClass
-          : undefined,
+        props.lineClamp !== undefined ? jEllipsisLineClampClass : undefined,
+        props.expandTrigger === 'click' ? jEllipsisCursorClass : undefined,
       ],
       style: ellipsisStyleRef.value,
     }),
-  };
+  }
 }
 
 const showTooltip = () => {
-  const {value: trigger} = triggerRef;
+  const { value: trigger } = triggerRef
   if (trigger) {
-    visible.value = trigger.scrollHeight > trigger.offsetHeight;
+    visible.value = trigger.scrollHeight > trigger.offsetHeight
   }
-};
+}
 
 const ellipsisStyleRef = computed(() => {
-  const {lineClamp} = props;
-  const {value: expanded} = expandedRef;
+  const { lineClamp } = props
+  const { value: expanded } = expandedRef
   if (lineClamp !== undefined) {
     return {
       textOverflow: '',
       '-webkit-line-clamp': expanded ? '' : lineClamp,
-    };
+    }
   } else {
     return {
       textOverflow: expanded ? '' : 'ellipsis',
       '-webkit-line-clamp': '',
-    };
+    }
   }
-});
+})
 
 const syncEllipsisStyle = (trigger) => {
-  if (!trigger) return;
-  const latestStyle = ellipsisStyleRef.value;
-  const lineClampClass = jEllipsisLineClampClass;
+  if (!trigger) return
+  const latestStyle = ellipsisStyleRef.value
+  const lineClampClass = jEllipsisLineClampClass
   if (props.lineClamp !== undefined) {
-    syncTriggerClass(trigger, lineClampClass, 'add');
+    syncTriggerClass(trigger, lineClampClass, 'add')
   } else {
-    syncTriggerClass(trigger, lineClampClass, 'remove');
+    syncTriggerClass(trigger, lineClampClass, 'remove')
   }
   for (const key in latestStyle) {
     if (trigger.style[key] !== latestStyle[key]) {
-      trigger.style[key] = latestStyle[key];
+      trigger.style[key] = latestStyle[key]
     }
   }
 }
 
-const syncTriggerClass = (
-  trigger,
-  styleClass,
-  action,
-) => {
+const syncTriggerClass = (trigger, styleClass, action) => {
   if (action === 'add') {
     if (!trigger.classList.contains(styleClass)) {
-      trigger.classList.add(styleClass);
+      trigger.classList.add(styleClass)
     }
   } else {
     if (trigger.classList.contains(styleClass)) {
-      trigger.classList.remove(styleClass);
+      trigger.classList.remove(styleClass)
     }
   }
 }
 
 const syncCursorStyle = (trigger, tooltipDisabled) => {
   if (props.expandTrigger === 'click' && !tooltipDisabled) {
-    syncTriggerClass(trigger, jEllipsisCursorClass, 'add');
+    syncTriggerClass(trigger, jEllipsisCursorClass, 'add')
   } else {
-    syncTriggerClass(trigger, jEllipsisCursorClass, 'remove');
+    syncTriggerClass(trigger, jEllipsisCursorClass, 'remove')
   }
 }
 
 const getTooltipDisabled = () => {
-  let tooltipDisabled = false;
-  const {value: expanded} = expandedRef;
+  let tooltipDisabled = false
+  const { value: expanded } = expandedRef
 
-  if (expanded) return true;
+  if (expanded) return true
 
-  const {value: trigger} = triggerRef;
+  const { value: trigger } = triggerRef
 
   if (trigger) {
-    syncEllipsisStyle(trigger);
-    tooltipDisabled = trigger.scrollHeight <= trigger.offsetHeight;
+    syncEllipsisStyle(trigger)
+    tooltipDisabled = trigger.scrollHeight <= trigger.offsetHeight
 
-    syncCursorStyle(trigger, tooltipDisabled);
+    syncCursorStyle(trigger, tooltipDisabled)
   }
-  return tooltipDisabled;
+  return tooltipDisabled
 }
-
 </script>
 
 <style scoped>
@@ -192,5 +179,4 @@ const getTooltipDisabled = () => {
   -webkit-line-clamp: 17;
   text-overflow: ellipsis;
 }
-
 </style>

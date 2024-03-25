@@ -1,41 +1,64 @@
 import type { App } from 'vue'
 
-import FullPage from './src/FullPage'
-import PermissionButton from './src/PermissionButton'
-import BadgeStatus from './src/BadgeStatus'
-import GeoComponent from './src/GeoComponent'
-import ValueItem from './src/ValueItem'
-import Echarts from './src/Echarts'
-import Icon from './src/Icon'
-import ConfigProvider from './src/ConfigProvider'
-import CardSelect from "./src/CardSelect";
-
-import { PageContainer } from 'jetlinks-ui-components'
 import { InitAMap } from './src/AMap'
+import BadgeStatus from './src/BadgeStatus'
+import CardSelect from './src/CardSelect'
+import CheckButton from './src/CheckButton'
+import ConfigProvider from './src/ConfigProvider'
+import Echarts from './src/Echarts'
+import Ellipsis from './src/Ellipsis'
+import Empty from './src/Empty'
+import FullPage from './src/FullPage'
+import AIcon from './src/Icon'
+import MonacoEditor from './src/MonacoEditor'
+import PermissionButton from './src/PermissionButton'
+import ProLayout, { PageContainer } from './src/ProLayout'
+import ProTable from './src/ProTable'
+import Scrollbar from './src/Scrollbar'
+import Search, { AdvancedSearch } from './src/Search'
+import ValueItem from './src/ValueItem'
+
+export * from './src/style'
 
 export {
-  FullPage,
-  PermissionButton,
   BadgeStatus,
-  GeoComponent,
-  ValueItem,
+  CardSelect,
+  CheckButton,
   Echarts,
-  Icon,
+  Ellipsis,
+  Empty,
+  FullPage,
+  AIcon,
+  MonacoEditor,
+  PermissionButton,
+  ValueItem,
+  ProTable,
+  Scrollbar,
+  Search,
+  AdvancedSearch,
   ConfigProvider,
-  CardSelect
 }
 export default {
   install(app: App) {
-    app.component('JPageContainer', PageContainer)
-      .component('AIcon', Icon)
-      .component('JPermissionButton', PermissionButton)
-      .component('JFullPage', FullPage)
-      .component('JBadgeStatus', BadgeStatus)
+    app
       .component('JAMap', InitAMap)
-      .component('jGeoComponent', GeoComponent)
-      .component('JValueItem', ValueItem)
-      .component('JEcharts', Echarts)
-      .component('JConfigProvider', ConfigProvider)
+      .component('JBadgeStatus', BadgeStatus)
       .component('JCardSelect', CardSelect)
-  }
+      .component('JCheckButton', CheckButton)
+      .component('JConfigProvider', ConfigProvider)
+      .component('JEcharts', Echarts)
+      .component('JEllipsis', Ellipsis)
+      .component('JEmpty', Empty)
+      .component('JFullPage', FullPage)
+      .component('AIcon', AIcon)
+      .component('JMonacoEditor', MonacoEditor)
+      .component('JPermissionButton', PermissionButton)
+      .component('JProLayout', ProLayout)
+      .component('JPageContainer', PageContainer)
+      .component('JProTable', ProTable)
+      .component('JScrollbar', Scrollbar)
+      .component('JSearch', Search)
+      .component('JAdvancedSearch', AdvancedSearch)
+      .component('JValueItem', ValueItem)
+  },
 }
