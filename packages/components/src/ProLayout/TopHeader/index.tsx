@@ -1,13 +1,13 @@
 import { computed, ref } from 'vue';
 import type { RouteRecordRaw } from 'vue-router';
-import { default as ResizeObserver } from 'ant-design-vue/lib/vc-resize-observer';
-import type { VueNode } from 'ant-design-vue/lib/_util/type';
+import { default as ResizeObserver } from 'ant-design-vue/es/vc-resize-observer';
+import type { VueNode } from 'ant-design-vue/es/_util/type';
 import type { SiderMenuProps } from '../SiderMenu/SiderMenu';
 import {
     defaultRenderLogoAndTitle,
     siderMenuProps,
 } from '../SiderMenu/SiderMenu';
-import PropTypes from 'ant-design-vue/lib/_util/vue-types';
+import PropTypes from 'ant-design-vue/es/_util/vue-types';
 import type {
     MenuDataItem,
     ProProps,

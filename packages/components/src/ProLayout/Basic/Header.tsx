@@ -1,7 +1,7 @@
 import { baseHeaderProps, TopNavHeader } from '../TopHeader';
 import type { BaseHeaderPropsType } from '../TopHeader';
-import PropTypes from 'ant-design-vue/lib/_util/vue-types';
-import type { VueNode } from 'ant-design-vue/lib/_util/type';
+import PropTypes from 'ant-design-vue/es/_util/vue-types';
+import type { VueNode } from 'ant-design-vue/es/_util/type';
 import type { ExtractPropTypes, PropType } from 'vue';
 import { defineComponent, computed, toRefs } from 'vue';
 import type { WithFalse } from '../typings';

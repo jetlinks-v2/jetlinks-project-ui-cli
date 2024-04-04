@@ -5,7 +5,7 @@
   "fixed": [],
   "linked": [["@jetlinks-web/*"]],
   "access": "restricted",
-  "baseBranch": "main",
+  "baseBranch": "master",
   "updateInternalDependencies": "patch",
   "ignore": ["scripts"]
 }

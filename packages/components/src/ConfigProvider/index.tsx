@@ -1,4 +1,4 @@
-import {defineComponent, provide, reactive} from 'vue'
+import {defineComponent, provide, reactive, h} from 'vue'
 import { configProps } from './context'
 import type { MapConfigType } from './context'
 import { ComponentsEnum, MAPConfig } from '@jetlinks-web/constants'
@@ -22,16 +22,14 @@ const JConfigProvider = defineComponent({
     provide(MAPConfig, _mapConfig) // 全局地图配置
 
     return () => {
-      return (
-        <ConfigProvider
-          {...omit(props, ['IconConfig', 'MapConfig'])}
-          v-slots={{
-            renderEmpty: () => (slots.renderEmpty?.() || <Empty />),
-            ...slots,
-          }}
-        >
-          { slots.default?.() }
-        </ConfigProvider>
+
+      return h(
+        ConfigProvider,
+        {...omit(props, ['IconConfig', 'MapConfig'])},
+        {
+          default: slots.default,
+          renderEmpty: () => (slots.renderEmpty?.() || <Empty />)
+        }
       )
     }
   }

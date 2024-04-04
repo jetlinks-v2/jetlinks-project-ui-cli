@@ -21,7 +21,7 @@ import type {
     MenuClickEventHandler,
     SelectInfo,
     MenuInfo,
-} from 'ant-design-vue/lib/menu/src/interface';
+} from 'ant-design-vue/es/menu/src/interface';
 import type {
     FormatMessage,
     MenuDataItem,
@@ -31,7 +31,7 @@ import type {
     SubMenuItemRender,
 } from '../typings';
 import type { MenuMode } from 'ant-design-vue';
-import type { Key } from 'ant-design-vue/lib/_util/type';
+import type { Key } from 'ant-design-vue/es/_util/type';
 import { defaultPrefixCls } from '../RouteContext';
 import { AIcon as IconFont } from '../../../';
 import { regular } from '@jetlinks-web/utils';

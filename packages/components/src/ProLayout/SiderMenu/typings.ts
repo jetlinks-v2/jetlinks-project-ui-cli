@@ -4,7 +4,7 @@ import type { Theme } from '../typings';
 export type {
     MenuMode,
     MenuTheme,
-} from 'ant-design-vue/lib/menu/src/interface';
+} from 'ant-design-vue/es/menu/src/interface';
 
 export interface MenuInfo {
     key: string | number;

@@ -1,6 +1,6 @@
 {
   "name": "@jetlinks-web/components",
-  "version": "2.0.0",
+  "version": "2.0.2-2",
   "description": "",
   "main": "index.ts",
   "module": "index.ts",
@@ -20,15 +20,15 @@
     "@jetlinks-web/constants": "workspace:^",
     "@jetlinks-web/hooks": "workspace:^",
     "@jetlinks-web/utils": "workspace:^",
-    "sortablejs": "^1.15.2",
-    "echarts": "^5.4.3"
-  },
-  "devDependencies": {
-    "@vuemap/vue-amap": "^2.0.17",
     "@vueuse/core": "^10.2.1",
     "@vueuse/router": "^10.9.0",
+    "@vuemap/vue-amap": "^2.0.17",
+    "sortablejs": "^1.15.2",
+    "echarts": "^5.4.3",
+    "monaco-editor": "^0.40.0"
+  },
+  "devDependencies": {
     "lodash-es": "^4.17.21",
-    "monaco-editor": "^0.40.0",
     "pinia": "^2.1.6",
     "vue": "^3.3.4",
     "vue-router": "^4.2.4"

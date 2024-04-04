@@ -10,14 +10,14 @@ import type { SiderProps } from './typings';
 import { LayoutSider as Sider, Menu } from 'ant-design-vue';
 import BaseMenu, { baseMenuProps } from './BaseMenu';
 import { defaultSettingProps } from '../defaultSettings';
-import PropTypes from 'ant-design-vue/lib/_util/vue-types';
+import PropTypes from 'ant-design-vue/es/_util/vue-types';
 import type {
     CSSProperties,
     ExtractPropTypes,
     PropType,
     FunctionalComponent,
 } from 'vue';
-import type { VueNode } from 'ant-design-vue/lib/_util/type';
+import type { VueNode } from 'ant-design-vue/es/_util/type';
 import { AIcon as IconFont } from '../../../';
 import { useRouteContext } from '../RouteContext';
 import { computed, unref } from 'vue';

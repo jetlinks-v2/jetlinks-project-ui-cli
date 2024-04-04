@@ -1,5 +1,5 @@
 import type {PropType} from "vue";
-import { configProviderProps } from 'ant-design-vue/lib/config-provider/context';
+import { configProviderProps } from 'ant-design-vue/es/config-provider/context';
 
 export type MapConfigType = {
   mapStyle?: any

@@ -15,12 +15,12 @@ import type {
     CSSProperties,
 } from 'vue';
 import { defineComponent, unref, toRefs, computed } from 'vue';
-import { pageHeaderProps } from 'ant-design-vue/lib/page-header';
+import { pageHeaderProps } from 'ant-design-vue/es/page-header';
 import type { DefaultPropRender, PageHeaderRender } from '../typings';
 import type { AffixProps, TabBarExtraContent } from './typings';
 import { useRouteContext } from '../RouteContext';
 import { getSlotVNode } from '../util';
-import { VueNode } from 'ant-design-vue/lib/_util/type';
+import { VueNode } from 'ant-design-vue/es/_util/type';
 import './index.less';
 
 export const pageHeaderTabConfig = {

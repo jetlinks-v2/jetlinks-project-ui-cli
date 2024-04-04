@@ -21,12 +21,13 @@ import {
     reactive,
     watchEffect,
     toRefs,
+    h
 } from 'vue';
 import { defaultSettingProps } from '../defaultSettings';
 import { baseHeaderProps } from '../TopHeader';
 import Header, { headerViewProps } from './Header';
-import type { VueNode } from 'ant-design-vue/lib/_util/type';
-import useConfigInject from 'ant-design-vue/lib/_util/hooks/useConfigInject';
+import type { VueNode } from 'ant-design-vue/es/_util/type';
+import useConfigInject from 'ant-design-vue/es/_util/hooks/useConfigInject';
 import type { BreadcrumbProps, RouteContextProps } from '../RouteContext';
 import { pick } from 'lodash-es';
 import { defaultRouteContext, routeContextInjectKey } from '../RouteContext';
@@ -194,7 +195,9 @@ export default defineComponent({
             if (p.headerRender === false || p.pure) {
                 return null;
             }
-            return <Header {...p} matchMenuKeys={matchMenuKeys || []} />;
+            return h(Header, { ...p, matchMenuKeys: matchMenuKeys || []})
+
+          // <Header {...p} matchMenuKeys={matchMenuKeys || []} />;
         };
 
         const breadcrumb = computed<BreadcrumbProps>(() => ({

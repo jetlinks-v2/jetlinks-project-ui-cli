@@ -1,6 +1,6 @@
 import type { VNode } from 'vue';
 import type { BreadcrumbProps } from './RouteContext';
-import type { VueNode } from 'ant-design-vue/lib/_util/type';
+import type { VueNode } from 'ant-design-vue/es/_util/type';
 
 export type Theme = 'dark' | 'light';
 export type LayoutType = 'side' | 'top' | 'mix';
