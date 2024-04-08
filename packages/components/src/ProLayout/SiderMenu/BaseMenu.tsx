@@ -33,7 +33,7 @@ import type {
 import type { MenuMode } from 'ant-design-vue';
 import type { Key } from 'ant-design-vue/es/_util/type';
 import { defaultPrefixCls } from '../RouteContext';
-import { AIcon as IconFont } from '../../../';
+import IconFont from '../../Icon';
 import { regular } from '@jetlinks-web/utils';
 import { Menu } from 'ant-design-vue';
 import { createFromIconfontCN } from '@ant-design/icons-vue';

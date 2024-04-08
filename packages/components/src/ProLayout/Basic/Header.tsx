@@ -44,7 +44,6 @@ export default defineComponent({
         const {
             prefixCls,
             fixedHeader,
-            hasSiderMenu,
             headerHeight,
             layout,
             theme,
@@ -54,11 +53,7 @@ export default defineComponent({
         const needFixedHeader = computed(
             () => fixedHeader.value || context.fixedHeader,
         );
-        const isMix = computed(() => layout.value === 'mix');
         const isTop = computed(() => layout.value === 'top');
-        const needSettingWidth = computed(
-            () => needFixedHeader.value && hasSiderMenu.value && !isTop.value,
-        );
 
         const className = computed(() => {
             return {

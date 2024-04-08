@@ -22,7 +22,7 @@ import { useEventListener } from '@vueuse/core'
 import { isClient } from '@jetlinks-web/utils'
 import { scrollbarContextKey } from './constants'
 import { BAR_MAP, renderThumbStyle } from './util'
-import { thumbProps } from './thumb'
+import { thumbProps } from './thumbProps'
 
 const props = defineProps(thumbProps)
 

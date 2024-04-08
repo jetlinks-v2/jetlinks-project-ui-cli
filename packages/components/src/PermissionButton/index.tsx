@@ -28,7 +28,7 @@ const definedProps = {
     ...omit(buttonProps(), 'icon')
 }
 
-type DefinedPropsType = Partial<ExtractPropTypes<typeof definedProps>>
+export type DefinedPropsType = Partial<ExtractPropTypes<typeof definedProps>>
 
 const PermissionButton = defineComponent({
     name: 'PermissionButton',

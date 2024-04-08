@@ -208,7 +208,7 @@ export const handleParamsToString = (
     return JSON.stringify({ terms: _terms });
 };
 
-export const getTermTypeFn = (type?: SearchProps['type'], column?: string) => {
+export const getTermTypeFn = (type?: SearchProps['type']) => {
     // if (column?.includes('id') && type === 'string') {
     //     // 默认id为 eq
     //     return 'eq';

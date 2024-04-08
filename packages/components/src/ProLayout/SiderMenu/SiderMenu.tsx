@@ -18,7 +18,7 @@ import type {
     FunctionalComponent,
 } from 'vue';
 import type { VueNode } from 'ant-design-vue/es/_util/type';
-import { AIcon as IconFont } from '../../../';
+import IconFont from '../../Icon';
 import { useRouteContext } from '../RouteContext';
 import { computed, unref } from 'vue';
 

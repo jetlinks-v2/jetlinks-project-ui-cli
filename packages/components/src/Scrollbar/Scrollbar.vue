@@ -38,7 +38,7 @@ import { useEventListener, useResizeObserver } from '@vueuse/core'
 import { isNumber, isObject } from '@jetlinks-web/utils'
 import Bar from './Bar.vue'
 import { scrollbarContextKey } from './constants'
-import { scrollbarEmits, scrollbarProps, BarInstance } from './scrollbar'
+import { scrollbarEmits, scrollbarProps, BarInstance } from './scrollbarProps'
 import type { CSSProperties, StyleValue } from 'vue'
 
 const COMPONENT_NAME = 'JScrollbar'

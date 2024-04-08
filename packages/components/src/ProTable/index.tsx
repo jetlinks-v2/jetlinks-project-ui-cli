@@ -1,4 +1,4 @@
-import { Empty, AIcon } from '../../../components';
+import { Empty, AIcon } from '../index';
 import { Table, Pagination, Button, Alert, Spin, RadioGroup, RadioButton } from 'ant-design-vue'
 import type { RadioChangeEvent } from 'ant-design-vue/es/radio';
 import type { TableProps } from 'ant-design-vue/es/table';

@@ -1,0 +1,33 @@
+.JSearch-item {
+    display: flex;
+    gap: 16px;
+    align-items: center;
+
+    .JSearch-item--type {
+        width: 90px;
+        min-width: 0;
+        > span {
+            line-height: 34px;
+            font-weight: bold;
+        }
+    }
+
+    .JSearch-item--column {
+        width: 130px;
+        min-width: 0;
+    }
+
+    .JSearch-item--termType {
+        width: 110px;
+        min-width: 0;
+    }
+    .JSearch-item--label {
+        min-width: 40px;
+    }
+
+    .JSearch-item--value {
+        display: flex;
+        width: 0;
+        flex-grow: 1;
+    }
+}
