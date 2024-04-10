@@ -1,0 +1,249 @@
+<template>
+  <div class="jtable-body-spin" :style="bodyStyle" id="jtable-body-spin">
+    <Spin :spinning="loading">
+      <div class="jtable-body">
+        <Header :initMode="mode" :mode="_mode" :modeValue="modeValue" @change="onCheck">
+          <template #headerLeftRender>
+            <slot name="headerLeftRender"></slot>
+          </template>
+          <template #headerRightRender>
+            <slot name="headerRightRender"></slot>
+          </template>
+        </Header>
+        <Alert v-if="showAlert" :rowSelection="rowSelection" @close="onClose">
+          <slot name="alertRender" :rowSelection="rowSelection" :onClose="onClose"></slot>
+        </Alert>
+        <Content v-bind="props" :mode="_mode" :dataSource="_dataSource" :column="column">
+          <template v-for="(_, key) in slots" :key="key" v-slot:[key]="slotProps">
+            <template v-if="!extraSlots.includes(key)">
+              <slot :name="key" v-bind="slotProps"></slot>
+            </template>
+          </template>
+        </Content>
+        <Pagination @change="onPageChange" v-if="showPagination" :total="page.total" :pageIndex="page.pageIndex" :pageSize="page.pageSize">
+          <slot
+              name="paginationRender"
+              :total="page.total"
+              :pageSize="page.pageSize"
+              :current="page.pageIndex + 1"
+              :onChange="onPageChange"
+          ></slot>
+        </Pagination>
+      </div>
+    </Spin>
+  </div>
+</template>
+
+<script setup lang="ts">
+import {proTableProps} from "./setting";
+import {Spin} from 'ant-design-vue';
+import Header from './Header.vue';
+import Alert from './Alert.vue';
+import Content from './Content.vue';
+import Pagination from './Pagination.vue';
+import {useSlots, defineProps, defineOptions, watch, defineExpose, onMounted, onUnmounted, computed, ref, reactive} from "vue";
+import {debounce} from 'lodash-es';
+
+defineOptions({
+  name: 'ProTable'
+})
+
+const props = defineProps({
+  ...proTableProps
+})
+const slots = useSlots()
+
+const loading = ref<boolean>(false)
+const _dataSource = ref<any[]>([])
+const _mode = ref<'TABLE' | 'CARD' | undefined>(!props.mode ? (props.modeValue || 'CARD') : props.mode)
+const column = ref<number>(4)
+const page = reactive({
+  pageIndex: 0,
+  pageSize: 12,
+  total: 0
+})
+
+const extraSlots = ['headerRightRender', 'headerLeftRender', 'paginationRender', 'alertRender']
+
+const showAlert = computed(() => {
+  return props.alertShow && props?.rowSelection?.selectedRowKeys?.length
+})
+
+const showPagination = computed(() => {
+  return !!_dataSource.value.length && !props.noPagination && props.type === 'PAGE'
+})
+const onCheck = (e) => {
+  _mode.value = e.target.value;
+}
+
+const handleData = (result: any) => {
+  if (props.type === 'PAGE') {
+    // 判断如果是最后一页且最后一页为空，就跳转到前一页
+    if (
+        result?.total &&
+        result?.pageSize &&
+        result?.pageIndex &&
+        result?.data?.length === 0
+    ) {
+      return true
+    } else {
+      _dataSource.value = result?.data || [];
+      page.pageIndex = result?.pageIndex || 0;
+      page.pageSize = result?.pageSize || 12;
+      page.total = result?.total || 0;
+    }
+  } else {
+    _dataSource.value = result || [];
+  }
+  return false
+}
+const handleSearch = async (_params?: Record<string, any>) => {
+  if (Array.isArray(props.dataSource)) {
+    _dataSource.value = []
+  } else if (props.request) {
+    const __params = {
+      pageIndex: page.pageIndex,
+      pageSize: Number(page.pageSize),
+      ...props.defaultParams,
+      ..._params,
+      terms: [
+        ...(props.defaultParams?.terms || []),
+        ...(_params?.terms || []),
+      ],
+    }
+    loading.value = true
+    const resp: any = await props.request(__params).finally(() => {
+      loading.value = false;
+    });
+    if (resp.success) {
+      const flag = handleData(resp.result || {})
+      if (flag) { // 判断如果是最后一页且最后一页为空，就跳转到前一页
+        page.pageIndex = page.pageIndex > 0 ? page.pageIndex - 1 : 0;
+        handleSearch({
+          ..._params,
+          pageSize: page.pageSize,
+          pageIndex: page.pageIndex,
+        });
+      }
+    } else {
+      _dataSource.value = [];
+    }
+  } else {
+    _dataSource.value = []
+  }
+}
+
+const _debounceFn = debounce(handleSearch, 300);
+
+watch(
+    () => props.params,
+    (newValue) => {
+      _debounceFn(newValue || {});
+    },
+    {deep: true, immediate: true},
+);
+
+watch(
+    () => props.dataSource,
+    () => {
+      handleSearch(props.params);
+    },
+    {deep: true, immediate: true},
+);
+
+const onPageChange = (_page, size) => {
+  handleSearch({
+    ...props.params,
+    pageSize: size,
+    pageIndex: page.pageSize === size ? (_page ? _page - 1 : 0) : 0
+  })
+}
+const onClose = () => {
+  props.rowSelection?.onChange?.([], []);
+  props.rowSelection?.onSelectNone?.();
+}
+/**
+ * 刷新数据
+ * @param _params
+ */
+const reload = (_params?: Record<string, any>) => {
+  handleSearch({
+    ...props.params,
+    ..._params,
+    pageSize: page.pageSize || 12, // 刷新页面不改变分页情况
+    pageIndex: page.pageIndex || 0,
+  });
+};
+
+const _gridColumns = computed(() => {
+  if(props.gridColumns?.length){
+    const arr = props.gridColumns
+    const lastValue = arr.slice(-1)?.[0]
+    if(arr?.length < 4){
+      while (arr.length < 4) {
+        arr.push(lastValue);
+      }
+      return arr;
+    } else {
+      return props.gridColumns.slice(0, 4)
+    }
+  } else {
+    return [1, 2, 3, 4]
+  }
+})
+
+// 监听宽度，计算显示卡片个数
+const windowChange = () => {
+  const ele = document.getElementById('jtable-body-spin')
+  if(ele){
+    const styles = window.getComputedStyle(ele)
+    const width = parseFloat(styles.width);
+    if(width <= 992){
+      column.value = _gridColumns.value?.[0] || 1
+    } else if (width > 992 && width <= 1440) {
+      column.value = _gridColumns.value?.[1] || 2
+    } else if (width > 1440 && width <= 1600) {
+      column.value = _gridColumns.value?.[2] || 3
+    } else if (width > 1600) {
+      column.value = _gridColumns.value?.[3] || 4
+    }
+  }
+}
+
+onMounted(() => {
+  windowChange(); // 初始化
+  window.onresize = () => {
+    windowChange();
+  };
+});
+
+onUnmounted(() => {
+  window.onresize = null;
+});
+
+defineExpose({reload, dataSource: _dataSource})
+</script>
+
+<style lang="less" scoped>
+.jtable-body-spin {
+  min-height: 100%;
+  width: 100%;
+  background-color: #fff;
+
+  .ant-spin-nested-loading {
+    height: 100%;
+
+    .ant-spin-container {
+      height: 100%;
+    }
+  }
+
+  .jtable-body {
+    width: 100%;
+    box-sizing: border-box;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+  }
+}
+</style>
