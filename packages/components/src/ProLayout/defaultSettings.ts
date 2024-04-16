@@ -104,3 +104,8 @@ export const defaultSettingProps = {
 };
 
 export type ProSettingsProps = ExtractPropTypes<typeof defaultSettingProps>;
+
+export const LayoutType = {
+  CARD: 'card',
+  LIST: 'list'
+}
