@@ -70,6 +70,10 @@ import { termsParamsFormat } from './util';
 import SearchItem from './Item.vue';
 import { optionsMapKey } from './setting';
 
+defineOptions({
+  name: 'JSearch',
+})
+
 interface Emit {
   (e: 'search', data: Terms[] | {}): void;
 }

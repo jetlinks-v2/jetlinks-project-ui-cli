@@ -1,6 +1,6 @@
 <template>
   <Tooltip ref="tooltipRef" placement="top" v-bind="tooltip" :visible="visible">
-    <template v-if="tooltip">
+    <template v-if="tooltip" #title>
       <div :class="[jEllipsisLineClampClass, jEllipsis, 'j-ellipsis-deep']">
         <slot></slot>
         <slot name="tooltip"></slot>
@@ -12,13 +12,12 @@
       @click="handleClickRef"
       @mouseleave="visible = false"
       @mouseenter="
-        ;[
           props.expandTrigger === 'click'
             ? getTooltipDisabled()
-            : showTooltip(),
-        ]
+            : showTooltip()
       "
     >
+      <slot></slot>
     </span>
   </Tooltip>
 </template>
@@ -28,7 +27,7 @@ import { Tooltip } from 'ant-design-vue'
 import { computed, mergeProps, ref, useAttrs } from 'vue'
 
 defineOptions({
-  name: 'Ellipsis',
+  name: 'JEllipsis',
 })
 
 const props = defineProps({
@@ -158,25 +157,5 @@ const getTooltipDisabled = () => {
 }
 </script>
 
-<style scoped>
-.j-ellipsis {
-  overflow: hidden;
-  vertical-align: bottom;
-}
-
-.j-ellipsis-cursor {
-  cursor: pointer;
-}
-
-.j-ellipsis-line-clamp {
-  display: -webkit-box;
-  -webkit-box-orient: vertical;
-  word-break: break-all;
-}
-
-.j-ellipsis-deep {
-  max-height: 380px;
-  -webkit-line-clamp: 17;
-  text-overflow: ellipsis;
-}
+<style>
 </style>

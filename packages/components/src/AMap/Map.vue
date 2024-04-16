@@ -21,7 +21,7 @@
   </div>
 </template>
 
-<script setup name="InitAMap" lang="ts">
+<script setup lang="ts">
 import type { CSSProperties, PropType } from 'vue';
 import { ref, computed, inject } from 'vue'
 import { initAMapApiLoader, ElAmap } from '@vuemap/vue-amap';
@@ -37,6 +37,10 @@ interface AMapProps {
   AMapUI?: string | boolean;
   plugins?: string[]
 }
+
+defineOptions({
+  name: 'JAMap'
+})
 
 const emit = defineEmits([
   'initMap',

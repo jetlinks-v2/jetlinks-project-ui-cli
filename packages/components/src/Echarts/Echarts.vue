@@ -2,13 +2,17 @@
   <div ref="echartsDom" class="echarts-warp" :style="style"></div>
 </template>
 
-<script lang="ts" name="Echarts" setup>
+<script lang="ts" setup>
 import {CSSProperties, nextTick, ref, watch, Ref} from 'vue'
 import {useECharts} from '@jetlinks-web/hooks'
 
 interface Props {
   style?: CSSProperties
 }
+
+defineOptions({
+  name: 'JEcharts'
+})
 
 const props = defineProps({
   options: {

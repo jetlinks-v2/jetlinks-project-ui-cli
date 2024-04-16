@@ -113,6 +113,10 @@ import {
   Modal,
 } from 'ant-design-vue'
 
+defineOptions({
+  name: 'JValueItem',
+})
+
 type Emits = {
   (e: 'update:modelValue', data: string | number | boolean): void
   (e: 'change', data: any, item?: any): void

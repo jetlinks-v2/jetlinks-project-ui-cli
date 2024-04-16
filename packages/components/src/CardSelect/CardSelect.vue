@@ -23,8 +23,13 @@
   </div>
 </template>
 
-<script setup name="CardSelect">
+<script setup>
 import { has } from 'lodash-es'
+
+defineOptions({
+  name: 'JCardSelect'
+})
+
 const props = defineProps({
   layout: {
     type: String,

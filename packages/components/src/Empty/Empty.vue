@@ -6,12 +6,16 @@
   </Empty>
 </template>
 
-<script lang="ts" setup name="JEmpty">
+<script lang="ts" setup>
 import { Empty } from 'ant-design-vue'
 import { useSlots } from 'vue'
 import NoData from './image'
 import { omit } from 'lodash-es'
 import type { PropType, CSSProperties } from 'vue'
+
+defineOptions({
+  name: 'JEmpty'
+})
 
 const slots = useSlots()
 const renderArr = Object.keys(slots)

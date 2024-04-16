@@ -23,6 +23,10 @@
 import { computed, CSSProperties, PropType, ref, watch } from 'vue';
 import { isArray } from '@jetlinks-web/utils';
 
+defineOptions({
+  name: 'JCheckButton'
+})
+
 const props = defineProps({
   value: {
     type: [String, Array],
@@ -105,42 +109,4 @@ const selected = (key: string | number, disabled: boolean) => {
 </script>
 
 <style scoped lang="less">
-.j-check-button {
-  display: flex;
-  gap: 16px;
-  width: 100%;
-
-  .j-check-button-item {
-    flex: 1;
-    min-width: 0;
-    padding: 8px;
-    border-radius: @border-radius-base;
-    background-color: #f2f3f5;
-    transition: all 0.3s;
-    color: #333;
-    text-align: center;
-    cursor: pointer;
-
-    &:hover {
-      background-color: @primary-color;
-      opacity: 0.85;
-      color: #fff;
-    }
-
-    &.selected {
-      background-color: @primary-color;
-      color: #fff;
-    }
-
-    &.disabled {
-      cursor: not-allowed;
-      color: #00000060;
-
-      &:hover {
-        background-color: #f2f3f5;
-        color: #00000060;
-      }
-    }
-  }
-}
 </style>

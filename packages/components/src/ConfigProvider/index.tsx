@@ -5,6 +5,7 @@ import { ComponentsEnum, MAPConfig } from '@jetlinks-web/constants'
 import { ConfigProvider } from 'ant-design-vue'
 import {omit} from 'lodash-es'
 import Empty from '../Empty'
+import type { App } from 'vue';
 
 const JConfigProvider = defineComponent({
   name: 'JConfigProvider',
@@ -36,5 +37,10 @@ const JConfigProvider = defineComponent({
 })
 
 JConfigProvider.config = ConfigProvider.config
+
+
+JConfigProvider.install = function (app: App) {
+  app.component(JConfigProvider.name, JConfigProvider)
+}
 
 export default JConfigProvider

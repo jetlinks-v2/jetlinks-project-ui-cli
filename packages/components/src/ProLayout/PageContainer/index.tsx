@@ -18,9 +18,10 @@ import { defineComponent, unref, toRefs, computed } from 'vue';
 import { pageHeaderProps } from 'ant-design-vue/es/page-header';
 import type { DefaultPropRender, PageHeaderRender } from '../typings';
 import type { AffixProps, TabBarExtraContent } from './typings';
-import { useRouteContext } from '../RouteContext';
+import { useRouteContext, defaultPrefixCls } from '../RouteContext';
 import { getSlotVNode } from '../util';
 import { VueNode } from 'ant-design-vue/es/_util/type';
+import PropTypes from 'ant-design-vue/es/_util/vue-types';
 import './index.less';
 
 export const pageHeaderTabConfig = {
@@ -68,7 +69,7 @@ export const pageContainerProps = {
     ...pageHeaderProps,
     prefixCls: {
         type: String,
-        default: 'ant-pro',
+        default: PropTypes.string.def('ant-pro'),
     }, //PropTypes.string.def('ant-pro'),
     title: {
         type: [

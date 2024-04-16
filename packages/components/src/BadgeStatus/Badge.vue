@@ -5,9 +5,13 @@
   ></a-badge>
 </template>
 
-<script setup lang="ts" name="BadgeStatus">
+<script setup lang="ts">
 import { computed } from 'vue'
 import { getHexColor } from './color'
+
+defineOptions({
+  name: 'JBadgeStatus'
+})
 
 const props = defineProps({
   text: {

@@ -18,6 +18,7 @@ import {
     RequestData,
 } from './proTableTypes';
 import { get, debounce, isArray } from 'lodash-es';
+import type { App } from 'vue';
 
 export interface JTableProps extends TableProps {
     request?: (params?: Record<string, any>) => Promise<Partial<RequestData>>;
@@ -136,7 +137,7 @@ const tableProps = () => {
 };
 
 const ProTable = defineComponent<JTableProps>({
-    name: 'ProTable',
+    name: 'JProTable',
     slots: [
         'headerTitle', // 顶部左边插槽
         'card', // 卡片内容
@@ -547,5 +548,9 @@ const ProTable = defineComponent<JTableProps>({
         );
     },
 });
+
+ProTable.install = function (app: App) {
+  app.component(ProTable.name, ProTable)
+}
 
 export default ProTable;
