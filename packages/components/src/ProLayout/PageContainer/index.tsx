@@ -22,7 +22,6 @@ import { useRouteContext, defaultPrefixCls } from '../RouteContext';
 import { getSlotVNode } from '../util';
 import { VueNode } from 'ant-design-vue/es/_util/type';
 import PropTypes from 'ant-design-vue/es/_util/vue-types';
-import './index.less';
 
 export const pageHeaderTabConfig = {
     /**

@@ -7,9 +7,9 @@ import type {
     WithFalse,
 } from '../typings';
 import type { SiderProps } from './typings';
-import { LayoutSider as Sider, Menu } from 'ant-design-vue';
+import { LayoutSider as Sider, Menu, Tooltip } from 'ant-design-vue';
 import BaseMenu, { baseMenuProps } from './BaseMenu';
-import { defaultSettingProps } from '../defaultSettings';
+import {defaultSettingProps, LayoutType} from '../defaultSettings';
 import PropTypes from 'ant-design-vue/es/_util/vue-types';
 import type {
     CSSProperties,
@@ -102,7 +102,7 @@ export const defaultRenderLogo = (
 };
 
 export const defaultRenderLogoAndTitle = (
-    props: SiderMenuProps,
+    props: SiderMenuProps & { baseClassName?: string },
     renderKey: string | undefined = 'menuHeaderRender',
 ): VueNode | null => {
     const {
@@ -110,12 +110,44 @@ export const defaultRenderLogoAndTitle = (
         logoStyle,
         title,
         layout,
+        apps,
+      baseClassName
     } = props;
+    const logoDom = defaultRenderLogo(logo, logoStyle);
+
     const renderFunction = (props as Record<string, VueNode>)[renderKey || ''];
+    if (props.layoutType === LayoutType.CARD) {
+      return (
+        <a>
+          {
+            apps.length ?
+              <Tooltip
+                placement="rightTop"
+                color="#fff"
+                arrowPointAtCenter={true}
+                v-slots={{
+                  title: () => {
+                    return apps.map(item => {
+                      return (
+                        <div class="sider-app-menus">
+                          <div class="sider-app-menus-item" onClick={() => props.onAppMenuClick(item) }>{ item.label }</div>
+                        </div>
+                      )
+                    })
+                  }
+                }}
+              >
+                {logoDom}
+              </Tooltip> :
+            logoDom
+          }
+        </a>
+      )
+    }
     if (layout === 'mix' && renderFunction === false) {
         return null;
     }
-    const logoDom = defaultRenderLogo(logo, logoStyle);
+
     const titleDom = <h1>{title}</h1>;
     if (renderKey === 'menuHeaderRender') {
         return null;
@@ -191,10 +223,10 @@ const SiderMenu: FunctionalComponent<SiderMenuProps> = (
         }
     };
 
-    const headerDom = defaultRenderLogoAndTitle(props);
+    const headerDom = defaultRenderLogoAndTitle({...props, baseClassName});
     const extraDom = menuExtraRender && menuExtraRender(props);
 
-    if (hasSplitMenu.value && unref(context.flatMenuData).length === 0) {
+    if (props.layoutType !== LayoutType.CARD && hasSplitMenu.value && unref(context.flatMenuData).length === 0) {
         return null;
     }
 
@@ -280,9 +312,9 @@ const SiderMenu: FunctionalComponent<SiderMenuProps> = (
                     </div>
                 )}
                 <div style="flex: 1; overflow: hidden auto;">
-                    {(menuContentRender &&
+                    { props.layoutType === LayoutType.LIST ? (menuContentRender &&
                             menuContentRender(props, defaultMenuDom)) ||
-                        defaultMenuDom}
+                        defaultMenuDom : null }
                 </div>
                 <div class={`${baseClassName}-links`}>
                     {collapsedButtonRender !== false ? (
