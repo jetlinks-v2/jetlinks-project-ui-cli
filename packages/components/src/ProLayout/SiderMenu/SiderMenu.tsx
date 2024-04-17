@@ -21,6 +21,7 @@ import type { VueNode } from 'ant-design-vue/es/_util/type';
 import IconFont from '../../Icon';
 import { useRouteContext } from '../RouteContext';
 import { computed, unref } from 'vue';
+import {LinksRender} from "../typings";
 
 export type PrivateSiderMenuProps = {
     matchMenuKeys?: string[];
@@ -54,6 +55,10 @@ export const siderMenuProps = {
     },
     collapsedButtonRender: {
         type: [Function, Object, Boolean] as PropType<CollapsedButtonRender>,
+        default: () => undefined,
+    },
+    linksRender: {
+        type: [Function, Object, Boolean] as PropType<LinksRender>,
         default: () => undefined,
     },
     breakpoint: {
@@ -191,6 +196,7 @@ const SiderMenu: FunctionalComponent<SiderMenuProps> = (
         menuExtraRender = false,
         menuContentRender = false,
         collapsedButtonRender = defaultRenderCollapsedButton,
+        linksRender,
         theme,
     } = props;
 
@@ -212,6 +218,12 @@ const SiderMenu: FunctionalComponent<SiderMenuProps> = (
             [`${baseClassName}-layout-${props.layout}`]: props.layout,
         };
     });
+    const logCls = computed(() => {
+      return {
+        [`${baseClassName}-logo`]: true,
+        [`${baseClassName}-logo-card`]: props.layoutType === LayoutType.CARD
+      }
+    })
 
     const handleSelect = ($event: string[]) => {
         if (props.onSelect) {
@@ -289,7 +301,7 @@ const SiderMenu: FunctionalComponent<SiderMenuProps> = (
             >
                 {headerDom && (
                     <div
-                        class={`${baseClassName}-logo`}
+                        class={logCls.value}
                         onClick={
                             props.layout !== 'mix'
                                 ? props.onMenuHeaderClick
@@ -317,32 +329,34 @@ const SiderMenu: FunctionalComponent<SiderMenuProps> = (
                         defaultMenuDom : null }
                 </div>
                 <div class={`${baseClassName}-links`}>
-                    {collapsedButtonRender !== false ? (
-                        <Menu
-                            class={`${baseClassName}-link-menu`}
-                            inlineIndent={16}
-                            theme={theme}
-                            selectedKeys={[]}
-                            openKeys={[]}
-                            mode="inline"
-                            onClick={() => {
-                                if (props.onCollapse) {
-                                    props.onCollapse(!props.collapsed);
-                                }
-                            }}
+                  {
+                    linksRender ? linksRender() : collapsedButtonRender !== false ? (
+                      <Menu
+                        class={`${baseClassName}-link-menu`}
+                        inlineIndent={16}
+                        theme={theme}
+                        selectedKeys={[]}
+                        openKeys={[]}
+                        mode="inline"
+                        onClick={() => {
+                          if (props.onCollapse) {
+                            props.onCollapse(!props.collapsed);
+                          }
+                        }}
+                      >
+                        <Menu.Item
+                          key={'collapsed-button'}
+                          class={`${baseClassName}-collapsed-button`}
+                          title={false}
                         >
-                            <Menu.Item
-                                key={'collapsed-button'}
-                                class={`${baseClassName}-collapsed-button`}
-                                title={false}
-                            >
-                                {collapsedButtonRender &&
-                                typeof collapsedButtonRender === 'function'
-                                    ? collapsedButtonRender(collapsed)
-                                    : collapsedButtonRender}
-                            </Menu.Item>
-                        </Menu>
-                    ) : null}
+                          {collapsedButtonRender &&
+                          typeof collapsedButtonRender === 'function'
+                            ? collapsedButtonRender(collapsed)
+                            : collapsedButtonRender}
+                        </Menu.Item>
+                      </Menu>
+                    ) : null
+                  }
                 </div>
             </Sider>
         </>

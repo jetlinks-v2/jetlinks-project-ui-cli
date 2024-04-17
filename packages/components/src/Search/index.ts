@@ -4,6 +4,7 @@ import type { App } from 'vue';
 
 Search.install = function (app: App) {
   app.component(Search.name, Search)
+  app.component(AdvancedSearch.name, AdvancedSearch)
 }
 
 export { AdvancedSearch };

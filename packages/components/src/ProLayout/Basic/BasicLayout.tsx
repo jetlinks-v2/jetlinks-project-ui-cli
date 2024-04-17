@@ -11,6 +11,7 @@ import type {
     MenuContentRender,
     MenuItemRender,
     MenuHeaderRender,
+    LinksRender
 } from '../typings';
 import SiderMenu, { siderMenuProps } from '../SiderMenu/SiderMenu';
 import type { CSSProperties, ExtractPropTypes, PropType } from 'vue';
@@ -322,6 +323,11 @@ export default defineComponent({
                 props,
                 'subMenuItemRender',
             );
+            const linksRender = getSlot<LinksRender>(
+              slots,
+              props,
+              'linksRender',
+            );
 
             const headerDom = computed(() =>
                 headerRender(
@@ -423,6 +429,7 @@ export default defineComponent({
                         headerHeight={0}
                         menuHeaderRender={menuHeaderRender}
                         menuExtraRender={menuExtraRender}
+                        linksRender={linksRender}
                         menuContentRender={
                           menuContentRender
                         }
@@ -441,8 +448,10 @@ export default defineComponent({
                           style={{
                             background: 'transparent',
                             padding: 0,
-                            height: '40px'
+                            height: '40px',
+                            ...(props.pageHeaderStyle || {})
                           }}
+
                         >
                           <Tabs
                             hide-add
@@ -467,17 +476,15 @@ export default defineComponent({
                           </Tabs>
                         </Layout.Header>
                         <LayoutContent
-                          style={{height: `calc(100vh - 88px)`}}
+                          style={{height: `calc(100vh - 84px)`}}
                         >
                           {slots.default?.()}
                         </LayoutContent>
-                        <Layout.Footer style={{ padding: '11px 24px'}}>
-                          <div style={props.pageFooterStyle}>
+                        <Layout.Footer style={{ padding: '11px 24px', ...(props.pageFooterStyle || {})}}>
                             <Breadcrumb
                               routes={props.breadcrumb.routes}
                               itemRender={props.breadcrumbRender}
                             />
-                          </div>
                         </Layout.Footer>
                       </Layout>
                     </Layout>

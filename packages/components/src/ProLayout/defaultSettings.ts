@@ -128,6 +128,10 @@ export const defaultSettingProps = {
       type: Object as PropType<CSSProperties>,
       default: () => undefined,
     },
+    pageHeaderStyle: {
+      type: Object as PropType<CSSProperties>,
+      default: () => undefined,
+    },
     apps: {
       type: Array as PropType<Array<any>>,
       default: () => []
