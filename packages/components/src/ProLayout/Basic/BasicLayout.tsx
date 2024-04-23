@@ -476,7 +476,7 @@ export default defineComponent({
                           </Tabs>
                         </Layout.Header>
                         <LayoutContent
-                          style={{height: `calc(100vh - 84px)`}}
+                          style={{height: `calc(100vh - 84px)`, overflow: 'auto'}}
                         >
                           {slots.default?.()}
                         </LayoutContent>

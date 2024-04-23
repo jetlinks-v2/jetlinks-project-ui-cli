@@ -92,12 +92,36 @@ export type SiderMenuProps = Partial<ExtractPropTypes<typeof siderMenuProps>>;
 export const defaultRenderLogo = (
     logo?: VueNode,
     logoStyle?: CSSProperties,
+    application?: Array<any>,
+    onAppMenuClick?: Function
 ): VueNode => {
     if (!logo) {
         return null;
     }
     if (typeof logo === 'string') {
-        return <img src={logo} alt="logo" style={logoStyle}/>;
+        return (
+          application.length ?
+            <Tooltip
+              placement="rightTop"
+              color="#fff"
+              arrowPointAtCenter={true}
+              v-slots={{
+                title: () => {
+                  return application.map(item => {
+                    return (
+                      <div class="sider-app-menus">
+                        <div class="sider-app-menus-item" onClick={() => onAppMenuClick(item) }>{ item.label }</div>
+                      </div>
+                    )
+                  })
+                }
+              }}
+            >
+              <img src={logo} alt="logo" style={logoStyle}/>
+            </Tooltip>
+            :
+            <img src={logo} alt="logo" style={logoStyle}/>
+        );
     }
     if (typeof logo === 'function') {
         // @ts-ignore
@@ -118,37 +142,14 @@ export const defaultRenderLogoAndTitle = (
         apps,
       baseClassName
     } = props;
-    const logoDom = defaultRenderLogo(logo, logoStyle);
+    const logoDom = defaultRenderLogo(logo, logoStyle, apps, props.onAppMenuClick);
+
+    if (props.layoutType === LayoutType.CARD) {
+      return <a> { logoDom }</a>
+    }
 
     const renderFunction = (props as Record<string, VueNode>)[renderKey || ''];
-    if (props.layoutType === LayoutType.CARD) {
-      return (
-        <a>
-          {
-            apps.length ?
-              <Tooltip
-                placement="rightTop"
-                color="#fff"
-                arrowPointAtCenter={true}
-                v-slots={{
-                  title: () => {
-                    return apps.map(item => {
-                      return (
-                        <div class="sider-app-menus">
-                          <div class="sider-app-menus-item" onClick={() => props.onAppMenuClick(item) }>{ item.label }</div>
-                        </div>
-                      )
-                    })
-                  }
-                }}
-              >
-                {logoDom}
-              </Tooltip> :
-            logoDom
-          }
-        </a>
-      )
-    }
+
     if (layout === 'mix' && renderFunction === false) {
         return null;
     }
