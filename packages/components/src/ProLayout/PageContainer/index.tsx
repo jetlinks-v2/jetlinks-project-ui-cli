@@ -69,7 +69,7 @@ export const pageContainerProps = {
     ...pageHeaderProps,
     prefixCls: {
         type: String,
-        default: PropTypes.string.def('ant-pro'),
+        default: 'ant-pro',
     }, //PropTypes.string.def('ant-pro'),
     title: {
         type: [
@@ -283,6 +283,8 @@ const ProPageHeader: FunctionalComponent<
             value.back?.();
         };
     }
+
+    console.log(props, pageHeaderTitle, value, tabList)
 
     const styles = value.layoutType === LayoutType.CARD ? {
         padding: props.extra ||  props.subTitle || pageHeaderTitle || tabList || props.extraContent || props.showBack || props.title ? '16px 24px' : '0px',
