@@ -8,7 +8,7 @@
 import dayjs from "dayjs";
 
 defineOptions({
-  name: 'TimeFormat'
+  name: 'JTimeFormat'
 })
 
 const props = defineProps({
