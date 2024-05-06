@@ -241,6 +241,10 @@ export default defineComponent({
                 [],
         );
 
+        const layoutType = computed(() => {
+          return props.layoutType
+        })
+
         const routeContext = reactive<RouteContextProps>({
             ...defaultRouteContext,
             ...(pick(toRefs(props), [
@@ -262,8 +266,9 @@ export default defineComponent({
             back: onBack,
             hasHeader: true,
             flatMenu: hasFlatMenu,
-            layoutType: props.layoutType
+            layoutType
         });
+
         provide(routeContextInjectKey, routeContext);
 
         return () => {
