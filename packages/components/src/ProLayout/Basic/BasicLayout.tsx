@@ -189,6 +189,7 @@ export default defineComponent({
                 [`${baseClassName.value}-is-children`]: props.isChildrenLayout,
                 [`${baseClassName.value}-fix-siderbar`]: props.fixSiderbar,
                 [`${baseClassName.value}-${props.layout}`]: props.layout,
+                [`${baseClassName.value}-${props.layoutType}`]: props.layoutType,
             };
         });
 
@@ -268,6 +269,7 @@ export default defineComponent({
             flatMenu: hasFlatMenu,
             layoutType
         });
+
 
         provide(routeContextInjectKey, routeContext);
 
@@ -376,6 +378,7 @@ export default defineComponent({
             if (pure) {
               return slots.default?.()
             }
+
 
             if (props.layoutType === LayoutType.LIST) {
               return (
@@ -486,10 +489,7 @@ export default defineComponent({
                           {slots.default?.()}
                         </LayoutContent>
                         <Layout.Footer style={{ padding: '11px 24px', ...(props.pageFooterStyle || {})}}>
-                            <Breadcrumb
-                              routes={props.breadcrumb.routes}
-                              itemRender={props.breadcrumbRender}
-                            />
+                            <Breadcrumb routes={breadcrumb.value.routes} v-slots={{ itemRender: breadcrumb.value.itemRender}}/>
                         </Layout.Footer>
                       </Layout>
                     </Layout>

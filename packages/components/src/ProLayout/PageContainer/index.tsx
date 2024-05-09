@@ -284,8 +284,6 @@ const ProPageHeader: FunctionalComponent<
         };
     }
 
-    console.log(props, pageHeaderTitle, value, tabList)
-
     const styles = value.layoutType === LayoutType.CARD ? {
         padding: props.extra ||  props.subTitle || pageHeaderTitle || tabList || props.extraContent || props.showBack || props.title ? '16px 24px' : '0px',
     } : {}
