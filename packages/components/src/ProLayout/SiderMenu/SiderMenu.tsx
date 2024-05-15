@@ -93,40 +93,43 @@ export const defaultRenderLogo = (
     logo?: VueNode,
     logoStyle?: CSSProperties,
     application?: Array<any>,
-    onAppMenuClick?: Function
+    props?: any,
 ): VueNode => {
     if (!logo) {
         return null;
     }
-    if (typeof logo === 'string') {
-        return (
-          application.length ?
-            <Tooltip
-              placement="rightTop"
-              color="#fff"
-              arrowPointAtCenter={true}
-              v-slots={{
-                title: () => {
-                  return application.map(item => {
-                    return (
-                      <div class="sider-app-menus">
-                        <div class="sider-app-menus-item" onClick={() => onAppMenuClick(item) }>{ item.label }</div>
-                      </div>
-                    )
-                  })
-                }
-              }}
-            >
-              <img src={logo} alt="logo" style={logoStyle}/>
-            </Tooltip>
-            :
-            <img src={logo} alt="logo" style={logoStyle}/>
-        );
-    }
+
     if (typeof logo === 'function') {
         // @ts-ignore
         return logo();
     }
+
+    if (typeof logo === 'string') {
+      return (
+        application.length ?
+          <Tooltip
+            placement="rightTop"
+            color="#fff"
+            arrowPointAtCenter={true}
+            v-slots={{
+              title: () => {
+                return application.map(item => {
+                  return (
+                    <div class="sider-app-menus">
+                      <div class="sider-app-menus-item" onClick={() => props.onAppMenuClick(item) }>{ item.label }</div>
+                    </div>
+                  )
+                })
+              }
+            }}
+          >
+            <img src={logo} alt="logo" style={logoStyle}/>
+          </Tooltip>
+          :
+          <img src={logo} alt="logo" style={logoStyle}/>
+      );
+    }
+
     return logo;
 };
 
@@ -142,7 +145,7 @@ export const defaultRenderLogoAndTitle = (
         apps,
       baseClassName
     } = props;
-    const logoDom = defaultRenderLogo(logo, logoStyle, apps, props.onAppMenuClick);
+    const logoDom = defaultRenderLogo(logo, logoStyle, apps, props);
 
     if (props.layoutType === LayoutType.CARD) {
       return <a> { logoDom }</a>

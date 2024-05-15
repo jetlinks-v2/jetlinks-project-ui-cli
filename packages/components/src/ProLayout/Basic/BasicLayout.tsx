@@ -11,7 +11,9 @@ import type {
     MenuContentRender,
     MenuItemRender,
     MenuHeaderRender,
-    LinksRender
+    LinksRender,
+    LogoRender,
+    HistoryRender
 } from '../typings';
 import SiderMenu, { siderMenuProps } from '../SiderMenu/SiderMenu';
 import type { CSSProperties, ExtractPropTypes, PropType } from 'vue';
@@ -335,6 +337,17 @@ export default defineComponent({
               props,
               'linksRender',
             );
+            const logoRender = getSlot<LogoRender>(
+              slots,
+              props,
+              'logoRender',
+            );
+
+            const historyRender = getSlot<HistoryRender>(
+              slots,
+              props,
+              'historyRender',
+            );
 
             const headerDom = computed(() =>
                 headerRender(
@@ -354,6 +367,7 @@ export default defineComponent({
                         menuExtraRender,
                         menuContentRender,
                         headerContentRender,
+                        logo:logoRender || props.logo,
                         headerRender: customHeaderRender,
                         theme: (props.theme || 'dark')
                             .toLocaleLowerCase()
@@ -398,6 +412,7 @@ export default defineComponent({
                         {!isTop.value && (
                           <SiderMenu
                             {...restProps}
+                            logo={logoRender || restProps.logo}
                             menuHeaderRender={menuHeaderRender}
                             menuExtraRender={menuExtraRender}
                             menuContentRender={
@@ -433,6 +448,7 @@ export default defineComponent({
                     <Layout>
                       <SiderMenu
                         {...restProps}
+                        logo={logoRender || restProps.logo}
                         siderWidth={props.cardSiderWidth}
                         headerHeight={0}
                         menuHeaderRender={menuHeaderRender}
@@ -473,6 +489,7 @@ export default defineComponent({
                             onChange={onTabChange}
                           >
                             {
+                              historyRender ? historyRender() :
                               props.historyRoutes.map(item => (
                                 <Tabs.TabPane
                                   key={item.name}
@@ -484,7 +501,7 @@ export default defineComponent({
                           </Tabs>
                         </Layout.Header>
                         <LayoutContent
-                          style={{height: `calc(100vh - 84px)`, overflow: 'auto'}}
+                          style={{ flex: '1 1 0', overflow: 'auto'}}
                         >
                           {slots.default?.()}
                         </LayoutContent>
