@@ -14,6 +14,8 @@ import type {
     RightContentRender,
     WithFalse,
     Theme,
+  MenuExtraRender,
+  TopHeaderMenuRender
 } from '../typings';
 import { defaultSettingProps } from '../defaultSettings';
 import type { PropType, FunctionalComponent, ExtractPropTypes } from 'vue';
@@ -49,6 +51,10 @@ export const baseHeaderProps = {
     },
     menuHeaderRender: siderMenuProps.menuHeaderRender,
     menuItemRender: siderMenuProps.menuItemRender,
+    topHeaderMenuRender: {
+      type: [Function, Object, Boolean] as PropType<TopHeaderMenuRender>,
+      default: () => undefined,
+    },
     subMenuItemRender: siderMenuProps.subMenuItemRender,
     rightContentRender: {
         type: [Object, Function] as PropType<RightContentRender>,
@@ -120,6 +126,7 @@ export const TopNavHeader: FunctionalComponent<TopNavHeaderProps> = (props) => {
         onSelect,
         contentWidth,
         rightContentRender,
+        topHeaderMenuRender,
         layout,
         menuData,
         mode,
@@ -175,7 +182,9 @@ export const TopNavHeader: FunctionalComponent<TopNavHeaderProps> = (props) => {
                     </div>
                 )}
                 <div style={{ flex: 1 }} class={`${prefixCls}-menu`}>
-                    <BaseMenu
+                  {
+                    topHeaderMenuRender ? topHeaderMenuRender() :
+                      <BaseMenu
                         prefixCls={propPrefixCls}
                         locale={props.locale || context.locale}
                         theme={props.theme}
@@ -188,15 +197,17 @@ export const TopNavHeader: FunctionalComponent<TopNavHeaderProps> = (props) => {
                         openKeys={context.openKeys}
                         selectedKeys={context.selectedKeys}
                         class={{
-                            'top-nav-menu': props.mode === 'horizontal',
+                          'top-nav-menu': props.mode === 'horizontal',
                         }}
                         {...{
-                            'onUpdate:openKeys': ($event: string[]) =>
-                                onOpenKeys && onOpenKeys($event),
-                            'onUpdate:selectedKeys': ($event: string[]) =>
-                                onSelect && onSelect($event),
+                          'onUpdate:openKeys': ($event: string[]) =>
+                            onOpenKeys && onOpenKeys($event),
+                          'onUpdate:selectedKeys': ($event: string[]) =>
+                            onSelect && onSelect($event),
                         }}
-                    />
+                      />
+                  }
+
                 </div>
                 {rightContentRender && (
                     <RightContent

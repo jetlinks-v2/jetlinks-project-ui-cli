@@ -25,6 +25,7 @@
 
 <script setup>
 import { has } from 'lodash-es'
+import { computed, ref, watch } from 'vue'
 
 defineOptions({
   name: 'JCardSelect'
@@ -110,32 +111,3 @@ watch(() => props.value, () => {
 }, { immediate: true })
 
 </script>
-
-<style lang="less">
-@import 'ant-design-vue/es/style/themes/index.less';
-
-.j-card-select {
-  display: grid;
-  gap: 12px;
-
-  .j-card-select-item {
-    padding: 12px;
-    border: 1px solid #e6e6e6;
-    border-radius: @border-radius-base;
-    cursor: pointer;
-
-    &.active {
-      border-color: @primary-color;
-    }
-
-    &.disabled {
-      cursor: not-allowed;
-      opacity: 0.75;
-    }
-
-    .j-card-select-describe {
-      color: @text-color-subtitle;
-    }
-  }
-}
-</style>

@@ -62,6 +62,10 @@ export default defineComponent({
             };
         });
 
+        const headerMenuRender = computed(() => {
+
+        })
+
         const renderContent = () => {
             const defaultDom = (
                 <TopNavHeader
