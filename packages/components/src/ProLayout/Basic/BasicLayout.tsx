@@ -13,7 +13,8 @@ import type {
     MenuHeaderRender,
     LinksRender,
     LogoRender,
-    HistoryRender
+    HistoryRender,
+  TopHeaderMenuRender
 } from '../typings';
 import SiderMenu, { siderMenuProps } from '../SiderMenu/SiderMenu';
 import type { CSSProperties, ExtractPropTypes, PropType } from 'vue';
@@ -213,6 +214,7 @@ export default defineComponent({
                 hasSiderMenu: boolean;
                 headerRender: HeaderRender;
                 rightContentRender: RightContentRender;
+                topHeaderMenuRender: TopHeaderMenuRender;
             },
             matchMenuKeys?: string[],
         ): VueNode | null => {
@@ -349,6 +351,12 @@ export default defineComponent({
               'historyRender',
             );
 
+            const topHeaderMenuRender = getSlot<TopHeaderMenuRender>(
+              slots,
+              props,
+              'topHeaderMenuRender',
+            );
+
             const headerDom = computed(() =>
                 headerRender(
                     {
@@ -369,6 +377,7 @@ export default defineComponent({
                         headerContentRender,
                         logo:logoRender || props.logo,
                         headerRender: customHeaderRender,
+                        topHeaderMenuRender: topHeaderMenuRender,
                         theme: (props.theme || 'dark')
                             .toLocaleLowerCase()
                             .includes('dark')

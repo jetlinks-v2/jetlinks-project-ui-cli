@@ -82,6 +82,7 @@ export type MenuContentRender = WithFalse<
 export type MenuExtraRender = WithFalse<(props?: ProProps) => VueNode>;
 export type LogoRender = WithFalse<VueNode>;
 export type HistoryRender = WithFalse<VueNode>;
+export type TopHeaderMenuRender = WithFalse<VueNode>;
 
 export type CollapsedButtonRender = WithFalse<(collapsed?: boolean) => VueNode>;
 export type LinksRender = WithFalse<(collapsed?: boolean) => VueNode>;
