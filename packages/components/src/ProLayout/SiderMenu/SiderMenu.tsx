@@ -7,9 +7,9 @@ import type {
     WithFalse,
 } from '../typings';
 import type { SiderProps } from './typings';
-import { LayoutSider as Sider, Menu } from 'ant-design-vue';
+import { LayoutSider as Sider, Menu, Tooltip } from 'ant-design-vue';
 import BaseMenu, { baseMenuProps } from './BaseMenu';
-import { defaultSettingProps } from '../defaultSettings';
+import {defaultSettingProps, LayoutType} from '../defaultSettings';
 import PropTypes from 'ant-design-vue/es/_util/vue-types';
 import type {
     CSSProperties,
@@ -21,6 +21,7 @@ import type { VueNode } from 'ant-design-vue/es/_util/type';
 import IconFont from '../../Icon';
 import { useRouteContext } from '../RouteContext';
 import { computed, unref } from 'vue';
+import {LinksRender} from "../typings";
 
 export type PrivateSiderMenuProps = {
     matchMenuKeys?: string[];
@@ -56,6 +57,10 @@ export const siderMenuProps = {
         type: [Function, Object, Boolean] as PropType<CollapsedButtonRender>,
         default: () => undefined,
     },
+    linksRender: {
+        type: [Function, Object, Boolean] as PropType<LinksRender>,
+        default: () => undefined,
+    },
     breakpoint: {
         type: [Object, Boolean] as PropType<SiderProps['breakpoint'] | false>,
         default: () => false,
@@ -87,22 +92,49 @@ export type SiderMenuProps = Partial<ExtractPropTypes<typeof siderMenuProps>>;
 export const defaultRenderLogo = (
     logo?: VueNode,
     logoStyle?: CSSProperties,
+    application?: Array<any>,
+    props?: any,
 ): VueNode => {
     if (!logo) {
         return null;
     }
-    if (typeof logo === 'string') {
-        return <img src={logo} alt="logo" style={logoStyle}/>;
-    }
+
     if (typeof logo === 'function') {
         // @ts-ignore
         return logo();
     }
+
+    if (typeof logo === 'string') {
+      return (
+        application.length ?
+          <Tooltip
+            placement="rightTop"
+            color="#fff"
+            arrowPointAtCenter={true}
+            v-slots={{
+              title: () => {
+                return application.map(item => {
+                  return (
+                    <div class="sider-app-menus">
+                      <div class="sider-app-menus-item" onClick={() => props.onAppMenuClick(item) }>{ item.label }</div>
+                    </div>
+                  )
+                })
+              }
+            }}
+          >
+            <img src={logo} alt="logo" style={logoStyle}/>
+          </Tooltip>
+          :
+          <img src={logo} alt="logo" style={logoStyle}/>
+      );
+    }
+
     return logo;
 };
 
 export const defaultRenderLogoAndTitle = (
-    props: SiderMenuProps,
+    props: SiderMenuProps & { baseClassName?: string },
     renderKey: string | undefined = 'menuHeaderRender',
 ): VueNode | null => {
     const {
@@ -110,12 +142,21 @@ export const defaultRenderLogoAndTitle = (
         logoStyle,
         title,
         layout,
+        apps,
+      baseClassName
     } = props;
+    const logoDom = defaultRenderLogo(logo, logoStyle, apps, props);
+
+    if (props.layoutType === LayoutType.CARD) {
+      return <a> { logoDom }</a>
+    }
+
     const renderFunction = (props as Record<string, VueNode>)[renderKey || ''];
+
     if (layout === 'mix' && renderFunction === false) {
         return null;
     }
-    const logoDom = defaultRenderLogo(logo, logoStyle);
+
     const titleDom = <h1>{title}</h1>;
     if (renderKey === 'menuHeaderRender') {
         return null;
@@ -159,6 +200,7 @@ const SiderMenu: FunctionalComponent<SiderMenuProps> = (
         menuExtraRender = false,
         menuContentRender = false,
         collapsedButtonRender = defaultRenderCollapsedButton,
+        linksRender,
         theme,
     } = props;
 
@@ -180,6 +222,12 @@ const SiderMenu: FunctionalComponent<SiderMenuProps> = (
             [`${baseClassName}-layout-${props.layout}`]: props.layout,
         };
     });
+    const logCls = computed(() => {
+      return {
+        [`${baseClassName}-logo`]: true,
+        [`${baseClassName}-logo-card`]: props.layoutType === LayoutType.CARD
+      }
+    })
 
     const handleSelect = ($event: string[]) => {
         if (props.onSelect) {
@@ -191,10 +239,10 @@ const SiderMenu: FunctionalComponent<SiderMenuProps> = (
         }
     };
 
-    const headerDom = defaultRenderLogoAndTitle(props);
+    const headerDom = defaultRenderLogoAndTitle({...props, baseClassName});
     const extraDom = menuExtraRender && menuExtraRender(props);
 
-    if (hasSplitMenu.value && unref(context.flatMenuData).length === 0) {
+    if (props.layoutType !== LayoutType.CARD && hasSplitMenu.value && unref(context.flatMenuData).length === 0) {
         return null;
     }
 
@@ -257,7 +305,7 @@ const SiderMenu: FunctionalComponent<SiderMenuProps> = (
             >
                 {headerDom && (
                     <div
-                        class={`${baseClassName}-logo`}
+                        class={logCls.value}
                         onClick={
                             props.layout !== 'mix'
                                 ? props.onMenuHeaderClick
@@ -280,37 +328,39 @@ const SiderMenu: FunctionalComponent<SiderMenuProps> = (
                     </div>
                 )}
                 <div style="flex: 1; overflow: hidden auto;">
-                    {(menuContentRender &&
+                    { props.layoutType === LayoutType.LIST ? (menuContentRender &&
                             menuContentRender(props, defaultMenuDom)) ||
-                        defaultMenuDom}
+                        defaultMenuDom : null }
                 </div>
                 <div class={`${baseClassName}-links`}>
-                    {collapsedButtonRender !== false ? (
-                        <Menu
-                            class={`${baseClassName}-link-menu`}
-                            inlineIndent={16}
-                            theme={theme}
-                            selectedKeys={[]}
-                            openKeys={[]}
-                            mode="inline"
-                            onClick={() => {
-                                if (props.onCollapse) {
-                                    props.onCollapse(!props.collapsed);
-                                }
-                            }}
+                  {
+                    linksRender ? linksRender() : collapsedButtonRender !== false ? (
+                      <Menu
+                        class={`${baseClassName}-link-menu`}
+                        inlineIndent={16}
+                        theme={theme}
+                        selectedKeys={[]}
+                        openKeys={[]}
+                        mode="inline"
+                        onClick={() => {
+                          if (props.onCollapse) {
+                            props.onCollapse(!props.collapsed);
+                          }
+                        }}
+                      >
+                        <Menu.Item
+                          key={'collapsed-button'}
+                          class={`${baseClassName}-collapsed-button`}
+                          title={false}
                         >
-                            <Menu.Item
-                                key={'collapsed-button'}
-                                class={`${baseClassName}-collapsed-button`}
-                                title={false}
-                            >
-                                {collapsedButtonRender &&
-                                typeof collapsedButtonRender === 'function'
-                                    ? collapsedButtonRender(collapsed)
-                                    : collapsedButtonRender}
-                            </Menu.Item>
-                        </Menu>
-                    ) : null}
+                          {collapsedButtonRender &&
+                          typeof collapsedButtonRender === 'function'
+                            ? collapsedButtonRender(collapsed)
+                            : collapsedButtonRender}
+                        </Menu.Item>
+                      </Menu>
+                    ) : null
+                  }
                 </div>
             </Sider>
         </>

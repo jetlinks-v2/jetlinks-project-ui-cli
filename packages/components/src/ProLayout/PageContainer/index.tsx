@@ -18,10 +18,11 @@ import { defineComponent, unref, toRefs, computed } from 'vue';
 import { pageHeaderProps } from 'ant-design-vue/es/page-header';
 import type { DefaultPropRender, PageHeaderRender } from '../typings';
 import type { AffixProps, TabBarExtraContent } from './typings';
-import { useRouteContext } from '../RouteContext';
+import { useRouteContext, defaultPrefixCls } from '../RouteContext';
 import { getSlotVNode } from '../util';
 import { VueNode } from 'ant-design-vue/es/_util/type';
-import './index.less';
+import PropTypes from 'ant-design-vue/es/_util/vue-types';
+import {LayoutType} from "../defaultSettings";
 
 export const pageHeaderTabConfig = {
     /**
@@ -283,14 +284,19 @@ const ProPageHeader: FunctionalComponent<
         };
     }
 
+    const styles = value.layoutType === LayoutType.CARD ? {
+        padding: props.extra ||  props.subTitle || pageHeaderTitle || tabList || props.extraContent || props.showBack || props.title ? '16px 24px' : '0px',
+    } : {}
+
     return (
         <div class={`${prefixedClassName}-wrap`}>
             <PageHeader
+                style={styles}
                 {...backProps}
                 {...restProps}
                 // {...value}
                 title={pageHeaderTitle}
-                breadcrumb={breadcrumb}
+                breadcrumb={value.layoutType === LayoutType.LIST ? breadcrumb : null}
                 footer={renderFooter({
                     ...restProps,
                     tabList,

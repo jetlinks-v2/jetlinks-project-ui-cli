@@ -10,9 +10,13 @@
   </div>
 </template>
 
-<script setup lang="ts" name="FullPage">
+<script setup lang="ts">
 import { ref } from 'vue'
 import { useElementBounding } from '@vueuse/core'
+
+defineOptions({
+  name: 'JFullPage'
+})
 
 const fullPage = ref(null)
 const { y } = useElementBounding(fullPage)

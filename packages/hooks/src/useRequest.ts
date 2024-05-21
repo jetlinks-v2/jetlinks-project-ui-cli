@@ -15,7 +15,7 @@ interface RequestOptions<T, S> {
    * 返回参数处理
    * @returns
    */
-  formatName: string | [string]
+  formatName: string | string[]
   onError: (e: any) => void
 
   onWarn: (e: any) => void

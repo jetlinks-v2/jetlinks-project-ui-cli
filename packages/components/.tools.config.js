@@ -277,9 +277,7 @@ module.exports = {
         lessConfig: {
             modifyVars: {
                 'root-entry-name': 'default',
-                'border-radius-base': '6px',
-                'primary-color': '#315EFB',
-                'ant-prefix': 'jetlinks',
+                'ant-prefix': 'ant',
             },
         },
         finalize: finalizeCompile,

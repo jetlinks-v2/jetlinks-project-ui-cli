@@ -1,5 +1,5 @@
 import { h, defineComponent, computed } from "vue";
-import type { PropType, CSSProperties, ExtractPropTypes } from 'vue'
+import type { PropType, CSSProperties, ExtractPropTypes, App } from 'vue'
 import { Button, Tooltip, Popconfirm } from 'ant-design-vue'
 import { PopconfirmProps, TooltipProps } from "ant-design-vue/es";
 import { omit } from "lodash-es";
@@ -31,7 +31,7 @@ const definedProps = {
 export type DefinedPropsType = Partial<ExtractPropTypes<typeof definedProps>>
 
 const PermissionButton = defineComponent({
-    name: 'PermissionButton',
+    name: 'JPermissionButton',
     // @ts-ignore
     slots: ['button', 'icon'],
     props: definedProps,
@@ -107,4 +107,7 @@ const PermissionButton = defineComponent({
     }
 })
 
+PermissionButton.install = function (app: App) {
+  app.component(PermissionButton.name, PermissionButton)
+}
 export default PermissionButton

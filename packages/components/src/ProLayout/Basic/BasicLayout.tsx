@@ -11,6 +11,9 @@ import type {
     MenuContentRender,
     MenuItemRender,
     MenuHeaderRender,
+    LinksRender,
+    LogoRender,
+    HistoryRender
 } from '../typings';
 import SiderMenu, { siderMenuProps } from '../SiderMenu/SiderMenu';
 import type { CSSProperties, ExtractPropTypes, PropType } from 'vue';
@@ -23,7 +26,7 @@ import {
     toRefs,
     h
 } from 'vue';
-import { defaultSettingProps } from '../defaultSettings';
+import { defaultSettingProps, LayoutType } from '../defaultSettings';
 import { baseHeaderProps } from '../TopHeader';
 import Header, { headerViewProps } from './Header';
 import type { VueNode } from 'ant-design-vue/es/_util/type';
@@ -32,7 +35,7 @@ import type { BreadcrumbProps, RouteContextProps } from '../RouteContext';
 import { pick } from 'lodash-es';
 import { defaultRouteContext, routeContextInjectKey } from '../RouteContext';
 import { getMenuFirstChildren, getSlot } from '../util';
-import { Layout, LayoutContent } from 'ant-design-vue';
+import { Layout, LayoutContent, Breadcrumb, Tabs } from 'ant-design-vue';
 
 export const basicLayoutProps = {
     ...defaultSettingProps,
@@ -114,12 +117,16 @@ export default defineComponent({
         'update:collapsed',
         'update:open-keys',
         'update:selected-keys',
+        'update:active-key',
         'collapse',
         'openKeys',
         'select',
         'menuHeaderClick',
         'menuClick',
         'backClick',
+        'historyTabClick',
+        'historyTabEdit',
+        'appMenuClick',
     ],
     setup(props, { emit, attrs, slots }) {
         const { prefixCls } = useConfigInject('layout', {});
@@ -159,6 +166,22 @@ export default defineComponent({
             emit('backClick', args);
         };
 
+        const onTabClick = (args: any) => {
+          emit('historyTabClick', args)
+        }
+
+        const onTabEdit = (args: any) => {
+          emit('historyTabEdit', args)
+        }
+
+        const onAppMenuClick = (args: any) => {
+          emit('appMenuClick', args)
+        }
+
+        const onTabChange = (key: string) => {
+          emit('update:active-key', key)
+        }
+
         const baseClassName = computed(() => `${props.prefixCls}-basicLayout`);
 
         const className = computed(() => {
@@ -168,6 +191,7 @@ export default defineComponent({
                 [`${baseClassName.value}-is-children`]: props.isChildrenLayout,
                 [`${baseClassName.value}-fix-siderbar`]: props.fixSiderbar,
                 [`${baseClassName.value}-${props.layout}`]: props.layout,
+                [`${baseClassName.value}-${props.layoutType}`]: props.layoutType,
             };
         });
 
@@ -220,6 +244,10 @@ export default defineComponent({
                 [],
         );
 
+        const layoutType = computed(() => {
+          return props.layoutType
+        })
+
         const routeContext = reactive<RouteContextProps>({
             ...defaultRouteContext,
             ...(pick(toRefs(props), [
@@ -241,7 +269,10 @@ export default defineComponent({
             back: onBack,
             hasHeader: true,
             flatMenu: hasFlatMenu,
+            layoutType
         });
+
+
         provide(routeContextInjectKey, routeContext);
 
         return () => {
@@ -301,6 +332,22 @@ export default defineComponent({
                 props,
                 'subMenuItemRender',
             );
+            const linksRender = getSlot<LinksRender>(
+              slots,
+              props,
+              'linksRender',
+            );
+            const logoRender = getSlot<LogoRender>(
+              slots,
+              props,
+              'logoRender',
+            );
+
+            const historyRender = getSlot<HistoryRender>(
+              slots,
+              props,
+              'historyRender',
+            );
 
             const headerDom = computed(() =>
                 headerRender(
@@ -320,6 +367,7 @@ export default defineComponent({
                         menuExtraRender,
                         menuContentRender,
                         headerContentRender,
+                        logo:logoRender || props.logo,
                         headerRender: customHeaderRender,
                         theme: (props.theme || 'dark')
                             .toLocaleLowerCase()
@@ -341,55 +389,131 @@ export default defineComponent({
                 };
             });
 
-            return (
+            if (pure) {
+              return slots.default?.()
+            }
+
+
+            if (props.layoutType === LayoutType.LIST) {
+              return (
                 <>
-                    {pure ? (
-                        slots.default?.()
-                    ) : (
-                        <div class={className.value}>
-                            <Layout
-                                style={{
-                                    minHeight: '100vh',
-                                    ...((attrs.style as CSSProperties) || {}),
-                                }}
-                            >
-                                {headerDom.value}
-                                <Layout
-                                    style={genLayoutStyle}
-                                    class={prefixCls.value}
-                                >
-                                    {!isTop.value && (
-                                        <SiderMenu
-                                            {...restProps}
-                                            menuHeaderRender={menuHeaderRender}
-                                            menuExtraRender={menuExtraRender}
-                                            menuContentRender={
-                                                menuContentRender
-                                            }
-                                            menuItemRender={menuItemRender}
-                                            subMenuItemRender={
-                                                subMenuItemRender
-                                            }
-                                            collapsedButtonRender={
-                                                collapsedButtonRender
-                                            }
-                                            onCollapse={onCollapse}
-                                            onSelect={onSelect}
-                                            onOpenKeys={onOpenKeys}
-                                            onMenuClick={onMenuClick}
-                                        />
-                                    )}
-                                    <Layout>
-                                        <LayoutContent>
-                                            {slots.default?.()}
-                                        </LayoutContent>
-                                    </Layout>
-                                </Layout>
-                            </Layout>
-                        </div>
-                    )}
+                  <div class={className.value}>
+                    <Layout
+                      style={{
+                        minHeight: '100vh',
+                        ...((attrs.style as CSSProperties) || {}),
+                      }}
+                    >
+                      {headerDom.value}
+                      <Layout
+                        style={genLayoutStyle}
+                        class={prefixCls.value}
+                      >
+                        {!isTop.value && (
+                          <SiderMenu
+                            {...restProps}
+                            logo={logoRender || restProps.logo}
+                            menuHeaderRender={menuHeaderRender}
+                            menuExtraRender={menuExtraRender}
+                            menuContentRender={
+                              menuContentRender
+                            }
+                            menuItemRender={menuItemRender}
+                            subMenuItemRender={
+                              subMenuItemRender
+                            }
+                            collapsedButtonRender={
+                              collapsedButtonRender
+                            }
+                            onCollapse={onCollapse}
+                            onSelect={onSelect}
+                            onOpenKeys={onOpenKeys}
+                            onMenuClick={onMenuClick}
+                          />
+                        )}
+                        <Layout>
+                          <LayoutContent>
+                            {slots.default?.()}
+                          </LayoutContent>
+                        </Layout>
+                      </Layout>
+                    </Layout>
+                  </div>
                 </>
-            );
+              )
+            } else {
+              return (
+                <>
+                  <div class={className.value}>
+                    <Layout>
+                      <SiderMenu
+                        {...restProps}
+                        logo={logoRender || restProps.logo}
+                        siderWidth={props.cardSiderWidth}
+                        headerHeight={0}
+                        menuHeaderRender={menuHeaderRender}
+                        menuExtraRender={menuExtraRender}
+                        linksRender={linksRender}
+                        menuContentRender={
+                          menuContentRender
+                        }
+                        menuItemRender={menuItemRender}
+                        subMenuItemRender={
+                          subMenuItemRender
+                        }
+                        onCollapse={onCollapse}
+                        onSelect={onSelect}
+                        onOpenKeys={onOpenKeys}
+                        onMenuClick={onMenuClick}
+                        onAppMenuClick={onAppMenuClick}
+                      />
+                      <Layout>
+                        <Layout.Header
+                          style={{
+                            background: 'transparent',
+                            padding: 0,
+                            height: '40px',
+                            ...(props.pageHeaderStyle || {})
+                          }}
+
+                        >
+                          <Tabs
+                            hide-add
+                            type="editable-card"
+                            class="history-tabs"
+                            id='history-route-tabs'
+                            tabBarStyle={{ margin: 0 }}
+                            onTabClick={onTabClick}
+                            onEdit={onTabEdit}
+                            activeKey={props.historyActive}
+                            onChange={onTabChange}
+                          >
+                            {
+                              historyRender ? historyRender() :
+                              props.historyRoutes.map(item => (
+                                <Tabs.TabPane
+                                  key={item.name}
+                                  tab={item.label}
+                                  closable={true}
+                                />
+                              ))
+                            }
+                          </Tabs>
+                        </Layout.Header>
+                        <LayoutContent
+                          style={{ flex: '1 1 0', overflow: 'auto'}}
+                        >
+                          {slots.default?.()}
+                        </LayoutContent>
+                        <Layout.Footer style={{ padding: '11px 24px', ...(props.pageFooterStyle || {})}}>
+                            <Breadcrumb routes={breadcrumb.value.routes} v-slots={{ itemRender: breadcrumb.value.itemRender}}/>
+                        </Layout.Footer>
+                      </Layout>
+                    </Layout>
+                  </div>
+                </>
+              )
+            }
         };
     },
 });

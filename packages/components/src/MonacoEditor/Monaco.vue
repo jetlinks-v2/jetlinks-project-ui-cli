@@ -15,6 +15,10 @@ import {
 import * as monaco from 'monaco-editor';
 import { omit } from 'lodash-es';
 
+defineOptions({
+  name: 'JMonacoEditor'
+})
+
 const props = defineProps({
   modelValue: [String, Number],
   theme: {type: String, default: 'vs-dark'},

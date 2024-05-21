@@ -1,6 +1,6 @@
 {
   "name": "@jetlinks-web/hooks",
-  "version": "1.0.12",
+  "version": "1.0.13",
   "main": "index.ts",
   "module": "index.ts",
   "scripts": {

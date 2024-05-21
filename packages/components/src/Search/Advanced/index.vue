@@ -169,6 +169,10 @@ import { Select, Button, Form, FormItemRest } from 'ant-design-vue'
 import { AIcon } from '../../../'
 import { cloneDeep } from 'lodash-es';
 
+defineOptions({
+  name: 'JAdvancedSearch',
+})
+
 type UrlParam = {
   q: string | null;
   target: string | null;

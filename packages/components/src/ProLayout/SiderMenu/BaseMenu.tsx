@@ -37,12 +37,13 @@ import IconFont from '../../Icon';
 import { regular } from '@jetlinks-web/utils';
 import { Menu } from 'ant-design-vue';
 import { createFromIconfontCN } from '@ant-design/icons-vue';
+import PropTypes from 'ant-design-vue/es/_util/vue-types';
 
 export const baseMenuProps = {
     ...defaultSettingProps,
     prefixCls: {
         type: String as PropType<string | undefined>,
-        default: () => defaultPrefixCls,
+        default: defaultPrefixCls,
     },
     locale: {
         type: [Function, Boolean] as PropType<WithFalse<FormatMessage>>,

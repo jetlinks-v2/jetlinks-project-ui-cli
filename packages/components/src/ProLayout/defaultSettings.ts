@@ -1,5 +1,7 @@
 import type { PropType, ExtractPropTypes } from 'vue';
 import type { Theme, ContentWidth } from './typings';
+import {CSSProperties} from "vue";
+import PropTypes from "ant-design-vue/es/_util/vue-types";
 
 export interface RenderSetting {
     headerRender?: false;
@@ -56,6 +58,11 @@ export const defaultSettings = {
     primaryColor: '#315EFB',
 };
 
+export const LayoutType = {
+  CARD: 'card',
+  LIST: 'list'
+}
+
 export const defaultSettingProps = {
     theme: {
         type: String as PropType<DefaultSettingProps['theme']>,
@@ -101,6 +108,35 @@ export const defaultSettingProps = {
         type: String as PropType<DefaultSettingProps['primaryColor']>,
         default: () => defaultSettings.primaryColor,
     },
+    layoutType: {
+      type: String,
+      default: LayoutType.LIST
+    },
+    cardSiderWidth: {
+      type: Number,
+      default: 60
+    },
+    historyRoutes: {
+      type: Array as PropType<{}>,
+      default: () => []
+    },
+    historyActive: {
+      type: String,
+      default: undefined
+    },
+    pageFooterStyle: {
+      type: Object as PropType<CSSProperties>,
+      default: () => undefined,
+    },
+    pageHeaderStyle: {
+      type: Object as PropType<CSSProperties>,
+      default: () => undefined,
+    },
+    apps: {
+      type: Array as PropType<Array<any>>,
+      default: () => []
+    },
+    onAppMenuClick:  PropTypes.func
 };
 
 export type ProSettingsProps = ExtractPropTypes<typeof defaultSettingProps>;
