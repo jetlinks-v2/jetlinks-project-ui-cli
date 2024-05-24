@@ -1,0 +1,71 @@
+<template>
+  <div class="jtable-box">
+    <template v-if="mode === 'CARD'">
+      <div class="jtable-card" :style="cardStyle">
+        <div class="jtable-card-items" :style="{ gridTemplateColumns }" v-if="dataSource.length">
+          <div :class="['jtable-card-item', props.cardBodyClass]" v-for="item in dataSource" :key="item[rowKey]">
+            <slot name="card" v-bind="item"></slot>
+          </div>
+        </div>
+        <div class="j-table-empty" v-else>
+          <slot name="emptyText">
+            <Empty/>
+          </slot>
+        </div>
+      </div>
+    </template>
+    <template v-else>
+      <Table v-bind="props" :dataSource="dataSource" :columns="_columns" :pagination="false">
+        <template #headerCell="{ column, title }">
+          <slot name="headerCell" v-bind="{column, title}"></slot>
+        </template>
+        <template #bodyCell="{ column, record }">
+          <template
+              v-if="(column?.key || column?.dataIndex) && column?.scopedSlots && (slots?.[column?.dataIndex] || slots?.[column?.key])">
+            <slot :name="column?.key || column?.dataIndex" v-bind="record"></slot>
+          </template>
+          <template v-else>{{ get(record, column?.dataIndex || column?.key) }}</template>
+        </template>
+        <template #emptyText>
+          <slot name="emptyText">
+            <Empty/>
+          </slot>
+        </template>
+      </Table>
+    </template>
+  </div>
+</template>
+
+<script setup lang="ts">
+import {useSlots, computed} from 'vue';
+import {_contentProps} from "./setting";
+import {Table} from 'ant-design-vue';
+import {get, isString} from 'lodash-es';
+import Empty from '../Empty';
+
+defineOptions({
+  name: 'Content'
+})
+
+const props = defineProps({
+  ..._contentProps,
+  column: {
+    type: Number,
+    default: 4
+  }
+})
+const slots = useSlots()
+
+const _columns = computed(() => props.columns.filter((i) => !i?.hideInTable))
+const cardStyle = computed(() => props.scroll && props.scroll.y ? {
+      maxHeight: isString(props.scroll.y) ? props.scroll.y : props.scroll.y + 'px',
+      overflow: 'auto',
+    }
+    : undefined
+)
+
+const gridTemplateColumns = computed(() => {
+  return `repeat(${props.column}, 1fr)`
+})
+
+</script>
