@@ -12,7 +12,7 @@
 
 <script setup lang="ts">
 import { Alert, Button } from 'ant-design-vue';
-import { defineOptions, defineProps, computed } from "vue";
+import { computed } from "vue";
 import {_alertProps} from "./setting";
 
 defineOptions({
@@ -30,9 +30,3 @@ const onClose = () => {
   emits('close')
 }
 </script>
-
-<style lang="less" scoped>
-.jtable-alert {
-  margin-bottom: 16px;
-}
-</style>

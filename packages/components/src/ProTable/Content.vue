@@ -37,10 +37,10 @@
 </template>
 
 <script setup lang="ts">
-import {defineProps, defineOptions, useSlots, computed} from 'vue';
+import {useSlots, computed} from 'vue';
 import {_contentProps} from "./setting";
 import {Table} from 'ant-design-vue';
-import {get} from 'lodash-es';
+import {get, isString} from 'lodash-es';
 import Empty from '../Empty';
 
 defineOptions({
@@ -58,7 +58,7 @@ const slots = useSlots()
 
 const _columns = computed(() => props.columns.filter((i) => !i?.hideInTable))
 const cardStyle = computed(() => props.scroll && props.scroll.y ? {
-      maxHeight: props.scroll.y + 'px',
+      maxHeight: isString(props.scroll.y) ? props.scroll.y : props.scroll.y + 'px',
       overflow: 'auto',
     }
     : undefined
@@ -69,17 +69,3 @@ const gridTemplateColumns = computed(() => {
 })
 
 </script>
-
-<style lang="less" scoped>
-.jtable-card {
-  .jtable-card-items {
-    display: grid;
-    grid-gap: 26px;
-
-    .jtable-card-item {
-      display: flex;
-      min-width: 0;
-    }
-  }
-}
-</style>

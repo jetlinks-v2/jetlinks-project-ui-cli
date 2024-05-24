@@ -18,7 +18,6 @@
 <script setup lang="ts">
 import { RadioGroup, RadioButton } from 'ant-design-vue'
 import AIcon from '../Icon';
-import { defineProps, defineOptions, defineEmits } from 'vue';
 import { _headerProps } from './setting';
 
 defineOptions({
@@ -34,35 +33,3 @@ const props = defineProps({
 })
 const emits = defineEmits(['change'])
 </script>
-
-<style lang="less" scoped>
-@import 'ant-design-vue/es/style/themes/variable.less';
-
-.jtable-body-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 16px;
-
-  .jtable-body-header-right {
-    display: flex;
-    gap: 8px;
-    align-items: center;
-
-    .jtable-body-header-right-button {
-      .right-button-icon {
-        font-size: 16px;
-        color: #d9d9d9;
-      }
-
-      .ant-radio-button-wrapper {
-        padding: 0 8px;
-      }
-
-      :deep(.ant-radio-button-wrapper-checked) {
-        color: @primary-color;
-      }
-    }
-  }
-}
-</style>

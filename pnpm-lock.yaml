@@ -83,6 +83,9 @@ importers:
       '@jetlinks-web/utils':
         specifier: workspace:^
         version: link:../../packages/utils
+      '@micro-zoe/micro-app':
+        specifier: 1.0.0-rc.5
+        version: 1.0.0-rc.5
       '@vuemap/vue-amap':
         specifier: ^2.0.13
         version: 2.0.17(vue@3.3.4)
@@ -105,7 +108,7 @@ importers:
         specifier: ^7.8.1
         version: 7.8.1
       vue:
-        specifier: ^3.3.4
+        specifier: ^3.3.2
         version: 3.3.4
       vue-cropper:
         specifier: ^1.0.9
@@ -3108,6 +3111,10 @@ packages:
       read-yaml-file: 1.1.0
     dev: false
 
+  /@micro-zoe/micro-app@1.0.0-rc.5:
+    resolution: {integrity: sha512-Z7Qkp1ZxFc04UYkR6UYPorg/VgACvE0E0Y8tyOKfR9AZmvoSNPdv4TpBFv3FRoYcvMlXW8TnEXhxL1VmCbL+2w==}
+    dev: false
+
   /@nodelib/fs.scandir@2.1.5:
     resolution: {integrity: sha512-vq24Bq3ym5HEQm2NKCr3yXDwjc7vTsEThRDnkp2DK9p1uqLR+DHurm/NOTo0KG7HYHU7eppKZj3MyqYuMBf62g==}
     engines: {node: '>= 8'}
@@ -4092,7 +4099,7 @@ packages:
       '@vue/compiler-dom': 3.4.27
       '@vue/compiler-sfc': 3.4.21
       '@vue/reactivity': 3.4.27
-      '@vue/shared': 3.4.21
+      '@vue/shared': 3.4.27
       minimatch: 9.0.4
       muggle-string: 0.2.2
       vue-template-compiler: 2.7.16

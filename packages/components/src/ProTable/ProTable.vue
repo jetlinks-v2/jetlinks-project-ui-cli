@@ -41,11 +41,11 @@ import Header from './Header.vue';
 import Alert from './Alert.vue';
 import Content from './Content.vue';
 import Pagination from './Pagination.vue';
-import {useSlots, defineProps, defineOptions, watch, defineExpose, onMounted, onUnmounted, computed, ref, reactive} from "vue";
+import {useSlots, watch, onMounted, onUnmounted, computed, ref, reactive} from "vue";
 import {debounce} from 'lodash-es';
 
 defineOptions({
-  name: 'ProTable'
+  name: 'JProTable'
 })
 
 const props = defineProps({
@@ -224,26 +224,3 @@ onUnmounted(() => {
 defineExpose({reload, dataSource: _dataSource})
 </script>
 
-<style lang="less" scoped>
-.jtable-body-spin {
-  min-height: 100%;
-  width: 100%;
-  background-color: #fff;
-
-  .ant-spin-nested-loading {
-    height: 100%;
-
-    .ant-spin-container {
-      height: 100%;
-    }
-  }
-
-  .jtable-body {
-    width: 100%;
-    box-sizing: border-box;
-    height: 100%;
-    display: flex;
-    flex-direction: column;
-  }
-}
-</style>

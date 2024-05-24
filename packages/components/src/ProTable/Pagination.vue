@@ -13,7 +13,6 @@
 </template>
 
 <script setup lang="ts">
-import {defineOptions, defineProps, defineEmits} from "vue";
 import { Pagination } from 'ant-design-vue';
 import { paginationProps } from "./setting";
 
@@ -33,12 +32,3 @@ const onChange = (page: number, size: number) => {
   emits('change', page, size)
 }
 </script>
-
-<style lang="less" scoped>
-.jtable-pagination {
-  width: 100%;
-  display: flex;
-  justify-content: flex-end;
-  margin-top: 16px;
-}
-</style>
