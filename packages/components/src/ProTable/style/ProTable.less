@@ -1,7 +1,7 @@
 @import '../../style/variable.less';
 
 .jtable-body-spin {
-  min-height: 100%;
+  height: 100%;
   width: 100%;
   background-color: #fff;
 
@@ -59,20 +59,57 @@
   }
 }
 
-.jtable-alert {
-  margin-bottom: 16px;
-}
+.jtable-box {
+  flex: 1;
+  min-height: 0;
 
-.jtable-card {
-  .jtable-card-items {
-    display: grid;
-    grid-gap: 26px;
+  .jtable-card {
+    height: 100%;
+    overflow-y: auto;
 
-    .jtable-card-item {
-      display: flex;
-      min-width: 0;
+    .jtable-card-items {
+      display: grid;
+      grid-gap: 26px;
+
+      .jtable-card-item {
+        display: flex;
+        min-width: 0;
+      }
     }
   }
+
+  .ant-table-wrapper {
+    height: 100%;
+    .ant-table {
+      height: 100%;
+
+      .ant-table-container {
+        height: 100%;
+
+        .ant-table-content {
+          height: 100%;
+        }
+      }
+    }
+  }
+
+  .j-table-scroll {
+    background-color: red;
+    .ant-table-container {
+      display: flex;
+      flex-direction: column;
+
+      .ant-table-body {
+        flex: 1;
+        min-height: 0;
+        overflow-y: auto;
+      }
+    }
+  }
+}
+
+.jtable-alert {
+  margin-bottom: 16px;
 }
 
 .jtable-pagination {
