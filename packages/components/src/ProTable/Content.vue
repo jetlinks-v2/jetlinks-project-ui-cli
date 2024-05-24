@@ -1,9 +1,9 @@
 <template>
   <div class="jtable-box">
     <template v-if="mode === 'CARD'">
-      <div class="jtable-card" :style="cardStyle">
+      <div class="jtable-card">
         <div class="jtable-card-items" :style="{ gridTemplateColumns }" v-if="dataSource.length">
-          <div :class="['jtable-card-item', props.cardBodyClass]" v-for="item in dataSource" :key="item[rowKey]">
+          <div :class="['jtable-card-item', props.cardBodyClass]" v-for="item in dataSource" :key="item[props.rowKey]">
             <slot name="card" v-bind="item"></slot>
           </div>
         </div>
@@ -15,7 +15,7 @@
       </div>
     </template>
     <template v-else>
-      <Table v-bind="props" :dataSource="dataSource" :columns="_columns" :pagination="false">
+      <Table v-bind="props" :dataSource="dataSource" :columns="_columns" :pagination="false" :scroll="_scroll" :class="{'j-table-scroll': !props.scroll?.y}">
         <template #headerCell="{ column, title }">
           <slot name="headerCell" v-bind="{column, title}"></slot>
         </template>
@@ -57,12 +57,14 @@ const props = defineProps({
 const slots = useSlots()
 
 const _columns = computed(() => props.columns.filter((i) => !i?.hideInTable))
-const cardStyle = computed(() => props.scroll && props.scroll.y ? {
-      maxHeight: isString(props.scroll.y) ? props.scroll.y : props.scroll.y + 'px',
-      overflow: 'auto',
-    }
-    : undefined
-)
+
+const _scroll = computed(() => {
+  let y = props.scroll?.y || '100%'
+  return {
+    x: props.scroll?.x || 1366,
+    y
+  }
+})
 
 const gridTemplateColumns = computed(() => {
   return `repeat(${props.column}, 1fr)`
