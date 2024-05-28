@@ -61,7 +61,7 @@ const _columns = computed(() => props.columns.filter((i) => !i?.hideInTable))
 const _scroll = computed(() => {
   let y = props.scroll?.y || '100%'
   return {
-    x: props.scroll?.x || 1366,
+    x: props.scroll?.x || '100%',
     y
   }
 })
