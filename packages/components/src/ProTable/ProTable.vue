@@ -20,7 +20,7 @@
             </template>
           </template>
         </Content>
-        <Pagination @change="onPageChange" v-if="showPagination" :total="page.total" :pageIndex="page.pageIndex" :pageSize="page.pageSize">
+        <Pagination @change="onPageChange" v-if="showPagination" v-bind="props.pagination" :total="page.total" :pageIndex="page.pageIndex" :pageSize="page.pageSize">
           <slot
               name="paginationRender"
               :total="page.total"
