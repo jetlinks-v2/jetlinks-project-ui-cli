@@ -1,4 +1,5 @@
 @import '../../style/variable.less';
+@import 'ant-design-vue/lib/pagination/style/index.less';
 
 .jtable-body-spin {
   height: 100%;
@@ -121,4 +122,13 @@
   display: flex;
   justify-content: flex-end;
   margin-top: 16px;
+
+  .show-content {
+    .@{ant-prefix}-pagination-item,
+    & .@{ant-prefix}-pagination-jump-prev,
+    & .@{ant-prefix}-pagination-jump-next {
+      display: none;
+    }
+  }
 }
+

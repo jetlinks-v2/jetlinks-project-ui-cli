@@ -40,7 +40,7 @@
 import {useSlots, computed} from 'vue';
 import {_contentProps} from "./setting";
 import {Table} from 'ant-design-vue';
-import {get, isString} from 'lodash-es';
+import {get} from 'lodash-es';
 import Empty from '../Empty';
 
 defineOptions({
