@@ -99,7 +99,7 @@ const handleData = (result: any) => {
 }
 const handleSearch = async (_params?: Record<string, any>) => {
   if (Array.isArray(props.dataSource)) {
-    _dataSource.value = []
+    _dataSource.value = props.dataSource
   } else if (props.request) {
     const __params = {
       pageIndex: page.pageIndex,
