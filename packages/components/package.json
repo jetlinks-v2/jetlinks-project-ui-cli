@@ -1,6 +1,6 @@
 {
   "name": "@jetlinks-web/components",
-  "version": "2.0.37",
+  "version": "2.0.38",
   "description": "",
   "main": "lib/index.js",
   "module": "es/index.js",
@@ -21,8 +21,10 @@
     "@vuemap/vue-amap": "^2.0.17",
     "@vueuse/core": "^10.2.1",
     "@vueuse/router": "^10.9.0",
+    "async-validator": "^4.2.5",
     "echarts": "^5.4.3",
     "monaco-editor": "^0.40.0",
+    "resize-observer-polyfill": "^1.5.1",
     "sortablejs": "^1.15.2"
   },
   "devDependencies": {

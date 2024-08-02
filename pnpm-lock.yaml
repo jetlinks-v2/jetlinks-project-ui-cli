@@ -1,4 +1,8 @@
-lockfileVersion: '6.0'
+lockfileVersion: '6.1'
+
+settings:
+  autoInstallPeers: true
+  excludeLinksFromLockfile: false
 
 importers:
 
@@ -66,6 +70,130 @@ importers:
         specifier: ^1.2.1
         version: 1.2.1
 
+  apps/admin:
+    dependencies:
+      '@jetlinks-web/components':
+        specifier: workspace:^
+        version: link:../../packages/components
+      '@jetlinks-web/constants':
+        specifier: workspace:^
+        version: link:../../packages/constants
+      '@jetlinks-web/hooks':
+        specifier: workspace:^
+        version: link:../../packages/hooks
+      '@jetlinks-web/types':
+        specifier: workspace:^
+        version: link:../../packages/types
+      '@jetlinks-web/utils':
+        specifier: workspace:^
+        version: link:../../packages/utils
+      '@vuemap/vue-amap':
+        specifier: ^2.0.13
+        version: 2.0.17(vue@3.3.4)
+      '@vueuse/core':
+        specifier: ^10.6.1
+        version: 10.9.0(vue@3.3.4)
+      axios:
+        specifier: ^1.6.7
+        version: 1.6.7(debug@4.3.4)
+      dayjs:
+        specifier: ^1.11.8
+        version: 1.11.8
+      echarts:
+        specifier: ^5.4.3
+        version: 5.4.3
+      less:
+        specifier: ^4.2.0
+        version: 4.2.0
+      lodash-es:
+        specifier: ^4.17.21
+        version: 4.17.21
+      pinia:
+        specifier: ^2.1.3
+        version: 2.1.3(typescript@5.1.6)(vue@3.3.4)
+      rxjs:
+        specifier: ^7.8.1
+        version: 7.8.1
+      vue:
+        specifier: ^3.3.4
+        version: 3.3.4
+      vue-cropper:
+        specifier: ^1.0.9
+        version: 1.0.9
+      vue-router:
+        specifier: ^4.2.2
+        version: 4.2.2(vue@3.3.4)
+      vue3-json-viewer:
+        specifier: ^2.2.2
+        version: 2.2.2(vue@3.3.4)
+    devDependencies:
+      '@babel/runtime':
+        specifier: ^7.24.1
+        version: 7.24.4
+      '@types/lodash-es':
+        specifier: ^4.17.11
+        version: 4.17.11
+      '@vitejs/plugin-vue':
+        specifier: ^4.2.3
+        version: 4.2.3(vite@4.3.9)(vue@3.3.4)
+      '@vitejs/plugin-vue-jsx':
+        specifier: ^3.0.1
+        version: 3.0.1(vite@4.3.9)(vue@3.3.4)
+      '@vuemap/unplugin-resolver':
+        specifier: ^2.0.0
+        version: 2.0.0(unplugin-vue-components@0.24.1)
+      ant-design-vue:
+        specifier: ^3.2.20
+        version: 3.2.20(vue@3.3.4)
+      dotenv:
+        specifier: ^16.1.4
+        version: 16.1.4
+      pkg-types:
+        specifier: ^1.0.3
+        version: 1.0.3
+      rollup:
+        specifier: ^3.23.1
+        version: 3.23.1
+      rollup-plugin-visualizer:
+        specifier: ^5.9.0
+        version: 5.9.0(rollup@3.23.1)
+      typescript:
+        specifier: ^5.1.3
+        version: 5.1.6
+      unocss:
+        specifier: ^0.52.7
+        version: 0.52.7(postcss@8.4.38)(rollup@3.23.1)(vite@4.3.9)
+      unplugin-auto-import:
+        specifier: ^0.16.4
+        version: 0.16.4(@vueuse/core@10.9.0)(rollup@3.23.1)
+      unplugin-vue-components:
+        specifier: ^0.24.1
+        version: 0.24.1(rollup@3.23.1)(vue@3.3.4)
+      vite:
+        specifier: ^4.3.9
+        version: 4.3.9(@types/node@20.4.5)(less@4.2.0)
+      vite-plugin-http2-proxy:
+        specifier: ^0.4.1
+        version: 0.4.1(vite@4.3.9)
+      vite-plugin-mkcert:
+        specifier: ^1.15.0
+        version: 1.15.0(vite@4.3.9)
+      vite-plugin-monaco-editor:
+        specifier: ^1.1.0
+        version: 1.1.0(monaco-editor@0.40.0)
+      vite-plugin-progress:
+        specifier: ^0.0.7
+        version: 0.0.7(vite@4.3.9)
+      vite-plugin-style-import:
+        specifier: ^2.0.0
+        version: 2.0.0(vite@4.3.9)
+      vite-plugin-vue-setup-extend:
+        specifier: ^0.4.0
+        version: 0.4.0(vite@4.3.9)
+      vue-tsc:
+        specifier: ^1.6.5
+        version: 1.6.5(typescript@5.1.6)
+
   apps/jetlinks-project-ui-template:
     dependencies:
       '@jetlinks-web/components':
@@ -83,9 +211,6 @@ importers:
       '@jetlinks-web/utils':
         specifier: workspace:^
         version: link:../../packages/utils
-      '@micro-zoe/micro-app':
-        specifier: 1.0.0-rc.5
-        version: 1.0.0-rc.5
       '@vuemap/vue-amap':
         specifier: ^2.0.13
         version: 2.0.17(vue@3.3.4)
@@ -108,7 +233,7 @@ importers:
         specifier: ^7.8.1
         version: 7.8.1
       vue:
-        specifier: ^3.3.2
+        specifier: ^3.3.4
         version: 3.3.4
       vue-cropper:
         specifier: ^1.0.9
@@ -123,6 +248,9 @@ importers:
         specifier: ^2.2.2
         version: 2.2.2(vue@3.3.4)
     devDependencies:
+      '@babel/runtime':
+        specifier: ^7.24.4
+        version: 7.24.4
       '@types/lodash-es':
         specifier: ^4.17.11
         version: 4.17.11
@@ -261,12 +389,18 @@ importers:
       '@vueuse/router':
         specifier: ^10.9.0
         version: 10.9.0(vue-router@4.2.2)(vue@3.3.4)
+      async-validator:
+        specifier: ^4.2.5
+        version: 4.2.5
       echarts:
         specifier: ^5.4.3
         version: 5.4.3
       monaco-editor:
         specifier: ^0.40.0
         version: 0.40.0
+      resize-observer-polyfill:
+        specifier: ^1.5.1
+        version: 1.5.1
       sortablejs:
         specifier: ^1.15.2
         version: 1.15.2
@@ -1116,7 +1250,7 @@ packages:
       '@babel/helper-validator-identifier': 7.24.5
       chalk: 2.4.2
       js-tokens: 4.0.0
-      picocolors: 1.0.0
+      picocolors: 1.0.1
 
   /@babel/parser@7.24.5:
     resolution: {integrity: sha512-EOv5IK8arwh3LI47dz1b0tKUb/1uhHAnHJOrjgtQMIpu1uXd9mlFrJg9IUgGUgZ41Ch0K8REPTYpO7B76b4vJg==}
@@ -3111,10 +3245,6 @@ packages:
       read-yaml-file: 1.1.0
     dev: false
 
-  /@micro-zoe/micro-app@1.0.0-rc.5:
-    resolution: {integrity: sha512-Z7Qkp1ZxFc04UYkR6UYPorg/VgACvE0E0Y8tyOKfR9AZmvoSNPdv4TpBFv3FRoYcvMlXW8TnEXhxL1VmCbL+2w==}
-    dev: false
-
   /@nodelib/fs.scandir@2.1.5:
     resolution: {integrity: sha512-vq24Bq3ym5HEQm2NKCr3yXDwjc7vTsEThRDnkp2DK9p1uqLR+DHurm/NOTo0KG7HYHU7eppKZj3MyqYuMBf62g==}
     engines: {node: '>= 8'}
@@ -3450,7 +3580,7 @@ packages:
   /@ts-morph/common@0.18.1:
     resolution: {integrity: sha512-RVE+zSRICWRsfrkAw5qCAK+4ZH9kwEFv5h0+/YeHTLieWP7F4wWq4JsKFuNWG+fYh/KF+8rAtgdj5zb2mm+DVA==}
     dependencies:
-      fast-glob: 3.2.12
+      fast-glob: 3.3.2
       minimatch: 5.1.6
       mkdirp: 1.0.4
       path-browserify: 1.0.1
@@ -3550,13 +3680,13 @@ packages:
     resolution: {integrity: sha512-ZUxbzKl0IfJILTS6t7ip5fQQM/J3TJYubDm3nMbgubNNYS62eXeUpoLUC8/7fJNiFYHTrGPQn7hspDUzIHX3UA==}
     dependencies:
       '@types/minimatch': 5.1.2
-      '@types/node': 20.4.5
+      '@types/node': 20.5.1
     dev: true
 
   /@types/http-proxy@1.17.14:
     resolution: {integrity: sha512-SSrD0c1OQzlFX7pGu1eXxSEjemej64aaNPRhhVYUGqXh0BtldAAx37MG8btcumvpgKyZp1F5Gn3JkktdxiFv6w==}
     dependencies:
-      '@types/node': 20.4.5
+      '@types/node': 20.5.1
     dev: true
 
   /@types/inquirer@6.5.0:
@@ -3847,7 +3977,7 @@ packages:
       chokidar: 3.6.0
       colorette: 2.0.20
       consola: 3.2.3
-      fast-glob: 3.2.12
+      fast-glob: 3.3.2
       magic-string: 0.30.10
       pathe: 1.1.2
       perfect-debounce: 1.0.0
@@ -3889,7 +4019,7 @@ packages:
       '@unocss/config': 0.52.7
       '@unocss/core': 0.52.7
       css-tree: 2.3.1
-      fast-glob: 3.2.12
+      fast-glob: 3.3.2
       magic-string: 0.30.10
       postcss: 8.4.38
     dev: true
@@ -4004,7 +4134,7 @@ packages:
       '@unocss/scope': 0.52.7
       '@unocss/transformer-directives': 0.52.7
       chokidar: 3.6.0
-      fast-glob: 3.2.12
+      fast-glob: 3.3.2
       magic-string: 0.30.10
       vite: 4.3.9(@types/node@20.4.5)(less@4.2.0)
     transitivePeerDependencies:
@@ -5109,7 +5239,7 @@ packages:
       caniuse-lite: 1.0.30001620
       fraction.js: 4.3.7
       normalize-range: 0.1.2
-      picocolors: 1.0.0
+      picocolors: 1.0.1
       postcss: 8.4.38
       postcss-value-parser: 4.2.0
     dev: true
@@ -5268,6 +5398,7 @@ packages:
 
   /bindings@1.5.0:
     resolution: {integrity: sha512-p2q/t/mhvuOj/UeLlV6566GD/guowlr0hHxClI0W9m7MWYkL1F0hLo+0Aexs9HSPCtR1SXQ0TD3MMKrXZajbiQ==}
+    requiresBuild: true
     dependencies:
       file-uri-to-path: 1.0.0
     dev: true
@@ -8114,6 +8245,7 @@ packages:
 
   /file-uri-to-path@1.0.0:
     resolution: {integrity: sha512-0Zt+s3L7Vf1biwWZ29aARiVYLx7iMGnEUl9x33fbB/j3jR81u/O2LbqK+Bm1CDSNDKVtJ/YjwY7TUd5SkeLQLw==}
+    requiresBuild: true
     dev: true
     optional: true
 
@@ -8677,7 +8809,7 @@ packages:
       '@types/glob': 7.2.0
       array-union: 2.1.0
       dir-glob: 3.0.1
-      fast-glob: 3.2.12
+      fast-glob: 3.3.2
       glob: 7.2.3
       ignore: 5.3.1
       merge2: 1.4.1
@@ -9786,7 +9918,7 @@ packages:
     resolution: {integrity: sha512-BXgQl9kf4WTCPCCpmFGoJkz/+uhvm7h7PFKUYxh7qarQd3ER33vHG//qaE8eN25l07YqZPpHXU9I09l/RD5aGQ==}
     engines: {node: '>=8'}
     dependencies:
-      '@babel/core': 7.10.5
+      '@babel/core': 7.24.5
       '@istanbuljs/schema': 0.1.3
       istanbul-lib-coverage: 3.2.2
       semver: 6.3.1
@@ -9816,7 +9948,7 @@ packages:
     resolution: {integrity: sha512-7vuh85V5cdDofPyxn58nrPjBktZo0u9x1g8WtjQol+jZDaE+fhN+cIvTj11GndBnMnyfrUOG1sZQxCdjKh+DKg==}
     engines: {node: '>= 10.13.0'}
     dependencies:
-      '@types/node': 20.4.5
+      '@types/node': 20.5.1
       merge-stream: 2.0.0
       supports-color: 8.1.1
     dev: true
@@ -10212,7 +10344,7 @@ packages:
     engines: {node: '>=14'}
     dependencies:
       mlly: 1.7.0
-      pkg-types: 1.0.3
+      pkg-types: 1.1.1
     dev: true
 
   /locate-path@2.0.0:
@@ -10844,6 +10976,7 @@ packages:
 
   /nan@2.19.0:
     resolution: {integrity: sha512-nO1xXxfh/RWNxfd/XPfbIfFk5vgLsAxUR9y5O0cHMJu/AW9U95JLXqthYHjEp+8gQ5p96K9jUp8nbVOxCdRbtw==}
+    requiresBuild: true
     dev: true
     optional: true
 
@@ -12409,7 +12542,7 @@ packages:
     engines: {node: ^10 || ^12 || >=14}
     dependencies:
       nanoid: 3.3.7
-      picocolors: 1.0.0
+      picocolors: 1.0.1
       source-map-js: 1.2.0
 
   /preferred-pm@3.1.3:
@@ -14047,7 +14180,7 @@ packages:
       css-select: 4.3.0
       css-tree: 1.1.3
       csso: 4.2.0
-      picocolors: 1.0.0
+      picocolors: 1.0.1
       stable: 0.1.8
     dev: true
 
@@ -14062,7 +14195,7 @@ packages:
       css-tree: 2.3.1
       css-what: 6.1.0
       csso: 5.0.5
-      picocolors: 1.0.0
+      picocolors: 1.0.1
     dev: true
 
   /swap-case@1.1.2:
@@ -14798,7 +14931,7 @@ packages:
       magic-string: 0.30.10
       mlly: 1.7.0
       pathe: 1.1.2
-      pkg-types: 1.0.3
+      pkg-types: 1.1.1
       scule: 1.3.0
       strip-literal: 1.3.0
       unplugin: 1.10.1
@@ -14971,7 +15104,7 @@ packages:
       '@rollup/pluginutils': 5.1.0(rollup@3.23.1)
       chokidar: 3.6.0
       debug: 4.3.4
-      fast-glob: 3.2.12
+      fast-glob: 3.3.2
       local-pkg: 0.4.3
       magic-string: 0.30.10
       minimatch: 7.4.6
@@ -15317,7 +15450,7 @@ packages:
       '@octokit/rest': 19.0.13
       axios: 1.6.7(debug@4.3.4)
       debug: 4.3.4
-      picocolors: 1.0.0
+      picocolors: 1.0.1
       vite: 4.3.9(@types/node@20.4.5)(less@4.2.0)
     transitivePeerDependencies:
       - encoding
@@ -15337,7 +15470,7 @@ packages:
     peerDependencies:
       vite: '>2.0.0-0'
     dependencies:
-      picocolors: 1.0.0
+      picocolors: 1.0.1
       progress: 2.0.3
       rd: 2.0.1
       vite: 4.3.9(@types/node@20.4.5)(less@4.2.0)
