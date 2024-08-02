@@ -1,0 +1,57 @@
+.jetlinks-edit-table-header-container {
+  height: 100%;
+  position: relative;
+  .jetlinks-edit-table-header-cell {
+    height: 100%;
+    display: inline-flex;
+    align-items: center;
+    float: left;
+    overflow: visible;
+    position: absolute;
+    top: 0;
+
+    .jetlinks-edit-table-header-cell-box {
+      padding: 0 12px;
+      width: 100%;
+
+      &.header-cell-box-tool {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      .table-header-cell-title {
+        flex: 1;
+        display: flex;
+        align-items: center;
+        font-weight: 600;
+      }
+
+      .header-cell-required {
+        color: @error-color;
+        padding-left: 8px;
+        transform: translateY(3px);
+        font-weight: 500;
+      }
+
+      &::before {
+        position: absolute;
+        top: 50%;
+        right: 1px;
+        width: 1px;
+        height: 1.6em;
+        pointer-events: none;
+        background-color: rgba(0,0,0,.06);
+        transform: translateY(-50%);
+        transition: background-color .3s;
+        content: "";
+      }
+
+      &:not(:last-child) {
+        &::before {
+          background-color: transparent;
+        }
+      }
+    }
+  }
+}
