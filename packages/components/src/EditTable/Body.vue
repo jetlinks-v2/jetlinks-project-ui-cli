@@ -2,38 +2,124 @@
   <div
     v-if="dataSource.length"
     class="jetlinks-edit-table-body-viewport" :style="{ ...style, height: height + 'px'}" ref="viewScrollRef" @scroll="onScroll">
-    <div :style="{position: 'relative'}">
+    <div class="jetlinks-edit-table-body-container" :style="{position: 'relative'}">
       <div class="jetlinks-edit-scrollbar" :style="containerStyle"> </div>
-      <div class="jetlinks-edit-table-center" ref="tableCenterRef" >
+      <div
+        v-if="columnFixedMap.left.keys.length"
+        class="jetlinks-edit-table-left"
+        :style="{
+          webkitTransform: `translate3d(0, ${virtualRang.start * props.cellHeight}px, 0)`,
+          maxWidth: columnFixedMap.left.width + 'px',
+          minWidth: columnFixedMap.left.width + 'px',
+          width: columnFixedMap.left.width + 'px',
+          boxShadow: tableTool.scrollMap.x ? '0 0 12px 0 rgba(0 ,0, 0, .2)' : ''
+        }"
+      >
         <div
-          v-if="virtualData.length"
           v-for="(item, index) in virtualData"
           :class="{
               'jetlinks-edit-table-row': true,
-              'jetlinks-edit-table-row-selected': selectedRowKeys?.includes(item[rowKey] || virtualRang.start + index + 1)
+              'jetlinks-edit-table-row-selected': selectedRowKeys?.includes(item[rowKey] || virtualRang.start + index + 1),
+              'jetlinks-edit-table-row-hover': hoverKeys === (item[rowKey] || virtualRang.start + index + 1)
             }"
-          :key="`record_${item.__key}`"
-          :style="{height: `${cellHeight}px`,}"
+          :key="'left' + index"
+          :style="{height: `${cellHeight}px`}"
           :data-row-key="item[rowKey] || virtualRang.start + index + 1"
           @click.right.native="(e) => showContextMenu(e,item, virtualRang.start + index)"
           @click.stop="() => rowClick(item)"
+          @mouseover="hoverKeys = (item[rowKey] || virtualRang.start + index + 1)"
+          @mouseleave="hoverKeys = undefined"
         >
           <div
-            v-for="column in columns"
+            v-for="column in columnFixedMap.left.keys"
             class="jetlinks-edit-table-cell"
             :style="{
-                width: `${column.width}px`,
-                left: `${column.left}px`,
+                width: `${column._width}px`,
               }"
           >
-            <div v-if="column.dataIndex === '__serial'" class="body-cell-box">
-              <slot name="serial" :record="item" :index="item.__dataIndex" :column="column" >
-                {{ virtualRang.start + index + 1 }}
+            <div class="body-cell-box">
+              <slot :name="column.dataIndex" :record="item" :index="item.__dataIndex" :column="column" >
+                {{ column.dataIndex === '__serial' ?  virtualRang.start + index + 1 : item[column.dataIndex] }}
               </slot>
             </div>
-            <div v-else class="body-cell-box">
+          </div>
+        </div>
+      </div>
+      <div
+        class="jetlinks-edit-table-center"
+        :style="{
+          webkitTransform: `translate3d(-${tableTool.scrollMap.x}px, ${virtualRang.start * props.cellHeight}px, 0)`
+        }"
+      >
+        <div :style="{width: columnFixedMap.center.width + 'px'}">
+          <div
+            v-if="virtualData.length"
+            v-for="(item, index) in virtualData"
+            :class="{
+              'jetlinks-edit-table-row': true,
+              'jetlinks-edit-table-row-selected': selectedRowKeys?.includes(item[rowKey] || virtualRang.start + index + 1),
+              'jetlinks-edit-table-row-hover': hoverKeys === (item[rowKey] || virtualRang.start + index + 1)
+            }"
+            :key="'center' + index"
+            :style="{height: `${cellHeight}px`,}"
+            :data-row-key="item[rowKey] || virtualRang.start + index + 1"
+            @click.right.native="(e) => showContextMenu(e,item, virtualRang.start + index)"
+            @click.stop="() => rowClick(item)"
+            @mouseover="hoverKeys = (item[rowKey] || virtualRang.start + index + 1)"
+            @mouseleave="hoverKeys = undefined"
+          >
+            <div
+              v-for="column in columnFixedMap.center.keys"
+              class="jetlinks-edit-table-cell"
+              :style="{
+                width: `${column._width}px`,
+              }"
+            >
+              <div class="body-cell-box">
+                <slot :name="column.dataIndex" :record="item" :index="item.__dataIndex" :column="column" >
+                  {{ column.dataIndex === '__serial' ?  virtualRang.start + index + 1 : item[column.dataIndex] }}
+                </slot>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div
+        v-if="columnFixedMap.right.keys.length"
+        class="jetlinks-edit-table-right"
+        :style="{
+          webkitTransform: `translate3d(0, ${virtualRang.start * props.cellHeight}px, 0)`,
+          maxWidth: columnFixedMap.right.width + 'px',
+          minWidth: columnFixedMap.right.width + 'px',
+          width: columnFixedMap.right.width + 'px',
+          boxShadow: tableTool.scrollMap.down !== 'right' ? '0 0 12px 0 rgba(0 ,0, 0, .2)' : ''
+        }"
+      >
+        <div
+          v-for="(item, index) in virtualData"
+          :class="{
+              'jetlinks-edit-table-row': true,
+              'jetlinks-edit-table-row-selected': selectedRowKeys?.includes(item[rowKey] || virtualRang.start + index + 1),
+              'jetlinks-edit-table-row-hover': hoverKeys === (item[rowKey] || virtualRang.start + index + 1)
+            }"
+          :key="'right' + index"
+          :style="{height: `${cellHeight}px`}"
+          :data-row-key="item[rowKey] || virtualRang.start + index + 1"
+          @click.right.native="(e) => showContextMenu(e,item, virtualRang.start + index)"
+          @click.stop="() => rowClick(item)"
+          @mouseover="hoverKeys = (item[rowKey] || virtualRang.start + index + 1)"
+          @mouseleave="hoverKeys = undefined"
+        >
+          <div
+            v-for="column in columnFixedMap.right.keys"
+            class="jetlinks-edit-table-cell"
+            :style="{
+                width: `${column._width}px`,
+              }"
+          >
+            <div class="body-cell-box">
               <slot :name="column.dataIndex" :record="item" :index="item.__dataIndex" :column="column" >
-                {{ item[column.dataIndex] }}
+                {{ column.dataIndex === '__serial' ?  virtualRang.start + index + 1 : item[column.dataIndex] }}
               </slot>
             </div>
           </div>
@@ -52,16 +138,18 @@
 
 <script setup>
 import ContextMenu from './components/ContextMenu'
-import {useRightMenuContext} from "./hooks";
+import {useRightMenuContext, useTableTool} from "./hooks";
 import {randomString} from "@jetlinks-web/utils";
-import {bodyProps} from "./props";
+import {bodyProps, defaultProps} from "./props";
 import { ref, reactive, computed, watch, onMounted, onBeforeUnmount, defineExpose} from 'vue'
+import {handleColumnFixed} from "./utils";
 
 defineOptions({
   name: 'JEditTableBody'
 })
 
 const props = defineProps({
+  ...defaultProps(),
   ...bodyProps(),
   groupKey: {
     type: [String, Number],
@@ -72,32 +160,28 @@ const props = defineProps({
 const emit = defineEmits(['update:dataSource', 'scrollDown'])
 
 const viewScrollRef = ref()
-const tableCenterRef = ref()
 const virtualRang = reactive({
   start: 0,
   end: 15
 })
 const containerStyle = ref(0)
 const context = useRightMenuContext()
+const tableTool = useTableTool()
 
-let scrollLock = ref(false)
+const selectedRowKeys = ref([])
+const hoverKeys = ref()
+const scrollLock = ref(false)
 let menuInstance
 
 const maxLen = computed(() => {
   return Math.trunc(props.height / props.cellHeight)
 })
 
-const selectedRowKeys = ref([])
+const virtualData = computed(()=> props.dataSource.slice(virtualRang.start, virtualRang.end))
 
-const virtualData = computed(()=> {
-
-  const array = props.dataSource.slice(virtualRang.start, virtualRang.end)
-  if (tableCenterRef.value) {
-    tableCenterRef.value.style.webkitTransform  =  `translate3d(0, ${virtualRang.start * props.cellHeight}px, 0)`
-  }
-  return array
+const columnFixedMap = computed(() => {
+  return handleColumnFixed(props.columns)
 })
-
 
 const onScroll = () => {
   if (!viewScrollRef.value) return
@@ -139,10 +223,6 @@ const showContextMenu = (e, record, _index) => {
     menuInstance = ContextMenu(e, record, context)
   }
 }
-
-// const updateView = () => {
-//   updateVirtualData(virtualRang.start, virtualRang.start + maxLen.value)
-// }
 
 const rowClick = (record) => {
   if (props.rowSelection?.selectedRowKeys) {

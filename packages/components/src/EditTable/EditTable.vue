@@ -11,7 +11,9 @@
         <Header
           :columns="myColumns"
           :style="{width: tableStyle.width}"
+          :rowKey="rowKey"
         />
+        <div class="jetlinks-edit-table-header-scroll-hidden" :style="{width: scrollWidth + 'px'}"></div>
       </div>
       <div class="jetlinks-edit-table-body" :style="{width: tableStyle.width, height: `${height}px`}">
         <Body
@@ -30,6 +32,20 @@
         </template>
         </Body>
         <slot name="bodyExtra"></slot>
+      </div>
+      <div v-if="scroll.x" class="jetlinks-edit-table-horizontal-scroll">
+        <div class="jetlinks-edit-table-horizontal-scroll-viewport" ref="horizontalScrollRef" @scroll="onHorizontalScroll">
+          <div
+          :style="{
+            width: scroll.x + 'px',
+            minWidth: scroll.x + 'px',
+            maxWidth: scroll.x + 'px'
+          }">
+          </div>
+        </div>
+        <div class="jetlinks-edit-table-horizontal-scroll-hidden">
+
+        </div>
       </div>
     </div>
   </div>
@@ -51,17 +67,18 @@ import Header from './header.vue'
 import Body from './body.vue'
 import {useFullscreen} from '@vueuse/core';
 import {provide, useAttrs, useSlots, ref, reactive, defineOptions, defineEmits, defineProps} from 'vue'
-import {bodyProps} from "./props";
+import {bodyProps, defaultProps} from "./props";
 import {findIndex, get, sortBy} from 'lodash-es'
 
 defineOptions({
   name: 'JEditTable'
 })
 
-const emit = defineEmits(['scrollDown', 'rightMenuClick', 'editChange'])
+const emit = defineEmits(['scrollDown', 'rightMenuClick', 'editChange', 'searchVisibleChange'])
 
 const props = defineProps({
   ...tableProps(),
+  ...defaultProps(),
   ...bodyProps(),
   serial: {
     type: [Object, Boolean],
@@ -79,6 +96,12 @@ const attrs = useAttrs()
 const myColumns = ref([])
 const tableWrapper = ref()
 const tableBody = ref()
+const horizontalScrollRef = ref()
+const scrollMap = reactive({
+  x: 0,
+  y: 0,
+  down: undefined
+})
 const tableStyle = reactive({
   width: '100%',
   height: props.height
@@ -167,7 +190,6 @@ provide(TABLE_ERROR, fieldsErrMap)
 provide(TABLE_DATA_SOURCE, _dataSource)
 provide(TABLE_TOOL, {
   scrollTo: (record) => {
-
     setTimeout(() => {
       tableBody.value.scrollTo(record.__serial)
     }, 10)
@@ -187,6 +209,10 @@ provide(TABLE_TOOL, {
     sortData.orderKeys = []
     sortData.dataIndex = undefined
   },
+  searchVisible: (v) => {
+    emit('searchVisibleChange', v)
+  },
+  scrollMap,
   sortData
 })
 
@@ -218,6 +244,20 @@ const scrollWidth = computed(() => {
   return (props.dataSource.length * props.cellHeight) > props.height ? 17 : 0
 })
 
+const onHorizontalScroll = () => {
+  if (!horizontalScrollRef.value) return
+  const { clientWidth, scrollLeft, scrollWidth } = horizontalScrollRef.value
+
+  scrollMap.x = scrollLeft
+  if (clientWidth + scrollLeft >= scrollWidth) {
+    scrollMap.down = 'right'
+  } else if (scrollLeft === 0) {
+    scrollMap.down = undefined
+  } else {
+    scrollMap.down = 'left'
+  }
+}
+
 function onResize({width = 0, height}) {
 
   const _width = width - scrollWidth.value
@@ -229,7 +269,8 @@ function onResize({width = 0, height}) {
   if (props.serial) {
     const options = Object.assign({
       title: '序号',
-      width: 66
+      width: 66,
+      fixed: 'left'
     }, props.serial)
 
     const serial = {
@@ -241,12 +282,14 @@ function onResize({width = 0, height}) {
         }
         return customData.index + 1
       },
-      width: options.width
+      width: options.width,
+      fixed: options.fixed
     }
     newColumns = [serial, ...props.columns]
   }
 
-  myColumns.value = handleColumnsWidth(newColumns, _width)
+  myColumns.value = handleColumnsWidth(newColumns, _width, props.scroll?.x)
+  console.log(width, _width, myColumns.value)
 }
 
 const onScrollDown = (len) => {

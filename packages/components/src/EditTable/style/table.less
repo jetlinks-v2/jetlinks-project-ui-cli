@@ -12,13 +12,22 @@
     flex-direction: column;
     flex-grow: 0;
     flex-shrink: 0;
-    background: #fafafa;
-    transition: background-color .3s ease;
 
     .jetlinks-edit-table-header {
       overflow: hidden;
       width: 100%;
+      position: relative;
+
+      .jetlinks-edit-table-header-scroll-hidden {
+        position: absolute;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        z-index: 5;
+        background: #fafafa;
+      }
     }
+
 
     .jetlinks-edit-table-body {
       background-color: #fff;

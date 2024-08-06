@@ -1,4 +1,7 @@
 @import "ant-design-vue/es/style/themes/index.less";
+@import "./table.less";
+@import "./body.less";
+@import "./header.less";
 
 .edit-table-search-header {
   display: flex;
@@ -7,4 +10,33 @@
 
 .edit-table-search-result-total {
   color: @primary-color;
+}
+
+.jetlinks-edit-table-horizontal-scroll {
+  height: 17px;
+  min-height: 17px;
+  max-height: 17px;
+  width: 100%;
+  display: flex;
+  position: relative;
+  z-index: 4;
+
+  .jetlinks-edit-table-horizontal-scroll-viewport {
+    overflow-y: hidden;
+    overflow-x: scroll;
+    position: relative;
+    flex: 1 1 0;
+    height: 17px;
+    min-height: 17px;
+    max-height: 17px;
+    width: 100%;
+
+    > div {
+      height: 17px;
+    }
+  }
+
+  .jetlinks-edit-table-horizontal-scroll-hidden {
+    width: 17px; height: 100%; overflow-x: hidden;
+  }
 }

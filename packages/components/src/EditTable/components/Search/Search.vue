@@ -5,12 +5,13 @@
     :title="false"
     :dragRang="[600, 200]"
     :bodyStyle="{
-      overflow: 'hidden'
+      overflow: 'hidden',
     }"
+    :footer="false"
     @heightChange="heightChange"
   >
-    <div class="table-search">
-      <div class="table-search-header">
+    <div class="edit-table-search">
+      <div class="edit-table-search-header">
         <div>
           <Space>
             <span>查找</span>
@@ -42,7 +43,7 @@
         >
           <template #serial="{ record }">
             <span>
-              {{ record.__serial }}
+              {{ record.__oldSerial }}
             </span>
           </template>
           <template #id="{ record }">
@@ -58,7 +59,7 @@
         </Table>
       </div>
       <div v-if="visible">
-        查找到 <span class="table-search-result-total">{{filterArray.length}}</span> 条相关属性
+        查找到 <span class="edit-table-search-result-total">{{filterArray.length}}</span> 条相关属性
       </div>
     </div>
   </DragModal>
@@ -77,6 +78,10 @@ defineOptions({
 
 const props = defineProps({
   searchKey: {
+    type: String,
+    default: 'id'
+  },
+  rowKey: {
     type: String,
     default: 'id'
   }
@@ -110,9 +115,9 @@ const columns = [
 const selectedTableRow = (record) => {
   tableTool.scrollTo({
     ...record,
-    __serial: record.__serial - 1
+    __serial: record.__oldSerial - 1
   })
-  tableTool.selected([record.id])
+  tableTool.selected([record[props.rowKey]])
 }
 
 const handleFilterArray = () => {
@@ -129,30 +134,30 @@ const handleFilterArray = () => {
 const search = (key) => {
   filterArray.value = handleFilterArray()
 
-  if (key === 'all') {
+  if (key === 'all') { // 查找全部
     visible.value = true
     modalHeight.value = 400
     searchIndex.value = 0
-  } else if (key === 'next') {
+  } else if (key === 'next') { // 下一个
     searchIndex.value += 1
-  } else {
+  } else { // 上一个
     searchIndex.value -= 1
   }
 
-  if (searchIndex.value < 0) {
+  if (searchIndex.value < 0) { // 小于0时，跳转到最后一个
     searchIndex.value = filterArray.value.length - 1
-  } else if (searchIndex.value > filterArray.value.length - 1){
+  } else if (searchIndex.value > filterArray.value.length - 1){ // 大于整体搜索结果时，跳转到第一个
     searchIndex.value = 0
   }
 
   const searchItem = filterArray.value[searchIndex.value]
 
   if (key !== 'all' && visible.value) {
-    tableRef.value?.scrollToByIndex(searchIndex.value - 1)
+    tableRef.value?.scrollToByIndex(searchIndex.value - 1) // 控制EditTable滚动到指定为止
   }
 
   if (filterArray.value.length > 1) {
-    selectedRowKeys.value = [searchItem.id]
+    selectedRowKeys.value = [searchItem[props.rowKey]]
     selectedTableRow(searchItem)
   } else {
     selectedRowKeys.value = []
@@ -168,11 +173,12 @@ const heightChange = (h) => {
 
 const onClose = () => {
   emit('close')
+  tableTool.searchVisible(false)
 }
 
 const onSelect = (record) => {
-  searchIndex.value = filterArray.value.findIndex(item => item.id === record.id)
-  selectedRowKeys.value = [record.id]
+  searchIndex.value = filterArray.value.findIndex(item => item[props.rowKey] === record[props.rowKey])
+  selectedRowKeys.value = [record[props.rowKey]]
   selectedTableRow(record)
 }
 

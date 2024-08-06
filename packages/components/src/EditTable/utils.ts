@@ -5,7 +5,7 @@ type ColumnsFormType = {
   rules: Array<Record<string, any>>,
   watch: Array<string>
 }
-export type ColumnsType = Array<ColumnType & { form?: ColumnsFormType, width: number, left: number }>
+export type ColumnsType = Array<ColumnType & { form?: ColumnsFormType, width: number, _width: number, left: number }>
 
 
 
@@ -32,7 +32,7 @@ export const collectValidateRules = (columns: ColumnsType):  Record<string, any>
 export const handlePureRecord = (record: Record<string, any>) => {
   if (!record) return {}
 
-  return omit(record, ['__serial', '__index', '__top', '__selected', '__key', '__dataIndex'])
+  return omit(record, ['__serial', '__index', '__top', '__selected', '__key', '__dataIndex', '__oldSerial'])
 }
 
 
@@ -40,8 +40,9 @@ export const handlePureRecord = (record: Record<string, any>) => {
  * 计算每个column的宽度和位置
  * @param columns
  * @param warpWidth
+ * @param scrollX
  */
-export const handleColumnsWidth = (columns: ColumnsType, warpWidth: number): any[] => {
+export const handleColumnsWidth = (columns: ColumnsType, warpWidth: number, scrollX: number): any[] => {
 
   let newColumns = [...columns]
   let noWidthLen = 0 // 没有width属性的长度
@@ -51,45 +52,71 @@ export const handleColumnsWidth = (columns: ColumnsType, warpWidth: number): any
   let decimalCount = 0 // 收集每个取整后的小数
   let lastNoWidthIndex : number | undefined = undefined // 最后一个没有width属性的位置
 
-  newColumns.forEach(item => {
-    if (item.width) {
+  newColumns.forEach((item, index) => {
+    if (item.width) { // 是否有设置width属性
       hasWidthCount += item.width
     } else {
       noWidthLen += 1
-    }
-  })
-
-  if (noWidthLen) {
-    average = (warpWidth - hasWidthCount) / noWidthLen // 剩余平分分配宽度
-    parseAverage = Math.trunc(average)
-    decimalCount = (average - parseAverage) * noWidthLen
-  }
-
-  newColumns.forEach((item, index) => {
-    if (!item.width) {
       lastNoWidthIndex = index
     }
   })
 
+  if (noWidthLen) {
+    average = ((scrollX ?? warpWidth) - hasWidthCount) / noWidthLen // 剩余平分分配宽度
+    parseAverage = scrollX  ? 150 :Math.trunc(average)
+    decimalCount = (average - parseAverage) * noWidthLen
+  }
+
   return newColumns.map((item, index) => {
     let _width = item.width
-    let left = 0
 
     if (!item.width) {
       _width = parseAverage
     }
 
     if (index === lastNoWidthIndex) {
-      _width = Math.trunc(decimalCount) + parseAverage
+      _width = decimalCount < 0 ? parseAverage : Math.trunc(decimalCount) + parseAverage
     }
 
-    if (index !== 0) {
-      left = newColumns[index - 1].width + newColumns[index - 1].left
-    }
-
-    item.width = _width
-    item.left = left
+    item._width = _width
+    // item.left = left
 
     return item
   }, [])
+}
+
+export const handleColumnFixed = (columns: ColumnsType) => {
+  const left = {
+    keys: [],
+    width: 0
+  }
+  const center = {
+    keys: [],
+    width: 0
+  }
+  const right = {
+    keys: [],
+    width: 0
+  }
+
+  console.log('columns', columns)
+
+  columns.forEach(item => {
+    if (item.fixed === 'left') {
+      left.keys.push(item)
+      left.width += item._width
+    } else if (item.fixed === 'right') {
+      right.keys.push(item)
+      right.width += item._width
+    } else {
+      center.keys.push(item)
+      center.width += item._width
+    }
+  })
+
+  return {
+    left,
+    center,
+    right
+  }
 }

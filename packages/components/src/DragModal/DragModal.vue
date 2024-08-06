@@ -26,6 +26,7 @@
 
 <script setup lang='ts'>
 import { ref, useSlots, defineEmits, defineProps, defineOptions, computed, onMounted, watch} from 'vue'
+import { Button } from 'ant-design-vue'
 
 defineOptions({
   name: 'JDragModal'
@@ -57,7 +58,7 @@ const props = defineProps({
     default: true
   }
 })
-const emits = defineEmits(['cancel', 'heightChange', 'ok'])
+const emits = defineEmits(['cancel', 'heightChange', 'ok', 'visibleChange'])
 const slots = useSlots()
 
 const ele = document.body
@@ -196,10 +197,12 @@ const rangeMove = (e: MouseEvent, position: string) => {
 
 const onCancel = () => {
   emits("cancel")
+  emits('visibleChange', false)
 }
 
 const onOk = () => {
   emits("ok")
+  emits('visibleChange', true)
 }
 
 onMounted(() => {

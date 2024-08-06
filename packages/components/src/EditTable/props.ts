@@ -1,9 +1,16 @@
-export const bodyProps = () => ({
-  dataSource: {
+export const defaultProps = () => ({
+  rowKey: {
+    type: String,
+    default: 'id'
+  },
+  columns: {
     type: Array,
     default: () => ([])
   },
-  columns: {
+})
+
+export const bodyProps = () => ({
+  dataSource: {
     type: Array,
     default: () => ([])
   },
@@ -23,11 +30,11 @@ export const bodyProps = () => ({
     type: Boolean,
     default: true
   },
-  rowKey: {
-    type: String,
-    default: 'id'
-  },
   rowSelection: {
+    type: Object,
+    default: undefined
+  },
+  scroll: {
     type: Object,
     default: undefined
   }
