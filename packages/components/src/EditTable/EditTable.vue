@@ -33,7 +33,7 @@
         </Body>
         <slot name="bodyExtra"></slot>
       </div>
-      <div v-if="scroll.x" class="jetlinks-edit-table-horizontal-scroll">
+      <div v-if="scroll?.x" class="jetlinks-edit-table-horizontal-scroll">
         <div class="jetlinks-edit-table-horizontal-scroll-viewport" ref="horizontalScrollRef" @scroll="onHorizontalScroll">
           <div
           :style="{
@@ -43,7 +43,7 @@
           }">
           </div>
         </div>
-        <div class="jetlinks-edit-table-horizontal-scroll-hidden">
+        <div class="jetlinks-edit-table-horizontal-scroll-hidden" :style="{width: scrollWidth + 'px'}">
 
         </div>
       </div>
@@ -213,7 +213,8 @@ provide(TABLE_TOOL, {
     emit('searchVisibleChange', v)
   },
   scrollMap,
-  sortData
+  sortData,
+  columns: myColumns
 })
 
 const addField = (key, field) => {
@@ -289,7 +290,6 @@ function onResize({width = 0, height}) {
   }
 
   myColumns.value = handleColumnsWidth(newColumns, _width, props.scroll?.x)
-  console.log(width, _width, myColumns.value)
 }
 
 const onScrollDown = (len) => {
