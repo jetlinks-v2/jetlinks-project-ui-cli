@@ -99,8 +99,6 @@ export const handleColumnFixed = (columns: ColumnsType) => {
     width: 0
   }
 
-  console.log('columns', columns)
-
   columns.forEach(item => {
     if (item.fixed === 'left') {
       left.keys.push(item)

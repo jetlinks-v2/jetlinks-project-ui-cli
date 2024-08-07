@@ -242,7 +242,20 @@ function addFieldError(key, message) {
 }
 
 const scrollWidth = computed(() => {
-  return (props.dataSource.length * props.cellHeight) > props.height ? 17 : 0
+  let _width = 0
+  if (props.dataSource.length * props.cellHeight) {
+    _width = 17
+  }
+
+  if (tableBody.value?.getViewScrollRef) {
+    const viewScrollDom = tableBody.value?.getViewScrollRef()
+
+    const bodyContainer = viewScrollDom.querySelector('.jetlinks-edit-table-body-container')
+
+    _width = viewScrollDom.offsetWidth - bodyContainer.offsetWidth
+  }
+
+  return _width
 })
 
 const onHorizontalScroll = () => {

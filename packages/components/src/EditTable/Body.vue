@@ -1,7 +1,11 @@
 <template>
   <div
     v-if="dataSource.length"
-    class="jetlinks-edit-table-body-viewport" :style="{ ...style, height: height + 'px'}" ref="viewScrollRef" @scroll="onScroll">
+    class="jetlinks-edit-table-body-viewport"
+    :style="{ ...style, height: height + 'px'}"
+    ref="viewScrollRef"
+    @scroll="onScroll"
+  >
     <div class="jetlinks-edit-table-body-container" :style="{position: 'relative'}">
       <div class="jetlinks-edit-scrollbar" :style="containerStyle"> </div>
       <div
@@ -246,6 +250,8 @@ const updateSelectedKeys = (keys) => {
   selectedRowKeys.value = keys
 }
 
+const getViewScrollRef = () => viewScrollRef.value
+
 watch(() => JSON.stringify(props.rowSelection?.selectedRowKeys), (val) => {
   selectedRowKeys.value = JSON.parse(val || '[]')
 }, { immediate: true })
@@ -291,7 +297,8 @@ onBeforeUnmount(() => {
 
 defineExpose({
   scrollTo,
-  updateSelectedKeys
+  updateSelectedKeys,
+  getViewScrollRef
 })
 
 </script>
