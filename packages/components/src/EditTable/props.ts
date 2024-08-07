@@ -7,6 +7,19 @@ export const defaultProps = () => ({
     type: Array,
     default: () => ([])
   },
+  searchColumns: {
+    type: Array,
+    default: () => [
+      {
+        title: '标识',
+        dataIndex: 'id',
+      },
+      {
+        title: '名称',
+        dataIndex: 'name',
+      }
+    ]
+  },
 })
 
 export const bodyProps = () => ({

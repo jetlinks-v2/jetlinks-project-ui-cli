@@ -12,6 +12,7 @@
           :columns="myColumns"
           :style="{width: tableStyle.width}"
           :rowKey="rowKey"
+          :searchColumns="searchColumns"
         />
         <div class="jetlinks-edit-table-header-scroll-hidden" :style="{width: scrollWidth + 'px'}"></div>
       </div>

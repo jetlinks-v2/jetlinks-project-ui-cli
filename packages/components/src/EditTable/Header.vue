@@ -79,6 +79,7 @@
     v-if="searchData.visible"
     :searchKey="searchData.key"
     :rowKey="rowKey"
+    :columns="searchColumns"
     @close="searchData.visible = false"
   />
 </template>
@@ -103,7 +104,7 @@ const props = defineProps({
   style: {
     type: Object,
     default: undefined
-  }
+  },
 })
 
 const tableTool = useTableTool()

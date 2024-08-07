@@ -84,6 +84,10 @@ const props = defineProps({
   rowKey: {
     type: String,
     default: 'id'
+  },
+  columns: {
+    type: Array,
+    default: () => []
   }
 })
 
@@ -100,17 +104,6 @@ const modalHeight = ref(100)
 const tableHeight = ref(230)
 const selectedRowKeys = ref([])
 const tableRef = ref()
-
-const columns = [
-  {
-    title: '标识',
-    dataIndex: 'id',
-  },
-  {
-    title: '名称',
-    dataIndex: 'name',
-  }
-]
 
 const selectedTableRow = (record) => {
   tableTool.scrollTo({
