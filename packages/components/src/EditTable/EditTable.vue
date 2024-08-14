@@ -67,7 +67,7 @@ import {tableProps} from 'ant-design-vue/lib/table'
 import Header from './header.vue'
 import Body from './body.vue'
 import {useFullscreen} from '@vueuse/core';
-import {provide, useAttrs, useSlots, ref, reactive, defineOptions, defineEmits, defineProps} from 'vue'
+import {provide, useAttrs, useSlots, ref, reactive, defineOptions, defineEmits, defineProps, computed, watch} from 'vue'
 import {bodyProps, defaultProps} from "./props";
 import {findIndex, get, sortBy} from 'lodash-es'
 

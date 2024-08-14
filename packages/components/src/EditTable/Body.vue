@@ -145,7 +145,7 @@ import ContextMenu from './components/ContextMenu'
 import {useRightMenuContext, useTableTool} from "./hooks";
 import {randomString} from "@jetlinks-web/utils";
 import {bodyProps, defaultProps} from "./props";
-import { ref, reactive, computed, watch, onMounted, onBeforeUnmount, defineExpose} from 'vue'
+import { ref, reactive, computed, watch, onMounted, onBeforeUnmount, defineExpose, nextTick} from 'vue'
 import {handleColumnFixed} from "./utils";
 
 defineOptions({
