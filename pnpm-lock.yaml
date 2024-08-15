@@ -11,6 +11,9 @@ importers:
       '@changesets/cli':
         specifier: ^2.26.2
         version: 2.26.2
+      '@jetlinks-web/core':
+        specifier: ^1.0.9
+        version: 1.0.9(@types/lodash-es@4.17.11)(lodash@4.17.21)(typescript@5.1.6)
       ant-design-vue:
         specifier: ^3.2.20
         version: 3.2.20(vue@3.3.4)
@@ -95,7 +98,7 @@ importers:
         version: 10.9.0(vue@3.3.4)
       axios:
         specifier: ^1.6.7
-        version: 1.6.7(debug@4.3.4)
+        version: 1.6.7
       dayjs:
         specifier: ^1.11.8
         version: 1.11.8
@@ -202,6 +205,9 @@ importers:
       '@jetlinks-web/constants':
         specifier: workspace:^
         version: link:../../packages/constants
+      '@jetlinks-web/core':
+        specifier: workspace:^
+        version: link:../../packages/core
       '@jetlinks-web/hooks':
         specifier: workspace:^
         version: link:../../packages/hooks
@@ -216,7 +222,7 @@ importers:
         version: 2.0.17(vue@3.3.4)
       axios:
         specifier: ^1.6.7
-        version: 1.6.7(debug@4.3.4)
+        version: 1.6.7
       dayjs:
         specifier: ^1.11.8
         version: 1.11.8
@@ -753,6 +759,21 @@ importers:
 
   packages/constants: {}
 
+  packages/core:
+    dependencies:
+      '@jetlinks-web/constants':
+        specifier: workspace:^
+        version: link:../constants
+      '@jetlinks-web/types':
+        specifier: workspace:^
+        version: link:../types
+      '@jetlinks-web/utils':
+        specifier: workspace:^
+        version: link:../utils
+      axios:
+        specifier: ^1.7.4
+        version: 1.7.4(debug@4.3.4)
+
   packages/hooks:
     dependencies:
       '@jetlinks-web/constants':
@@ -785,7 +806,7 @@ importers:
     dependencies:
       axios:
         specifier: ^1.4.0
-        version: 1.6.7(debug@4.3.4)
+        version: 1.6.7
       vue:
         specifier: ^3.3.4
         version: 3.3.4
@@ -3186,6 +3207,73 @@ packages:
     engines: {node: '>=8'}
     dev: true
 
+  /@jetlinks-web/constants@1.0.2:
+    resolution: {integrity: sha512-ljmJYJFs2wuXngljQiv3IdvKu/eO47uZTKMQwshhqR1+47aG/G8lGotlbMmAH8D7E5wj2Uf6o84HqYm7iFDMnA==}
+    dev: false
+
+  /@jetlinks-web/core@1.0.9(@types/lodash-es@4.17.11)(lodash@4.17.21)(typescript@5.1.6):
+    resolution: {integrity: sha512-iu4tfpi4xokMrH8PXQ4LtMn5761C1XD75swT0IzD6pXxI06I2m3LSmcPFMeZVyrOE2a3mZuhspI2o+XH5iFVfg==}
+    dependencies:
+      '@jetlinks-web/constants': 1.0.2
+      '@jetlinks-web/router': 1.0.7(@types/lodash-es@4.17.11)(lodash@4.17.21)(typescript@5.1.6)
+      '@jetlinks-web/types': 1.0.2
+      '@jetlinks-web/utils': 1.0.7(@types/lodash-es@4.17.11)(lodash@4.17.21)
+      axios: 1.7.4(debug@4.3.4)
+      lodash-es: 4.17.21
+      rxjs: 7.8.1
+    transitivePeerDependencies:
+      - '@types/lodash-es'
+      - '@vue/composition-api'
+      - debug
+      - lodash
+      - typescript
+    dev: false
+
+  /@jetlinks-web/router@1.0.7(@types/lodash-es@4.17.11)(lodash@4.17.21)(typescript@5.1.6):
+    resolution: {integrity: sha512-ubes6HeV04A5/+W8ZD2LwmzLvxmKdQOAKu3dzzThj/KKaR85lZH9CqBFy1EAYCRNPzGZHG3pbSjs90IhpLAzxw==}
+    dependencies:
+      '@jetlinks-web/stores': 1.0.1(typescript@5.1.6)
+      '@jetlinks-web/types': 1.0.2
+      '@jetlinks-web/utils': 1.0.7(@types/lodash-es@4.17.11)(lodash@4.17.21)
+    transitivePeerDependencies:
+      - '@types/lodash-es'
+      - '@vue/composition-api'
+      - debug
+      - lodash
+      - typescript
+    dev: false
+
+  /@jetlinks-web/stores@1.0.1(typescript@5.1.6):
+    resolution: {integrity: sha512-9w/VPNpdx9XdVGd9QUgK0xBSBUpwNc6KVywH8zfMBGpgnE+kZdZXxkzjaAEccPnbWiKK0WcGwRwi8f3BBX9Ujg==}
+    dependencies:
+      pinia: 2.1.3(typescript@5.1.6)(vue@3.3.4)
+      vue: 3.3.4
+    transitivePeerDependencies:
+      - '@vue/composition-api'
+      - typescript
+    dev: false
+
+  /@jetlinks-web/types@1.0.2:
+    resolution: {integrity: sha512-KvW+frqStL8wnXDEhUrXDTJ5cXra8adCrQDAifBvAOjHrxlRV+6MfBv3HCadc20vclHMIsLZk3LA7rSBDJytjA==}
+    dependencies:
+      axios: 1.7.4(debug@4.3.4)
+      vue: 3.3.4
+    transitivePeerDependencies:
+      - debug
+    dev: false
+
+  /@jetlinks-web/utils@1.0.7(@types/lodash-es@4.17.11)(lodash@4.17.21):
+    resolution: {integrity: sha512-MwXTzBW28JD0/oeRqwF2u41D9W4KWcycajgz04MMAPNtSUPrW42YTDym+XRNF0uqwYHOgq2wRN0GWLU9Q74UkQ==}
+    dependencies:
+      jsencrypt: 3.3.2
+      lodash-es: 4.17.21
+      lodash-unified: 1.0.3(@types/lodash-es@4.17.11)(lodash-es@4.17.21)(lodash@4.17.21)
+      pubsub-js: 1.9.4
+    transitivePeerDependencies:
+      - '@types/lodash-es'
+      - lodash
+    dev: false
+
   /@jridgewell/gen-mapping@0.3.5:
     resolution: {integrity: sha512-IzL8ZoEDIBRWEzlCcRhOaCupYyN5gdIK+Q6fbFdPDg6HqX6jpkItn7DFIpW9LQzXG6Df9sA7+OKnq0qlz/GaQg==}
     engines: {node: '>=6.0.0'}
@@ -5250,8 +5338,18 @@ packages:
     dependencies:
       possible-typed-array-names: 1.0.0
 
-  /axios@1.6.7(debug@4.3.4):
+  /axios@1.6.7:
     resolution: {integrity: sha512-/hDJGff6/c7u0hDkvkGxR/oy6CbCs8ziCsC7SqmhjfozqiJGc8Z11wrv9z9lYfY4K8l+H9TpjcMDX0xOZmx+RA==}
+    dependencies:
+      follow-redirects: 1.15.6(debug@4.3.4)
+      form-data: 4.0.0
+      proxy-from-env: 1.1.0
+    transitivePeerDependencies:
+      - debug
+    dev: false
+
+  /axios@1.7.4(debug@4.3.4):
+    resolution: {integrity: sha512-DukmaFRnY6AzAALSH4J2M3k6PkaC+MfaAGdEERRWcC9q3/TWQwLpHR8ZRLKTdQ3aBDL64EdluRDjJqKw+BPZEw==}
     dependencies:
       follow-redirects: 1.15.6(debug@4.3.4)
       form-data: 4.0.0
@@ -15448,7 +15546,7 @@ packages:
       vite: '>=3'
     dependencies:
       '@octokit/rest': 19.0.13
-      axios: 1.6.7(debug@4.3.4)
+      axios: 1.7.4(debug@4.3.4)
       debug: 4.3.4
       picocolors: 1.0.1
       vite: 4.3.9(@types/node@20.4.5)(less@4.2.0)
@@ -15498,7 +15596,7 @@ packages:
     dependencies:
       '@vue/compiler-sfc': 3.4.21
       magic-string: 0.25.9
-      vite: 4.3.9(@types/node@18.13.0)(less@4.2.0)
+      vite: 4.3.9(@types/node@20.4.5)(less@4.2.0)
     dev: true
 
   /vite@4.3.9(@types/node@18.13.0)(less@4.2.0):
