@@ -1,1 +1,1 @@
-export * from './scr/axios'
+export * from './src/axios'
