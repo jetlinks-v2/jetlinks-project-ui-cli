@@ -52,6 +52,17 @@ export const randomString = (length: number = 32) => {
 };
 
 /**
+ * 生成随机数数字
+ * @returns
+ */
+export const randomNumber = () => {
+  const randomStr = Math.random().toString().substring(2, 10)
+  const time = (new Date().getTime()).toString().substring(8)
+
+  return Number(randomStr) + Number(time)
+}
+
+/**
  * 转换图片为base64
  * @param img
  * @param callback

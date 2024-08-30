@@ -4,6 +4,7 @@
   "scripts": {
     "build": "pnpm --filter scripts build",
     "dev": "pnpm --filter scripts dev",
+    "compile": "pnpm turbo run compile",
     "turbo:build": "turbo run build --parallel",
     "turbo:dev": "turbo run dev --parallel",
     "stub": "pnpm --filter @jetlinks/** prepack",
