@@ -23,6 +23,8 @@ interface RequestOptions<T, S> {
   defaultParams: S | any | any[]
 
   handleResponse: (data: any) => any
+
+  defaultValue?: S
 }
 
 const defaultOptions: any = {
@@ -48,7 +50,7 @@ export const useRequest = <T = any, S = any>(
     ...options
   }
 
-  function run(...arg: any[]) {
+  function run(...arg: any[]): Promise<S> {
     return new Promise(async ( resolve, reject) => {
       if (request && isFunction(request)) {
         loading.value = true
