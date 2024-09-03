@@ -3,7 +3,8 @@
 </template>
 
 <script lang="ts" setup>
-import {CSSProperties, nextTick, ref, watch, Ref} from 'vue'
+import type {CSSProperties, Ref} from 'vue'
+import { nextTick, ref, watch, defineProps, defineOptions } from 'vue'
 import {useECharts} from '@jetlinks-web/hooks'
 
 interface Props {

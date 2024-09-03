@@ -7,6 +7,7 @@
 </template>
 
 <script setup>
+import { defineOptions, defineProps, defineEmits } from 'vue'
 defineOptions({
   name: 'JRadioButton',
 })
