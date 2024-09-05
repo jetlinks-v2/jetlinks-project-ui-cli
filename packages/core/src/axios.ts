@@ -150,7 +150,7 @@ export const crateAxios = (options: Options) => {
   )
 }
 
-export const post = <T = any>(url: string, data: any = undefined, ext?: any) => {
+export const post = <T = any>(url: string, data: any = {}, ext?: any) => {
   return (instance<any, AxiosResponseRewrite<T>>({
     method: 'POST',
     url,
@@ -168,7 +168,7 @@ export const get = <T = any>(url: string, params: any = undefined, ext?: any) =>
   })
 }
 
-export const put = <T = any>(url: string, data: any = undefined, ext?: any) => {
+export const put = <T = any>(url: string, data: any = {}, ext?: any) => {
   return instance<any, AxiosResponseRewrite<T>>({
     method: 'PUT',
     url,
@@ -177,7 +177,7 @@ export const put = <T = any>(url: string, data: any = undefined, ext?: any) => {
   })
 }
 
-export const patch = <T = any>(url: string, data: any = undefined, ext?: any) => {
+export const patch = <T = any>(url: string, data: any = {}, ext?: any) => {
   return instance<any, AxiosResponseRewrite<T>>({
     method: 'patch',
     url,
