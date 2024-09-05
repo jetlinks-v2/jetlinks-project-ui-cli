@@ -1,6 +1,6 @@
 import { h, defineComponent, computed } from "vue";
 import type { PropType, CSSProperties, ExtractPropTypes, App } from 'vue'
-import { Button, Tooltip, Popconfirm } from 'ant-design-vue'
+import { Button, Tooltip, Modal } from 'ant-design-vue'
 import { PopconfirmProps, TooltipProps } from "ant-design-vue/es";
 import { omit } from "lodash-es";
 import { buttonProps } from "ant-design-vue/es/button/button";
@@ -37,7 +37,6 @@ const PermissionButton = defineComponent({
     props: definedProps,
     setup(props, {slots}) {
 
-        const {popConfirm, tooltip} = props
         const {hasPerm} = usePermission(props.hasPermission as PermissionType)
 
         const permission = computed(() => {
@@ -54,11 +53,26 @@ const PermissionButton = defineComponent({
             return true
         })
 
-        const hasPopConfirm = computed(() => !!popConfirm) // 是否包含确认弹窗
-        const hasTooltip = computed(() => !!tooltip) // 是否包含文字提示
+        // const hasPopConfirm = computed(() => !!props.popConfirm) // 是否包含确认弹窗
+        const hasTooltip = computed(() => !!props.tooltip) // 是否包含文字提示
 
         return () => {
             const {popConfirm, tooltip, hasPermission, noPermissionTitle, ...buttonProps} = props
+
+            if (popConfirm) {
+              buttonProps.onClick = () => {
+                Modal.confirm({
+                  title: popConfirm.title,
+                  content: popConfirm.content,
+                  onOk() {
+                    return popConfirm.onConfirm()
+                  },
+                  onCancel() {
+                    popConfirm.onCancel()
+                  }
+                })
+              }
+            }
 
             const button = !slots.button ?
                 h(Button,
@@ -79,22 +93,22 @@ const PermissionButton = defineComponent({
             const noPermissionButton = !permission.value ? h(Tooltip, {title: noPermissionTitle || '暂无权限，请联系管理员'}, {default: () => button}) : undefined
 
             // 二次确认
-            const _popConfirm = popConfirm ?
-                h(Popconfirm,
-                    Object.assign(
-                        {overlayStyle: {width: '220px'}},
-                        popConfirm,
-                        {
-                            disabled: !permission.value || buttonProps.disabled
-                        }
-                    ),
-                    {default: () => tooltip ? _tooltip : button})
-                : undefined
+            // const _popConfirm = popConfirm ?
+            //     h(Popconfirm,
+            //         Object.assign(
+            //             {overlayStyle: {width: '220px'}},
+            //             popConfirm,
+            //             {
+            //                 disabled: !permission.value || buttonProps.disabled
+            //             }
+            //         ),
+            //         {default: () => tooltip ? _tooltip : button})
+            //     : undefined
 
             if (permission.value) {
-                if (hasPopConfirm.value) {
-                    return _popConfirm
-                }
+                // if (hasPopConfirm.value) {
+                //     return _popConfirm
+                // }
 
                 if (hasTooltip.value) {
                     return _tooltip
