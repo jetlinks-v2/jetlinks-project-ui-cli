@@ -145,10 +145,12 @@ watch(
 
 watch(
     () => props.dataSource,
-    () => {
-      handleSearch(props.params);
+    (newVal) => {
+      if (newVal && !props.request) {
+        handleSearch(props.params);
+      }
     },
-    {deep: true, immediate: true},
+    { deep: true, immediate: true },
 );
 
 const onPageChange = (_page, size) => {
