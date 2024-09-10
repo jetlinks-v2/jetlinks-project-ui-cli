@@ -65,10 +65,10 @@ const PermissionButton = defineComponent({
                   title: popConfirm.title,
                   content: popConfirm.content,
                   onOk() {
-                    return popConfirm.onConfirm()
+                    return popConfirm.onConfirm?.()
                   },
                   onCancel() {
-                    popConfirm.onCancel()
+                    popConfirm.onCancel?.()
                   }
                 })
               }
