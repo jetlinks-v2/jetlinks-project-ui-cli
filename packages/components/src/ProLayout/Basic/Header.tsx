@@ -7,6 +7,7 @@ import { defineComponent, computed, toRefs } from 'vue';
 import type { WithFalse } from '../typings';
 import { useRouteContext } from '../RouteContext';
 import { Layout } from 'ant-design-vue';
+import {LayoutType} from "../defaultSettings";
 
 export const headerViewProps = {
     ...baseHeaderProps,
@@ -80,6 +81,13 @@ export default defineComponent({
 
         const right = computed(() => (needFixedHeader.value ? 0 : undefined));
 
+        const width = computed(() => {
+          if (context.layoutType === LayoutType.PAD) {
+            return context.siderWidth
+          }
+          return 0
+        })
+
         return () => (
             <>
                 {needFixedHeader.value && (
@@ -96,7 +104,7 @@ export default defineComponent({
                         padding: 0,
                         height: `${headerHeight.value}px`,
                         lineHeight: `${headerHeight.value}px`,
-                        width: props.hasSiderMenu ? `calc(100% - ${context.siderWidth}px)` : '100%',
+                        width: props.hasSiderMenu ? `calc(100% - ${width.value}px)` : '100%',
                         zIndex: 100,
                         right: right.value,
                     }}
