@@ -19,10 +19,10 @@
         <template #headerCell="{ column, title }">
           <slot name="headerCell" v-bind="{column, title}"></slot>
         </template>
-        <template #bodyCell="{ column, record }">
+        <template #bodyCell="{ column, record, index }">
           <template
               v-if="(column?.key || column?.dataIndex) && column?.scopedSlots && (slots?.[column?.dataIndex] || slots?.[column?.key])">
-            <slot :name="column?.key || column?.dataIndex" v-bind="record"></slot>
+            <slot :name="column?.key || column?.dataIndex" v-bind="record" :index="index" :column="column"></slot>
           </template>
           <template v-else>{{ get(record, column?.dataIndex || column?.key) }}</template>
         </template>

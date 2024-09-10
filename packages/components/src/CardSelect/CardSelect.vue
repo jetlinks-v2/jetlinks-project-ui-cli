@@ -25,7 +25,7 @@
 
 <script setup>
 import { has } from 'lodash-es'
-import { computed, ref, watch } from 'vue'
+import { computed, ref, watch, defineEmits, defineOptions, defineProps } from 'vue'
 
 defineOptions({
   name: 'JCardSelect'

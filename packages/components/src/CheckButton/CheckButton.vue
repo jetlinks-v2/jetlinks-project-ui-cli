@@ -20,7 +20,8 @@
 </template>
 
 <script setup lang="ts">
-import { computed, CSSProperties, PropType, ref, watch } from 'vue';
+import type { CSSProperties, PropType } from 'vue';
+import { computed, ref, watch, defineEmits, defineOptions, defineProps } from 'vue';
 import { isArray } from '@jetlinks-web/utils';
 
 defineOptions({

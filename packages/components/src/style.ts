@@ -4,3 +4,6 @@ import './ProLayout/style';
 import './ProTable/style';
 import './Search/style';
 import './CardSelect/style';
+import './DragModal/style';
+import './EditTable/style';
+import './MonacoEditor/style';

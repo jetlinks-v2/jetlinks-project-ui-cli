@@ -23,7 +23,7 @@
 
 <script setup lang="ts">
 import type { CSSProperties, PropType } from 'vue';
-import { ref, computed, inject } from 'vue'
+import { ref, computed, inject, defineOptions, defineEmits, defineProps } from 'vue'
 import { initAMapApiLoader, ElAmap } from '@vuemap/vue-amap';
 import { getAMapUiPromise } from '@jetlinks-web/utils'
 import { MapProps } from './util'

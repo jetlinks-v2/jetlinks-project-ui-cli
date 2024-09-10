@@ -1,7 +1,7 @@
 import {onUnmounted, ref} from 'vue'
 import type { Ref } from 'vue'
 import {isFunction, get, isArray} from 'lodash-es'
-import type { AxiosResponseRewrite } from '@jetlinks/types'
+import type { AxiosResponseRewrite } from '@jetlinks-web/types'
 
 interface RequestOptions<T, S> {
   immediate: boolean
@@ -23,6 +23,8 @@ interface RequestOptions<T, S> {
   defaultParams: S | any | any[]
 
   handleResponse: (data: any) => any
+
+  defaultValue?: S
 }
 
 const defaultOptions: any = {
@@ -30,7 +32,6 @@ const defaultOptions: any = {
   formatName: 'result'
 }
 
-type Run = (...args: any[]) => void
 type Reload = () => void
 
 export const useRequest = <T = any, S = any>(
@@ -39,7 +40,7 @@ export const useRequest = <T = any, S = any>(
 ): {
   data: Ref<S | undefined>,
   loading: Ref<boolean>,
-  run: Run,
+  run: (...args: any[]) => Promise<S>,
   reload: Reload,
 } => {
   const data = ref<S>()
@@ -49,28 +50,35 @@ export const useRequest = <T = any, S = any>(
     ...options
   }
 
-  async function run(...arg: any[]) {
-    if (request && isFunction(request)) {
-      loading.value = true
-      try {
-        // @ts-ignore
-        const resp = await request.apply(this, arg)
+  function run(...arg: any[]): Promise<S> {
+    return new Promise(async ( resolve, reject) => {
+      if (request && isFunction(request)) {
+        loading.value = true
+        try {
+          // @ts-ignore
+          const resp = await request.apply(this, arg)
 
-        loading.value = false
+          loading.value = false
 
-        if (resp?.success) {
-          const successData = await _options.onSuccess?.(resp)
-          data.value = successData ?? get(resp, _options.formatName!)
-          // console.log(data.value)
-        } else {
-          _options.onError?.(resp)
+          if (resp?.success) {
+            const successData = await _options.onSuccess?.(resp)
+            data.value = successData ?? get(resp, _options.formatName!)
+            // console.log(data.value)
+            resolve(data.value)
+          } else {
+            _options.onError?.(resp)
+            reject(resp)
+          }
+        } catch (e) {
+          console.warn(e)
+          reject(e)
+          loading.value = false
+          _options.onWarn?.(e)
         }
-      } catch (e) {
-        console.warn(e)
-        loading.value = false
-        _options.onWarn?.(e)
+      } else {
+        reject('request is not a function')
       }
-    }
+    })
   }
 
   function reload () { // 重新触发

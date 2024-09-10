@@ -17,3 +17,5 @@ export * from './pubsub'
 export * from './type'
 
 export * from './browser'
+
+export * from './util'

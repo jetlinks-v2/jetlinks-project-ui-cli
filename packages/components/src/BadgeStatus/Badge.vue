@@ -6,7 +6,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, defineProps, defineOptions } from 'vue'
 import { getHexColor } from './color'
 import {Badge} from 'ant-design-vue'
 

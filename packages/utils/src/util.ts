@@ -52,6 +52,17 @@ export const randomString = (length: number = 32) => {
 };
 
 /**
+ * 生成随机数数字
+ * @returns
+ */
+export const randomNumber = () => {
+  const randomStr = Math.random().toString().substring(2, 10)
+  const time = (new Date().getTime()).toString().substring(8)
+
+  return Number(randomStr) + Number(time)
+}
+
+/**
  * 转换图片为base64
  * @param img
  * @param callback
@@ -114,3 +125,40 @@ export const filterTreeNodes = (tree, condition, key) => {
   })
 }
 
+export const EventEmitter = {
+  list: {},
+  subscribe: function(events: string[], fn: Function) {
+    const list = this.list
+    events.forEach(event => {
+      (list[event] || (list[event] = [])).push(fn)
+    })
+    return this
+  },
+  emit: function(events:string, data?: any) {
+    const list = this.list
+    const fns: Function[] = list[events] ? [...list[events]] : []
+
+    if (!fns.length) return false;
+
+    fns.forEach(fn => {
+      fn(data)
+    })
+
+    return this
+  },
+  unSubscribe: function(events:string[], fn: Function) {
+    const list = this.list
+    events.forEach(key => {
+      if (key in list) {
+        const fns = list[key]
+        for (let i = 0; i < fns.length; i++) {
+          if (fns[i] === fn) {
+            fns.splice(i, 1)
+            break;
+          }
+        }
+      }
+    })
+    return this
+  }
+}

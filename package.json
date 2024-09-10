@@ -4,6 +4,7 @@
   "scripts": {
     "build": "pnpm --filter scripts build",
     "dev": "pnpm --filter scripts dev",
+    "compile": "pnpm turbo run compile",
     "turbo:build": "turbo run build --parallel",
     "turbo:dev": "turbo run dev --parallel",
     "stub": "pnpm --filter @jetlinks/** prepack",
@@ -34,6 +35,7 @@
   "packageManager": "pnpm@7.15.0",
   "dependencies": {
     "@changesets/cli": "^2.26.2",
+    "@jetlinks-web/core": "^1.0.9",
     "ant-design-vue": "^3.2.20",
     "vue": "^3.3.4"
   }

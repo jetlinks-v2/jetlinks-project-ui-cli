@@ -1,0 +1,42 @@
+.jetlinks-edit-table-wrapper {
+  background: #fff;
+  height: 100%;
+  position: relative;
+
+  &.table-full-screen {
+    padding: 24px;
+  }
+
+  .jetlinks-edit-table {
+    display: flex;
+    flex-direction: column;
+    flex-grow: 0;
+    flex-shrink: 0;
+
+    .jetlinks-edit-table-header {
+      overflow: hidden;
+      width: 100%;
+      position: relative;
+
+      .jetlinks-edit-table-header-scroll-hidden {
+        position: absolute;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        z-index: 5;
+        background: #fafafa;
+      }
+    }
+
+
+    .jetlinks-edit-table-body {
+      background-color: #fff;
+      overflow-y: hidden;
+      position: relative;
+      height: 100%;
+      width: 100%;
+      flex: 1 1 auto;
+      flex-direction: row;
+    }
+  }
+}
