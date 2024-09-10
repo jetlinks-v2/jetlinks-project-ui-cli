@@ -317,7 +317,7 @@ const SiderMenu: FunctionalComponent<SiderMenuProps> = (
                         {headerDom}
                     </div>
                 )}
-                {extraDom && !props.collapsed && (
+                {extraDom && (
                     <div
                         class={{
                             [`${baseClassName}-extra`]: true,
@@ -327,8 +327,8 @@ const SiderMenu: FunctionalComponent<SiderMenuProps> = (
                         {extraDom}
                     </div>
                 )}
-                <div style="flex: 1; overflow: hidden auto;">
-                    { props.layoutType === LayoutType.LIST ? (menuContentRender &&
+                <div class={`${baseClassName}-body`} style="flex: 1; overflow: hidden auto;">
+                    { props.layoutType !== LayoutType.CARD ? (menuContentRender &&
                             menuContentRender(props, defaultMenuDom)) ||
                         defaultMenuDom : null }
                 </div>

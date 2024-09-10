@@ -263,6 +263,7 @@ export default defineComponent({
                 'fixSiderbar',
                 'fixedHeader',
                 'headerHeight',
+                'collapsedWidth'
             ]) as any),
             siderWidth,
             breadcrumb,
@@ -449,6 +450,49 @@ export default defineComponent({
                     </Layout>
                   </div>
                 </>
+              )
+            } else if (props.layoutType === LayoutType.PAD) {
+              return (
+                <div class={className.value}>
+                  <Layout
+                    style={{
+                      minHeight: '100vh',
+                      ...((attrs.style as CSSProperties) || {}),
+                    }}
+                  >
+                    <SiderMenu
+                      {...restProps}
+                      logo={logoRender || restProps.logo}
+                      headerHeight={0}
+                      menuHeaderRender={menuHeaderRender}
+                      menuExtraRender={menuExtraRender}
+                      menuContentRender={
+                        menuContentRender
+                      }
+                      menuItemRender={menuItemRender}
+                      subMenuItemRender={
+                        subMenuItemRender
+                      }
+                      collapsedButtonRender={
+                        collapsedButtonRender
+                      }
+                      onCollapse={onCollapse}
+                      onSelect={onSelect}
+                      onOpenKeys={onOpenKeys}
+                      onMenuClick={onMenuClick}
+                    />
+
+                    <Layout
+                      style={genLayoutStyle}
+                      class={prefixCls.value}
+                    >
+                      {headerDom.value}
+                      <LayoutContent>
+                        {slots.default?.()}
+                      </LayoutContent>
+                    </Layout>
+                  </Layout>
+                </div>
               )
             } else {
               return (

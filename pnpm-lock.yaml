@@ -13,7 +13,7 @@ importers:
         version: 2.26.2
       '@jetlinks-web/core':
         specifier: ^1.0.9
-        version: 1.0.9(@types/lodash-es@4.17.11)(lodash@4.17.21)(typescript@5.1.6)
+        version: 1.0.9(@types/lodash-es@4.17.12)(lodash@4.17.21)(typescript@5.1.6)
       ant-design-vue:
         specifier: ^3.2.20
         version: 3.2.20(vue@3.3.4)
@@ -165,7 +165,7 @@ importers:
         version: 5.1.6
       unocss:
         specifier: ^0.52.7
-        version: 0.52.7(postcss@8.4.38)(rollup@3.23.1)(vite@4.3.9)
+        version: 0.52.7(postcss@8.4.45)(rollup@3.23.1)(vite@4.3.9)
       unplugin-auto-import:
         specifier: ^0.16.4
         version: 0.16.4(@vueuse/core@10.9.0)(rollup@3.23.1)
@@ -183,7 +183,7 @@ importers:
         version: 1.15.0(vite@4.3.9)
       vite-plugin-monaco-editor:
         specifier: ^1.1.0
-        version: 1.1.0(monaco-editor@0.40.0)
+        version: 1.1.0(monaco-editor@0.51.0)
       vite-plugin-progress:
         specifier: ^0.0.7
         version: 0.0.7(vite@4.3.9)
@@ -295,7 +295,7 @@ importers:
         version: 5.1.6
       unocss:
         specifier: ^0.52.7
-        version: 0.52.7(postcss@8.4.38)(rollup@3.23.1)(vite@4.3.9)
+        version: 0.52.7(postcss@8.4.45)(rollup@3.23.1)(vite@4.3.9)
       unplugin-auto-import:
         specifier: ^0.16.4
         version: 0.16.4(@vueuse/core@10.9.0)(rollup@3.23.1)
@@ -313,7 +313,7 @@ importers:
         version: 1.15.0(vite@4.3.9)
       vite-plugin-monaco-editor:
         specifier: ^1.1.0
-        version: 1.1.0(monaco-editor@0.40.0)
+        version: 1.1.0(monaco-editor@0.51.0)
       vite-plugin-progress:
         specifier: ^0.0.7
         version: 0.0.7(vite@4.3.9)
@@ -361,7 +361,7 @@ importers:
         version: 4.3.9(@types/node@20.4.5)(less@4.2.0)
       vite-plugin-monaco-editor:
         specifier: ^1.1.0
-        version: 1.1.0(monaco-editor@0.40.0)
+        version: 1.1.0(monaco-editor@0.51.0)
     devDependencies:
       rollup:
         specifier: ^3.23.1
@@ -394,7 +394,7 @@ importers:
         version: 10.9.0(vue@3.3.4)
       '@vueuse/router':
         specifier: ^10.9.0
-        version: 10.9.0(vue-router@4.2.2)(vue@3.3.4)
+        version: 10.9.0(vue-router@4.4.3)(vue@3.3.4)
       async-validator:
         specifier: ^4.2.5
         version: 4.2.5
@@ -441,8 +441,8 @@ importers:
         specifier: ^4.2.0
         version: 4.2.0
       monaco-editor:
-        specifier: ^0.40.0
-        version: 0.40.0
+        specifier: ^0.51.0
+        version: 0.51.0
       resize-observer-polyfill:
         specifier: ^1.5.1
         version: 1.5.1
@@ -764,7 +764,7 @@ importers:
         version: 4.3.9(@types/node@18.13.0)(less@4.2.0)
       vite-plugin-monaco-editor:
         specifier: ^1.1.0
-        version: 1.1.0(monaco-editor@0.40.0)
+        version: 1.1.0(monaco-editor@0.51.0)
       vite-plugin-vue-setup-extend:
         specifier: ^0.4.0
         version: 0.4.0(vite@4.3.9)
@@ -1017,6 +1017,15 @@ packages:
     dependencies:
       '@babel/highlight': 7.24.5
       picocolors: 1.0.0
+
+  /@babel/code-frame@7.24.7:
+    resolution: {integrity: sha512-BcYH1CVJBO9tvyIZ2jVeXgSIMvGZ2FDRvDdOIVQyuklNKSsx+eppDEBq/g47Ayw+RqNFE+URvOShmf+f/qwAlA==}
+    engines: {node: '>=6.9.0'}
+    dependencies:
+      '@babel/highlight': 7.24.7
+      picocolors: 1.0.0
+    dev: true
+    optional: true
 
   /@babel/compat-data@7.24.4:
     resolution: {integrity: sha512-vg8Gih2MLK+kOkHJp4gBEIkyaIi00jgWot2D9QOmmfLC8jINSOzmCLta6Bvz/JSBCqnegV0L80jhxkol5GWNfQ==}
@@ -1280,6 +1289,12 @@ packages:
     resolution: {integrity: sha512-3q93SSKX2TWCG30M2G2kwaKeTYgEUp5Snjuj8qm729SObL6nbtUldAi37qbxkD5gg3xnBio+f9nqpSepGZMvxA==}
     engines: {node: '>=6.9.0'}
 
+  /@babel/helper-validator-identifier@7.24.7:
+    resolution: {integrity: sha512-rR+PBcQ1SMQDDyF6X0wxtG8QyLCgUB0eRAGguqRLfkCA87l7yAP7ehq8SNj96OOGTO8OBV70KhuFYcIkHXOg0w==}
+    engines: {node: '>=6.9.0'}
+    dev: true
+    optional: true
+
   /@babel/helper-validator-option@7.23.5:
     resolution: {integrity: sha512-85ttAOMLsr53VgXkTbkx8oA6YTfT4q7/HzXSLEYmjcSTJPMPQtvq1BD79Byep5xMUYbGRzEpDsjUf3dyp54IKw==}
     engines: {node: '>=6.9.0'}
@@ -1311,6 +1326,17 @@ packages:
       chalk: 2.4.2
       js-tokens: 4.0.0
       picocolors: 1.0.1
+
+  /@babel/highlight@7.24.7:
+    resolution: {integrity: sha512-EStJpq4OuY8xYfhGVXngigBJRWxftKX9ksiGDnmlY3o7B/V7KIAc9X4oiK87uPJSc/vs5L869bem5fhZa8caZw==}
+    engines: {node: '>=6.9.0'}
+    dependencies:
+      '@babel/helper-validator-identifier': 7.24.7
+      chalk: 2.4.2
+      js-tokens: 4.0.0
+      picocolors: 1.0.0
+    dev: true
+    optional: true
 
   /@babel/parser@7.24.5:
     resolution: {integrity: sha512-EOv5IK8arwh3LI47dz1b0tKUb/1uhHAnHJOrjgtQMIpu1uXd9mlFrJg9IUgGUgZ41Ch0K8REPTYpO7B76b4vJg==}
@@ -3246,17 +3272,17 @@ packages:
     engines: {node: '>=8'}
     dev: true
 
-  /@jetlinks-web/constants@1.0.2:
-    resolution: {integrity: sha512-ljmJYJFs2wuXngljQiv3IdvKu/eO47uZTKMQwshhqR1+47aG/G8lGotlbMmAH8D7E5wj2Uf6o84HqYm7iFDMnA==}
+  /@jetlinks-web/constants@1.0.3:
+    resolution: {integrity: sha512-tf04D1Rfa5lxlMJD0Dwq4tXIrQBfCy8QCwpmOV2PVL//zHzdhC/X/hxZketwcED7jEG5gmmDvqL/zJNd0NyKZA==}
     dev: false
 
-  /@jetlinks-web/core@1.0.9(@types/lodash-es@4.17.11)(lodash@4.17.21)(typescript@5.1.6):
+  /@jetlinks-web/core@1.0.9(@types/lodash-es@4.17.12)(lodash@4.17.21)(typescript@5.1.6):
     resolution: {integrity: sha512-iu4tfpi4xokMrH8PXQ4LtMn5761C1XD75swT0IzD6pXxI06I2m3LSmcPFMeZVyrOE2a3mZuhspI2o+XH5iFVfg==}
     dependencies:
-      '@jetlinks-web/constants': 1.0.2
-      '@jetlinks-web/router': 1.0.7(@types/lodash-es@4.17.11)(lodash@4.17.21)(typescript@5.1.6)
+      '@jetlinks-web/constants': 1.0.3
+      '@jetlinks-web/router': 1.0.7(@types/lodash-es@4.17.12)(lodash@4.17.21)(typescript@5.1.6)
       '@jetlinks-web/types': 1.0.2
-      '@jetlinks-web/utils': 1.0.7(@types/lodash-es@4.17.11)(lodash@4.17.21)
+      '@jetlinks-web/utils': 1.2.1(@types/lodash-es@4.17.12)(lodash@4.17.21)
       axios: 1.7.4(debug@4.3.4)
       lodash-es: 4.17.21
       rxjs: 7.8.1
@@ -3268,12 +3294,12 @@ packages:
       - typescript
     dev: false
 
-  /@jetlinks-web/router@1.0.7(@types/lodash-es@4.17.11)(lodash@4.17.21)(typescript@5.1.6):
+  /@jetlinks-web/router@1.0.7(@types/lodash-es@4.17.12)(lodash@4.17.21)(typescript@5.1.6):
     resolution: {integrity: sha512-ubes6HeV04A5/+W8ZD2LwmzLvxmKdQOAKu3dzzThj/KKaR85lZH9CqBFy1EAYCRNPzGZHG3pbSjs90IhpLAzxw==}
     dependencies:
       '@jetlinks-web/stores': 1.0.1(typescript@5.1.6)
       '@jetlinks-web/types': 1.0.2
-      '@jetlinks-web/utils': 1.0.7(@types/lodash-es@4.17.11)(lodash@4.17.21)
+      '@jetlinks-web/utils': 1.2.1(@types/lodash-es@4.17.12)(lodash@4.17.21)
     transitivePeerDependencies:
       - '@types/lodash-es'
       - '@vue/composition-api'
@@ -3301,12 +3327,12 @@ packages:
       - debug
     dev: false
 
-  /@jetlinks-web/utils@1.0.7(@types/lodash-es@4.17.11)(lodash@4.17.21):
-    resolution: {integrity: sha512-MwXTzBW28JD0/oeRqwF2u41D9W4KWcycajgz04MMAPNtSUPrW42YTDym+XRNF0uqwYHOgq2wRN0GWLU9Q74UkQ==}
+  /@jetlinks-web/utils@1.2.1(@types/lodash-es@4.17.12)(lodash@4.17.21):
+    resolution: {integrity: sha512-xojNZjTvlet4kwBTPnluZ7Yf8STx5linAF5baBuVjbjDhibCLhXmoPivtWc17LDCa1Sn26CDl6OqW3zyxLuM5Q==}
     dependencies:
       jsencrypt: 3.3.2
       lodash-es: 4.17.21
-      lodash-unified: 1.0.3(@types/lodash-es@4.17.11)(lodash-es@4.17.21)(lodash@4.17.21)
+      lodash-unified: 1.0.3(@types/lodash-es@4.17.12)(lodash-es@4.17.21)(lodash@4.17.21)
       pubsub-js: 1.9.4
     transitivePeerDependencies:
       - '@types/lodash-es'
@@ -3863,8 +3889,18 @@ packages:
     dependencies:
       '@types/lodash': 4.17.4
 
+  /@types/lodash-es@4.17.12:
+    resolution: {integrity: sha512-0NgftHUcV4v34VhXm8QBSftKVXtbkBG3ViCjs6+eJ5a6y6Mi/jiFGPc1sC7QK+9BFhWrURE3EOggmWaSxL9OzQ==}
+    dependencies:
+      '@types/lodash': 4.17.7
+    dev: false
+
   /@types/lodash@4.17.4:
     resolution: {integrity: sha512-wYCP26ZLxaT3R39kiN2+HcJ4kTd3U1waI/cY7ivWYqFP6pW3ZNpvi6Wd6PHZx7T/t8z0vlkXMg3QYLa7DZ/IJQ==}
+
+  /@types/lodash@4.17.7:
+    resolution: {integrity: sha512-8wTvZawATi/lsmNu10/j2hk1KEP0IvjubqPE3cu1Xz7xfXXt5oCq3SNUz4fMIP4XGF9Ky+Ue2tBA3hcS7LSBlA==}
+    dev: false
 
   /@types/markdown-it@14.1.2:
     resolution: {integrity: sha512-promo4eFwuiW+TfGxhi+0x3czqTYJkG8qB17ZUJiVF10Xm7NLVRSLUsfRTU/6h1e24VvRnXCx+hG7li58lkzog==}
@@ -4152,7 +4188,7 @@ packages:
       sirv: 2.0.4
     dev: true
 
-  /@unocss/postcss@0.52.7(postcss@8.4.38):
+  /@unocss/postcss@0.52.7(postcss@8.4.45):
     resolution: {integrity: sha512-0yG7K8ie9gky7Y/oD29Jzpe4l92IgRPB2Fo9a7g2f4dGlKOuih5S+NsH3EO4WODrawntISyxVXMHsIydze2vAw==}
     engines: {node: '>=14'}
     peerDependencies:
@@ -4163,7 +4199,7 @@ packages:
       css-tree: 2.3.1
       fast-glob: 3.3.2
       magic-string: 0.30.10
-      postcss: 8.4.38
+      postcss: 8.4.45
     dev: true
 
   /@unocss/preset-attributify@0.52.7:
@@ -4596,6 +4632,10 @@ packages:
   /@vue/devtools-api@6.6.1:
     resolution: {integrity: sha512-LgPscpE3Vs0x96PzSSB4IGVSZXZBZHpfxs+ZA1d+VEPwHdOXowy/Y2CsvCAIFrf+ssVU1pD1jidj505EpUnfbA==}
 
+  /@vue/devtools-api@6.6.4:
+    resolution: {integrity: sha512-sGhTPMuXqZ1rVOk32RylztWkfXTRhuS7vgAKv0zjqk8gbsHkJ7xfFf+jbySxt7tWObEJwyKaHMikV/WGDiQm8g==}
+    dev: false
+
   /@vue/reactivity-transform@3.3.4:
     resolution: {integrity: sha512-MXgwjako4nu5WFLAjpBnCj/ieqcjE2aJBINUNQzkZQfzIZA4xn+0fV1tIYBJvvva3N3OvKGofRLvQIwEQPpaXw==}
     dependencies:
@@ -4706,14 +4746,14 @@ packages:
   /@vueuse/metadata@10.9.0:
     resolution: {integrity: sha512-iddNbg3yZM0X7qFY2sAotomgdHK7YJ6sKUvQqbvwnf7TmaVPxS4EJydcNsVejNdS8iWCtDk+fYXr7E32nyTnGA==}
 
-  /@vueuse/router@10.9.0(vue-router@4.2.2)(vue@3.3.4):
+  /@vueuse/router@10.9.0(vue-router@4.4.3)(vue@3.3.4):
     resolution: {integrity: sha512-MOmrCMQlRuPS4PExE1hy8T0XbZUXaNbEuh7CAG5mC8kdvdgANQMkdvJ7vIEOP27n5mXK/4YjvXJOZSsur4E0QQ==}
     peerDependencies:
       vue-router: '>=4.0.0-rc.1'
     dependencies:
       '@vueuse/shared': 10.9.0(vue@3.3.4)
       vue-demi: 0.14.7(vue@3.3.4)
-      vue-router: 4.2.2(vue@3.3.4)
+      vue-router: 4.4.3(vue@3.3.4)
     transitivePeerDependencies:
       - '@vue/composition-api'
       - vue
@@ -5380,7 +5420,7 @@ packages:
       caniuse-lite: 1.0.30001620
       fraction.js: 4.3.7
       normalize-range: 0.1.2
-      picocolors: 1.0.1
+      picocolors: 1.1.0
       postcss: 8.4.38
       postcss-value-parser: 4.2.0
     dev: true
@@ -8696,7 +8736,7 @@ packages:
     requiresBuild: true
     dependencies:
       bindings: 1.5.0
-      nan: 2.19.0
+      nan: 2.20.0
     dev: true
     optional: true
 
@@ -9149,7 +9189,7 @@ packages:
       source-map: 0.6.1
       wordwrap: 1.0.0
     optionalDependencies:
-      uglify-js: 3.17.4
+      uglify-js: 3.19.3
     dev: true
 
   /hard-rejection@2.1.0:
@@ -10544,6 +10584,18 @@ packages:
       lodash-es: 4.17.21
     dev: false
 
+  /lodash-unified@1.0.3(@types/lodash-es@4.17.12)(lodash-es@4.17.21)(lodash@4.17.21):
+    resolution: {integrity: sha512-WK9qSozxXOD7ZJQlpSqOT+om2ZfcT4yO+03FuzAHD0wF6S0l0090LRPDx3vhTTLZ8cFKpBn+IOcVXK6qOcIlfQ==}
+    peerDependencies:
+      '@types/lodash-es': '*'
+      lodash: '*'
+      lodash-es: '*'
+    dependencies:
+      '@types/lodash-es': 4.17.12
+      lodash: 4.17.21
+      lodash-es: 4.17.21
+    dev: false
+
   /lodash.camelcase@4.3.0:
     resolution: {integrity: sha512-TwuEnCnxbc3rAvhf/LbG7tJUDzhqXyFnv3dtzLOPgCG/hODL7WFnsbwktkD7yUV0RrreP/l1PALq/YSg6VvjlA==}
     dev: true
@@ -11125,8 +11177,8 @@ packages:
       pkg-types: 1.1.1
       ufo: 1.5.3
 
-  /monaco-editor@0.40.0:
-    resolution: {integrity: sha512-1wymccLEuFSMBvCk/jT1YDW/GuxMLYwnFwF9CDyYCxoTw2Pt379J3FUhwy9c43j51JdcxVPjwk0jm0EVDsBS2g==}
+  /monaco-editor@0.51.0:
+    resolution: {integrity: sha512-xaGwVV1fq343cM7aOYB6lVE4Ugf0UyimdD/x5PWcWBMKENwectaEu77FAN7c5sFiyumqeJdX1RPTh1ocioyDjw==}
 
   /mount-point@3.0.0:
     resolution: {integrity: sha512-jAhfD7ZCG+dbESZjcY1SdFVFqSJkh/yGbdsifHcPkvuLRO5ugK0Ssmd9jdATu29BTd4JiN+vkpMzVvsUgP3SZA==}
@@ -11208,8 +11260,8 @@ packages:
       thenify-all: 1.6.0
     dev: true
 
-  /nan@2.19.0:
-    resolution: {integrity: sha512-nO1xXxfh/RWNxfd/XPfbIfFk5vgLsAxUR9y5O0cHMJu/AW9U95JLXqthYHjEp+8gQ5p96K9jUp8nbVOxCdRbtw==}
+  /nan@2.20.0:
+    resolution: {integrity: sha512-bk3gXBZDGILuuo/6sKtr0DQmSThYHLtNCdSdXk9YkxD/jK6X2vmCyyXBBxyqZ4XcnzTyYEAThfX3DCEnLf6igw==}
     requiresBuild: true
     dev: true
     optional: true
@@ -11991,6 +12043,10 @@ packages:
 
   /picocolors@1.0.1:
     resolution: {integrity: sha512-anP1Z8qwhkbmu7MFP5iTt+wQKXgwzf7zTyGlcdzabySa9vd0Xt392U0rVmz9poOaBj0uHJKyyo9/upk0HrEQew==}
+
+  /picocolors@1.1.0:
+    resolution: {integrity: sha512-TQ92mBOW0l3LeMeyLV6mzy/kWr8lkd/hp3mTg7wYK7zJhuBStmGMBG0BdeDZS/dZx1IukaX6Bk11zcln25o1Aw==}
+    dev: true
 
   /picomatch@2.3.1:
     resolution: {integrity: sha512-JU3teHTNjmE2VCGFzuY8EXzCDVwEqB2a8fsIvwaStHhAWJEeVd1o1QD80CU6+ZdEXXSLbSsuLwJjkCBWqRQUVA==}
@@ -12779,6 +12835,15 @@ packages:
       picocolors: 1.0.1
       source-map-js: 1.2.0
 
+  /postcss@8.4.45:
+    resolution: {integrity: sha512-7KTLTdzdZZYscUc65XmjFiB73vBhBfbPztCYdUNvlaso9PrzjzcmjqBPR0lNGkcVlcO4BjiO5rK/qNz+XAen1Q==}
+    engines: {node: ^10 || ^12 || >=14}
+    dependencies:
+      nanoid: 3.3.7
+      picocolors: 1.1.0
+      source-map-js: 1.2.1
+    dev: true
+
   /preferred-pm@3.1.3:
     resolution: {integrity: sha512-MkXsENfftWSRpzCzImcp4FRsCc3y1opwB73CfCNWyzMqArju2CrlMHlqB7VexKiPEOjGMbttv1r9fSCn5S610w==}
     engines: {node: '>=10'}
@@ -13418,7 +13483,7 @@ packages:
       rollup: 3.23.1
       typescript: 5.1.6
     optionalDependencies:
-      '@babel/code-frame': 7.24.2
+      '@babel/code-frame': 7.24.7
     dev: true
 
   /rollup-plugin-esbuild@4.9.1(esbuild@0.12.29)(rollup@2.79.1):
@@ -13997,6 +14062,11 @@ packages:
     resolution: {integrity: sha512-itJW8lvSA0TXEphiRoawsCksnlf8SyvmFzIhltqAHluXd88pkCd+cXJVHTDwdCr0IzwptSm035IHQktUu1QUMg==}
     engines: {node: '>=0.10.0'}
 
+  /source-map-js@1.2.1:
+    resolution: {integrity: sha512-UXWMKhLOwVKb728IUtQPXxfYU+usdybtUrK/8uGE8CQMvrhOpwvzDBwj0QhSL7MQc7vIsISBG8VQ8+IDQxpfQA==}
+    engines: {node: '>=0.10.0'}
+    dev: true
+
   /source-map-resolve@0.5.3:
     resolution: {integrity: sha512-Htz+RnsXWk5+P2slx5Jh3Q66vhQj1Cllm0zvnaY98+NFx+Dv2CF/f5O/t8x+KaNdrdIAsruNzoh/KpialbqAnw==}
     deprecated: See https://github.com/lydell/source-map-resolve#deprecated
@@ -14419,7 +14489,7 @@ packages:
       css-select: 4.3.0
       css-tree: 1.1.3
       csso: 4.2.0
-      picocolors: 1.0.1
+      picocolors: 1.1.0
       stable: 0.1.8
     dev: true
 
@@ -14434,7 +14504,7 @@ packages:
       css-tree: 2.3.1
       css-what: 6.1.0
       csso: 5.0.5
-      picocolors: 1.0.1
+      picocolors: 1.1.0
     dev: true
 
   /swap-case@1.1.2:
@@ -15030,8 +15100,8 @@ packages:
   /ufo@1.5.3:
     resolution: {integrity: sha512-Y7HYmWaFwPUmkoQCUIAYpKqkOf+SbVj/2fJJZ4RJMCfZp0rTGwRbzQD+HghfnhKOjL9E01okqz+ncJskGYfBNw==}
 
-  /uglify-js@3.17.4:
-    resolution: {integrity: sha512-T9q82TJI9e/C1TAxYvfb16xO120tMVFZrGA3f9/P4424DNu6ypK103y0GPFVa17yotwSyZW5iYXgjYHkGrJW/g==}
+  /uglify-js@3.19.3:
+    resolution: {integrity: sha512-v3Xu+yuwBXisp6QYTcH4UbH+xYJXqnq2m/LtQVWKWzYc1iehYnLixoQDN9FH6/j9/oybfd6W9Ghwkl8+UMKTKQ==}
     engines: {node: '>=0.8.0'}
     hasBin: true
     requiresBuild: true
@@ -15239,7 +15309,7 @@ packages:
     engines: {node: '>= 10.0.0'}
     dev: true
 
-  /unocss@0.52.7(postcss@8.4.38)(rollup@3.23.1)(vite@4.3.9):
+  /unocss@0.52.7(postcss@8.4.45)(rollup@3.23.1)(vite@4.3.9):
     resolution: {integrity: sha512-c35lqmzWqnQH0hW2IE1owac2qfGOvNAhrIrLV2+pNmc2MDWq8WMjIEuWo8G+OS5JqFQY3ZBlE61q2x/tHPlujQ==}
     engines: {node: '>=14'}
     peerDependencies:
@@ -15252,7 +15322,7 @@ packages:
       '@unocss/cli': 0.52.7(rollup@3.23.1)
       '@unocss/core': 0.52.7
       '@unocss/extractor-arbitrary-variants': 0.52.7
-      '@unocss/postcss': 0.52.7(postcss@8.4.38)
+      '@unocss/postcss': 0.52.7(postcss@8.4.45)
       '@unocss/preset-attributify': 0.52.7
       '@unocss/preset-icons': 0.52.7
       '@unocss/preset-mini': 0.52.7
@@ -15700,12 +15770,12 @@ packages:
       - supports-color
     dev: true
 
-  /vite-plugin-monaco-editor@1.1.0(monaco-editor@0.40.0):
+  /vite-plugin-monaco-editor@1.1.0(monaco-editor@0.51.0):
     resolution: {integrity: sha512-IvtUqZotrRoVqwT0PBBDIZPNraya3BxN/bfcNfnxZ5rkJiGcNtO5eAOWWSgT7zullIAEqQwxMU83yL9J5k7gww==}
     peerDependencies:
       monaco-editor: '>=0.33.0'
     dependencies:
-      monaco-editor: 0.40.0
+      monaco-editor: 0.51.0
 
   /vite-plugin-progress@0.0.7(vite@4.3.9):
     resolution: {integrity: sha512-zyvKdcc/X+6hnw3J1HVV1TKrlFKC4Rh8GnDnWG/2qhRXjqytTcM++xZ+SAPnoDsSyWl8O93ymK0wZRgHAoglEQ==}
@@ -15902,6 +15972,15 @@ packages:
     dependencies:
       '@vue/devtools-api': 6.6.1
       vue: 3.3.4
+
+  /vue-router@4.4.3(vue@3.3.4):
+    resolution: {integrity: sha512-sv6wmNKx2j3aqJQDMxLFzs/u/mjA9Z5LCgy6BE0f7yFWMjrPLnS/sPNn8ARY/FXw6byV18EFutn5lTO6+UsV5A==}
+    peerDependencies:
+      vue: ^3.2.0
+    dependencies:
+      '@vue/devtools-api': 6.6.4
+      vue: 3.3.4
+    dev: false
 
   /vue-template-compiler@2.7.16:
     resolution: {integrity: sha512-AYbUWAJHLGGQM7+cNTELw+KsOG9nl2CnSv467WobS5Cv9uk3wFcnr1Etsz2sEIHEZvw1U+o9mRlEO6QbZvUPGQ==}

@@ -60,6 +60,7 @@ export const defaultSettings = {
 
 export const LayoutType = {
   CARD: 'card',
+  PAD: 'pad',
   LIST: 'list'
 }
 

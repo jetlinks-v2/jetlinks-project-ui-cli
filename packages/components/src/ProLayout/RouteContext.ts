@@ -49,6 +49,7 @@ export interface RouteContextProps
     siderWidth?: number;
     headerHeight?: number;
     hasSide?: boolean;
+    showBreadcrumb?: boolean;
     /* 附加属性 */
     [key: string]: any;
 }

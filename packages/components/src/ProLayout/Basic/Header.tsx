@@ -62,10 +62,6 @@ export default defineComponent({
             };
         });
 
-        const headerMenuRender = computed(() => {
-
-        })
-
         const renderContent = () => {
             const defaultDom = (
                 <TopNavHeader
@@ -100,7 +96,7 @@ export default defineComponent({
                         padding: 0,
                         height: `${headerHeight.value}px`,
                         lineHeight: `${headerHeight.value}px`,
-                        width: '100%',
+                        width: props.hasSiderMenu ? `calc(100% - ${context.siderWidth}px)` : '100%',
                         zIndex: 100,
                         right: right.value,
                     }}
