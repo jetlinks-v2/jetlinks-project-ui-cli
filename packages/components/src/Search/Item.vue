@@ -403,7 +403,7 @@ const handleItem = () => {
       value: item.column,
     };
   });
-  console.log(props.onlyValue);
+
   if (!props.onlyValue) {
     // 获取第一个值
     const sortColumn = cloneDeep(props.columns);
@@ -453,7 +453,6 @@ const reset = () => {
 watch(
   () => props.columns,
   () => {
-    console.log(props.columns);
     if (props.columns) {
       handleItem();
     }

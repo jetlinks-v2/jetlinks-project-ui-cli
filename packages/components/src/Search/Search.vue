@@ -29,9 +29,7 @@
               >
                 <div
                     class="JSearch-footer--btns"
-                    :style="{
-                                        paddingLeft: `${labelWidth + 8}px`,
-                                    }"
+                    :style="footerStyles"
                 >
                   <Button type="stroke" @click="reset">
                     {{ resetText }}
@@ -64,11 +62,12 @@ import {
   FormItemRest,
 } from 'ant-design-vue';
 import { set } from 'lodash-es';
-import { reactive, ref, provide } from 'vue';
+import {reactive, ref, provide, watch, computed, inject} from 'vue';
 import type { PropType } from 'vue';
 import { termsParamsFormat } from './util';
 import SearchItem from './Item.vue';
 import { optionsMapKey } from './setting';
+import { SearchConfig } from '@jetlinks-web/constants'
 
 defineOptions({
   name: 'JSearch',
@@ -115,6 +114,10 @@ const props = defineProps({
     type: String,
     default: '搜索',
   },
+  align: {
+    type: String,
+    default: 'value'
+  }
 });
 
 const columnOptionMap = ref(new Map());
@@ -124,6 +127,16 @@ const emit = defineEmits<Emit>();
 const terms = reactive<Terms>({terms: []});
 
 const searchItems = ref<SearchProps[]>([]); // 当前查询条件列表
+
+const context = inject(SearchConfig, { align: props.align})
+
+const footerStyles = computed(() => {
+  const align = context.align || props.align
+  if (align === 'value') {
+    return { paddingLeft: `${props.labelWidth + 8}px`}
+  }
+  return {}
+})
 
 provide(optionsMapKey, columnOptionMap);
 const itemValueChange = (value: SearchItemData, index: number) => {
@@ -211,7 +224,10 @@ const reset = () => {
   }
 };
 
-handleItems();
+watch(() => props.columns, () => {
+  handleItems();
+}, {immediate: true,  deep: true })
+
 </script>
 
 <style scoped lang="less">

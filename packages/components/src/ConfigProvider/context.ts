@@ -6,6 +6,10 @@ export type MapConfigType = {
   JSKey?: string
   WebKey?: string
 }
+
+export type SearchConfigType = {
+  align?: 'value' | 'label'
+}
 export const configProps = () => ({
   ...configProviderProps(),
   IconConfig: {
@@ -13,5 +17,8 @@ export const configProps = () => ({
   },
   MapConfig: {
     type: Object as PropType<MapConfigType>
+  },
+  SearchConfig: {
+    type: Object as PropType<SearchConfigType>
   }
 })
