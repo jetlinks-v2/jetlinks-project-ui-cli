@@ -10,3 +10,6 @@ export const ComponentsEnum = {
 }
 
 export const MAPConfig = Symbol('map_key')
+
+export const SearchConfig = Symbol('search-config')
+
