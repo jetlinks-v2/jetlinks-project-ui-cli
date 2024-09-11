@@ -1,5 +1,6 @@
 import type {PropType} from "vue";
 import { configProviderProps } from 'ant-design-vue/es/config-provider/context';
+import {PermissionButtonConfig} from "@jetlinks-web/constants";
 
 export type MapConfigType = {
   mapStyle?: any
@@ -9,6 +10,10 @@ export type MapConfigType = {
 
 export type SearchConfigType = {
   align?: 'value' | 'label'
+}
+
+export type PermissionButtonConfigType = {
+  components?: string
 }
 export const configProps = () => ({
   ...configProviderProps(),
@@ -20,5 +25,8 @@ export const configProps = () => ({
   },
   SearchConfig: {
     type: Object as PropType<SearchConfigType>
+  },
+  PermissionButtonConfig: {
+    type: Object as PropType<PermissionButtonConfigType>
   }
 })

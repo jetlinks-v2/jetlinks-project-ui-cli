@@ -1,10 +1,12 @@
-import { h, defineComponent, computed } from "vue";
+import {h, defineComponent, computed, inject} from "vue";
 import type { PropType, CSSProperties, ExtractPropTypes, App } from 'vue'
 import { Button, Tooltip, Modal } from 'ant-design-vue'
 import { PopconfirmProps, TooltipProps } from "ant-design-vue/es";
 import { omit } from "lodash-es";
 import { buttonProps } from "ant-design-vue/es/button/button";
 import { usePermission } from '@jetlinks-web/hooks'
+import confirm from './confirm'
+import {PermissionButtonConfig} from "@jetlinks-web/constants";
 
 type PermissionType = string | Array<string> | boolean
 
@@ -30,6 +32,8 @@ const definedProps = {
 
 export type DefinedPropsType = Partial<ExtractPropTypes<typeof definedProps>>
 
+export const destroyFns = [];
+
 const PermissionButton = defineComponent({
     name: 'JPermissionButton',
     // @ts-ignore
@@ -38,6 +42,8 @@ const PermissionButton = defineComponent({
     setup(props, {slots}) {
 
         const {hasPerm} = usePermission(props.hasPermission as PermissionType)
+
+        const context = inject(PermissionButtonConfig, { components: undefined })
 
         const permission = computed(() => {
             if (!props.hasPermission || props.hasPermission === true) {
@@ -61,16 +67,20 @@ const PermissionButton = defineComponent({
 
             if (popConfirm) {
               buttonProps.onClick = () => {
-                Modal.confirm({
-                  title: popConfirm.title,
-                  content: popConfirm.content,
-                  onOk() {
-                    return popConfirm.onConfirm?.()
-                  },
-                  onCancel() {
-                    popConfirm.onCancel?.()
-                  }
-                })
+                if (context.components) {
+                  confirm(popConfirm as any, context.components)
+                } else {
+                  Modal.confirm({
+                    title: popConfirm.title,
+                    content: popConfirm.content,
+                    onOk() {
+                      return popConfirm.onConfirm?.()
+                    },
+                    onCancel() {
+                      popConfirm.onCancel?.()
+                    }
+                  })
+                }
               }
             }
 
