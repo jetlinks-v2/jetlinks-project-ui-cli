@@ -64,8 +64,8 @@ import {
 import {handleColumnsWidth} from './utils'
 import { useResizeObserver, useValidate, useFormContext } from './hooks'
 import {tableProps} from 'ant-design-vue/lib/table'
-import Header from './header.vue'
-import Body from './body.vue'
+import Header from './Header.vue'
+import Body from './Body.vue'
 import {useFullscreen} from '@vueuse/core';
 import {provide, useAttrs, useSlots, ref, reactive, defineOptions, defineEmits, defineProps, computed, watch} from 'vue'
 import {bodyProps, defaultProps} from "./props";

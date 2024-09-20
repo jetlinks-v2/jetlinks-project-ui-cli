@@ -68,7 +68,10 @@ const PermissionButton = defineComponent({
             if (popConfirm) {
               buttonProps.onClick = () => {
                 if (context.components) {
-                  confirm(popConfirm as any, context.components)
+                  confirm({
+                    ...popConfirm as any,
+                    danger: buttonProps.danger
+                  }, context.components)
                 } else {
                   Modal.confirm({
                     title: popConfirm.title,
