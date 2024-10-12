@@ -59,7 +59,9 @@ const handleRequest = (config: InternalAxiosRequestConfig) => {
     return config
   }
 
-  config.headers[TOKEN_KEY] = token
+  if (!config.headers[TOKEN_KEY]) {
+    config.headers[TOKEN_KEY] = token
+  }
 
   if (_options.requestOptions && isFunction(_options.requestOptions)) {
     const extraOptions = _options.requestOptions(config)
@@ -98,7 +100,7 @@ const handleResponse = (response: AxiosResponse) => {
 }
 
 const errorHandler = (err: AxiosError<any>) => {
-  let description = 'Error'
+  let description = err.response?.message || 'Error'
   let _status: string | number = 0
   if (err.response) {
     const {data, status} = err.response
