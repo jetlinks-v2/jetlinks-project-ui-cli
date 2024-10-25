@@ -1,4 +1,4 @@
-import { TOKEN_KEY } from '@jetlinks-web/constants'
+import { TOKEN_KEY, VITE_STORE_TOKEN_KEY } from '@jetlinks-web/constants'
 
 export const LocalStore = {
   set(key: string, data: any) {
@@ -28,12 +28,12 @@ export const LocalStore = {
   },
 }
 export const getToken = () => {
-  return LocalStore.get(TOKEN_KEY)
+  return LocalStore.get(VITE_STORE_TOKEN_KEY || TOKEN_KEY)
 }
 export const setToken = (value: string) => {
-  return LocalStore.set(TOKEN_KEY, value)
+  return LocalStore.set(VITE_STORE_TOKEN_KEY || TOKEN_KEY, value)
 }
 
 export const removeToken = () => {
-  LocalStore.remove(TOKEN_KEY)
+  LocalStore.remove(VITE_STORE_TOKEN_KEY || TOKEN_KEY)
 }
