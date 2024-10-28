@@ -106,7 +106,9 @@ const registerTypescript = () => {
  */
 const editorFormat = () => {
   if (!instance.value) return;
-  toRaw(instance.value).getAction('editor.action.formatDocument')?.run();
+  setTimeout(() => {
+    toRaw(instance.value).getAction('editor.action.formatDocument')?.run();
+  }, 50)
   if (props.hasOwnProperty('readOnly')) {
     setTimeout(() => {
       toRaw(instance.value).updateOptions({
