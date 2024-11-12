@@ -48,6 +48,8 @@ export interface RouteContextProps
     hasHeader?: boolean;
     siderWidth?: number;
     headerHeight?: number;
+
+    headerLeftWidth?: number;
     hasSide?: boolean;
     showBreadcrumb?: boolean;
     /* 附加属性 */

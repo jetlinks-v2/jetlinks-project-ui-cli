@@ -141,9 +141,12 @@ export default defineComponent({
         const hasFlatMenu = computed(() => {
             return hasSide.value && hasSplitMenu.value;
         });
-        const siderWidth = computed(() =>
-            props.collapsed ? props.collapsedWidth : props.siderWidth,
-        );
+        const siderWidth = computed(() => {
+          if (props.layoutType === LayoutType.PAD) {
+            return props.collapsed ? 0 : props.siderWidth
+          }
+          return props.collapsed ? props.collapsedWidth : props.siderWidth
+        });
 
         const onCollapse = (collapsed: boolean) => {
             emit('update:collapsed', collapsed);
@@ -263,7 +266,8 @@ export default defineComponent({
                 'fixSiderbar',
                 'fixedHeader',
                 'headerHeight',
-                'collapsedWidth'
+                'collapsedWidth',
+                'headerLeftWidth'
             ]) as any),
             siderWidth,
             breadcrumb,
@@ -272,8 +276,10 @@ export default defineComponent({
             back: onBack,
             hasHeader: true,
             flatMenu: hasFlatMenu,
-            layoutType
+            layoutType,
         });
+
+      console.log(toRefs(props))
 
 
         provide(routeContextInjectKey, routeContext);
@@ -358,36 +364,37 @@ export default defineComponent({
               'topHeaderMenuRender',
             );
 
-            const headerDom = computed(() =>
-                headerRender(
-                    {
-                        ...props,
-                        menuItemRender,
-                        subMenuItemRender,
-                        hasSiderMenu: !isTop.value,
-                        menuData: props.menuData,
-                        onCollapse,
-                        onOpenKeys,
-                        onSelect,
-                        onMenuHeaderClick,
-                        rightContentRender,
-                        collapsedButtonRender,
-                        headerTitleRender: menuHeaderRender,
-                        menuExtraRender,
-                        menuContentRender,
-                        headerContentRender,
-                        logo:logoRender || props.logo,
-                        headerRender: customHeaderRender,
-                        topHeaderMenuRender: topHeaderMenuRender,
-                        theme: (props.theme || 'dark')
-                            .toLocaleLowerCase()
-                            .includes('dark')
-                            ? 'dark'
-                            : 'light',
-                    },
-                    props.matchMenuKeys,
-                ),
-            );
+            const headerDom = computed(() => {
+
+              return headerRender(
+                {
+                  ...props,
+                  menuItemRender,
+                  subMenuItemRender,
+                  hasSiderMenu: !isTop.value,
+                  menuData: props.menuData,
+                  onCollapse,
+                  onOpenKeys,
+                  onSelect,
+                  onMenuHeaderClick,
+                  rightContentRender,
+                  collapsedButtonRender,
+                  headerTitleRender: menuHeaderRender,
+                  menuExtraRender,
+                  menuContentRender,
+                  headerContentRender,
+                  logo:logoRender || props.logo,
+                  headerRender: customHeaderRender,
+                  topHeaderMenuRender: topHeaderMenuRender,
+                  theme: (props.theme || 'dark')
+                    .toLocaleLowerCase()
+                    .includes('dark')
+                    ? 'dark'
+                    : 'light',
+                },
+                props.matchMenuKeys,
+              )
+            });
             routeContext.hasHeader = !!headerDom.value;
 
             const contentClassName = computed(() => {
@@ -463,6 +470,7 @@ export default defineComponent({
                     <SiderMenu
                       {...restProps}
                       logo={logoRender || restProps.logo}
+                      collapsedWidth={0}
                       headerHeight={0}
                       menuHeaderRender={menuHeaderRender}
                       menuExtraRender={menuExtraRender}

@@ -17,7 +17,7 @@ import type {
   MenuExtraRender,
   TopHeaderMenuRender
 } from '../typings';
-import { defaultSettingProps } from '../defaultSettings';
+import {defaultSettingProps, LayoutType} from '../defaultSettings';
 import type { PropType, FunctionalComponent, ExtractPropTypes } from 'vue';
 import { defaultPrefixCls, useRouteContext } from '../RouteContext';
 import BaseMenu from '../SiderMenu/BaseMenu';
@@ -68,6 +68,7 @@ export const baseHeaderProps = {
     onCollapse: siderMenuProps.onCollapse,
     onOpenKeys: siderMenuProps.onOpenKeys,
     onSelect: siderMenuProps.onSelect,
+    headerLeftWidth: Number
 };
 
 export type BaseHeaderPropsType = ExtractPropTypes<typeof baseHeaderProps>;
@@ -163,8 +164,13 @@ export const TopNavHeader: FunctionalComponent<TopNavHeaderProps> = (props) => {
         };
     });
 
+    const paddingLeft = computed(() => {
+      return  context.layoutType === LayoutType.PAD && props.collapsed ? context.headerLeftWidth + 'px' : 0
+    })
     return (
-        <div class={className.value}>
+        <div class={className.value} style={{
+          paddingLeft: paddingLeft.value
+        }}>
             <div
                 ref={headerRef}
                 class={`${prefixCls}-main ${

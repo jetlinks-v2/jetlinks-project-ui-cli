@@ -298,6 +298,7 @@ const SiderMenu: FunctionalComponent<SiderMenuProps> = (
                 style={{
                     overflow: 'hidden',
                     paddingTop: `${props.headerHeight}px`,
+                    zIndex: props.layoutType === LayoutType.PAD ? 200 : 1
                 }}
                 width={siderWidth}
                 theme={theme}
