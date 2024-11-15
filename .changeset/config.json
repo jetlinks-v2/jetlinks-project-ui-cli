@@ -4,8 +4,11 @@
   "commit": false,
   "fixed": [],
   "linked": [["@jetlinks-web/*"]],
-  "access": "restricted",
+  "access": "public",
   "baseBranch": "master",
   "updateInternalDependencies": "patch",
-  "ignore": ["scripts"]
+  "ignore": ["scripts"],
+  "___experimentalUnsafeOptions_WILL_CHANGE_IN_PATCH": {
+    "onlyUpdatePeerDependentsWhenOutOfRange": true
+  }
 }

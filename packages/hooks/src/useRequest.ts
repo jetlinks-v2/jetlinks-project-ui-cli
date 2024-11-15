@@ -22,8 +22,6 @@ interface RequestOptions<T, S> {
 
   defaultParams: S | any | any[]
 
-  handleResponse: (data: any) => any
-
   defaultValue?: S
 }
 

@@ -42,7 +42,7 @@ const emit = defineEmits([
 
 const dom = ref();
 
-const instance = ref();
+let instance
 
 const monacoProviderRef = ref();
 const monacoTypescriptProviderRef = ref();
@@ -105,16 +105,16 @@ const registerTypescript = () => {
  * 代码格式化
  */
 const editorFormat = () => {
-  if (!instance.value) return;
+  if (!instance) return;
   setTimeout(() => {
-    toRaw(instance.value).getAction('editor.action.formatDocument')?.run();
-  }, 50)
+    instance.getAction('editor.action.formatDocument')?.run();
+  }, 300)
   if (props.hasOwnProperty('readOnly')) {
     setTimeout(() => {
-      toRaw(instance.value).updateOptions({
+      instance.updateOptions({
         readOnly: props.readOnly !== false,
       });
-    }, 100);
+    }, 400);
   }
 };
 
@@ -126,7 +126,7 @@ monaco.editor.onDidChangeMarkers(([uri]) => {
 onMounted(async () => {
   const _model = monaco.editor.createModel(props.modelValue, props.language);
 
-  instance.value = monaco.editor.create(dom.value, {
+  instance = monaco.editor.create(dom.value, {
     model: _model,
     tabSize: 2,
     automaticLayout: true,
@@ -136,23 +136,23 @@ onMounted(async () => {
     ...(omit(props.options, ['readOnly']) || {}),
   });
 
-  instance.value.onDidChangeModelContent(() => {
+  instance.onDidChangeModelContent(() => {
     //
-    const value = toRaw(instance.value).getValue();
+    const value = instance.getValue();
     nextTick(() => {
       emit('update:modelValue', value);
       emit('change', value);
     });
   });
 
-  instance.value.onDidBlurEditorText(() => {
+  instance.onDidBlurEditorText(() => {
     emit('blur');
     if (props.blurFormat) {
       editorFormat();
     }
   });
 
-  instance.value.onDidFocusEditorText(() => {
+  instance.onDidFocusEditorText(() => {
     emit('focus');
   });
 
@@ -162,7 +162,7 @@ onMounted(async () => {
     }, 200);
   }
 
-  props.init?.(instance.value, monaco);
+  props.init?.(instance, monaco);
 });
 
 /**
@@ -171,15 +171,15 @@ onMounted(async () => {
  * @param position
  */
 const insert = (val, position) => {
-  if (!instance.value) return;
-  const _position = position || toRaw(instance.value).getPosition();
-  const value = toRaw(instance.value).getValue();
+  if (!instance) return;
+  const _position = position || instance.getPosition();
+  const value = instance.getValue();
 
   if (position && position.lineNumber) {
-    toRaw(instance.value).setPosition(position);
+    instance.setPosition(position);
   }
 
-  toRaw(instance.value).executeEdits(value, [
+  instance.executeEdits(value, [
     {
       range: new monaco.Range(
           _position?.lineNumber,
@@ -196,18 +196,18 @@ watch(
     () => props.modelValue,
     (val) => {
       if (
-          !instance.value ||
-          (instance.value &&
-              props.modelValue === toRaw(instance.value).getValue())
+          !instance ||
+          (instance &&
+              props.modelValue === instance.getValue())
       )
         return;
       // setValue之前获取光标位置
-      const position = toRaw(instance.value).getPosition();
+      const position = instance.getPosition();
 
       // setValue之后光标位置改变
-      toRaw(instance.value).setValue(val);
+      instance.setValue(val);
       // 设置光标位置为setValue之前的位置
-      toRaw(instance.value).setPosition(position);
+      instance.setPosition(position);
 
       editorFormat();
     },
@@ -232,7 +232,7 @@ watch(
 onUnmounted(() => {
   disposeRegister();
   disposeTypescript();
-  toRaw(instance.value).editor?.dispose?.();
+  instance.editor?.dispose?.();
 });
 
 defineExpose({
