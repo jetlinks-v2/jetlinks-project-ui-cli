@@ -2,7 +2,7 @@
   <div
     class="full-page-warp"
     ref="fullPage"
-    :style="{ minHeight: `calc(100vh - ${y + 24}px)` }"
+    :style="{ minHeight: `calc(100vh - ${y + config.reduceHeight}px)` }"
   >
     <div class="full-page-warp-content">
       <slot></slot>
@@ -11,15 +11,19 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, inject } from 'vue'
 import { useElementBounding } from '@vueuse/core'
+import {FullPageConfig} from "../utils/constants";
 
 defineOptions({
   name: 'JFullPage'
 })
 
+const config = inject(FullPageConfig, { reduceHeight: 24 })
+
 const fullPage = ref(null)
 const { y } = useElementBounding(fullPage)
+
 </script>
 
 <style scoped lang="less">

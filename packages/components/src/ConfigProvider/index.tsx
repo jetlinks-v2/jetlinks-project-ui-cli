@@ -1,12 +1,13 @@
 import {defineComponent, provide, reactive, h} from 'vue'
 import {configProps, PermissionButtonConfigType} from './context'
-import type { MapConfigType, SearchConfigType } from './context'
+import type { MapConfigType, SearchConfigType,FullPageConfigType } from './context'
 import {
   ComponentsEnum,
   MAPConfig,
   PermissionButtonConfig,
-  SearchConfig
-} from '@jetlinks-web/constants'
+  SearchConfig,
+  FullPageConfig
+} from '../utils/constants'
 import { ConfigProvider } from 'ant-design-vue'
 import {omit} from 'lodash-es'
 import Empty from '../Empty'
@@ -24,6 +25,7 @@ const JConfigProvider = defineComponent({
     const _mapConfig = reactive<MapConfigType>(props.MapConfig || {})
     const _searchConfig = reactive<SearchConfigType>(props.SearchConfig || {})
     const _PermissionButtonConfig = reactive<PermissionButtonConfigType>(props.PermissionButtonConfig || {})
+    const _FullPageConfig = reactive<FullPageConfigType>(props.FullPageConfig || {})
 
     provide(ComponentsEnum.Icon, _iconConfig) // 全局Icon 配置
 
@@ -33,7 +35,8 @@ const JConfigProvider = defineComponent({
 
     provide(PermissionButtonConfig, _PermissionButtonConfig) // 权限组件
 
-    console.log('_PermissionButtonConfig', _PermissionButtonConfig, props.PermissionButtonConfig)
+    provide(FullPageConfig, _FullPageConfig) // 权限组件
+
     return () => {
 
       return h(

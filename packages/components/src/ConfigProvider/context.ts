@@ -15,6 +15,11 @@ export type SearchConfigType = {
 export type PermissionButtonConfigType = {
   components?: string
 }
+
+export type FullPageConfigType = {
+  reduceHeight: Number
+}
+
 export const configProps = () => ({
   ...configProviderProps(),
   IconConfig: {
@@ -28,5 +33,8 @@ export const configProps = () => ({
   },
   PermissionButtonConfig: {
     type: Object as PropType<PermissionButtonConfigType>
+  },
+  FullPageConfig: {
+    reduceHeight: Number
   }
 })
