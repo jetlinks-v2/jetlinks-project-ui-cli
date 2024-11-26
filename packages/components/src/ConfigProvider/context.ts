@@ -1,6 +1,5 @@
 import type {PropType} from "vue";
 import { configProviderProps } from 'ant-design-vue/es/config-provider/context';
-import {PermissionButtonConfig} from "@jetlinks-web/constants";
 
 export type MapConfigType = {
   mapStyle?: any

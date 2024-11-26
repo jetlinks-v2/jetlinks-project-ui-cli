@@ -67,7 +67,7 @@ import type { PropType } from 'vue';
 import { termsParamsFormat } from './util';
 import SearchItem from './Item.vue';
 import { optionsMapKey } from './setting';
-import { SearchConfig } from '@jetlinks-web/constants'
+import { SearchConfig } from '../utils/constants'
 
 defineOptions({
   name: 'JSearch',

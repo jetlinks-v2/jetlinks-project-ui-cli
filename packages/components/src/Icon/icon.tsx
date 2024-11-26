@@ -1,7 +1,7 @@
-import { defineComponent, createVNode, watchEffect } from 'vue';
+import {defineComponent, createVNode, watchEffect, inject} from 'vue';
 import * as aIcon from '@ant-design/icons-vue';
 import { createFromIconfontCN } from '@ant-design/icons-vue';
-import { useIcon } from '@jetlinks-web/hooks'
+import {ComponentsEnum} from "../utils/constants";
 
 let MyIcon = createFromIconfontCN({
     scriptUrl: '//at.alicdn.com/t/c/font_3183515_i7oma42he.js', // 在 iconfont.cn 上生成
@@ -22,7 +22,7 @@ export default defineComponent({
     props: ['type', 'scriptUrl', 'class'],
     emits: ['click'],
     setup(props, {emit, attrs}) {
-        const config = useIcon()
+        const config = inject(ComponentsEnum.Icon, {}) as  { scriptUrl: string}
         watchEffect(() => {
             const url = props.scriptUrl || config.scriptUrl
             if (url) {

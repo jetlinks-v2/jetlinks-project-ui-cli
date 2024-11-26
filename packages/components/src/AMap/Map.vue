@@ -27,7 +27,7 @@ import { ref, computed, inject, defineOptions, defineEmits, defineProps } from '
 import { initAMapApiLoader, ElAmap } from '@vuemap/vue-amap';
 import { getAMapUiPromise } from '@jetlinks-web/utils'
 import { MapProps } from './util'
-import { MAPConfig } from "@jetlinks-web/constants";
+import { MAPConfig } from "../utils/constants";
 import Empty from '../Empty'
 import '@vuemap/vue-amap/dist/style.css';
 

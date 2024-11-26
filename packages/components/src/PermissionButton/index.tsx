@@ -6,7 +6,7 @@ import { omit } from "lodash-es";
 import { buttonProps } from "ant-design-vue/es/button/button";
 import { usePermission } from '@jetlinks-web/hooks'
 import confirm from './confirm'
-import {PermissionButtonConfig} from "@jetlinks-web/constants";
+import {PermissionButtonConfig} from "../utils/constants";
 
 type PermissionType = string | Array<string> | boolean
 
