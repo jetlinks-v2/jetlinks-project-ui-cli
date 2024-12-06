@@ -143,7 +143,7 @@ const props = defineProps({
   // 多选框
   mode: {
     type: String as PropType<'multiple' | 'tags' | 'combobox' | ''>,
-    default: '',
+    default: undefined,
   },
   placeholder: String,
   options: Array, // 下拉选择框下拉数据

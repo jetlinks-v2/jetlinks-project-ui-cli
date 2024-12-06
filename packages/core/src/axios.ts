@@ -46,8 +46,9 @@ let _options: Options = {
   handleError: undefined,
   requestOptions: (config) => ({}),
   tokenExpiration: () => {},
-
 }
+
+const controller = new AbortController();
 
 const handleRequest = (config: InternalAxiosRequestConfig) => {
   const token = getToken()
