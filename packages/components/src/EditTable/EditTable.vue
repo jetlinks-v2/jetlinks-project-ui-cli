@@ -248,7 +248,7 @@ const scrollWidth = computed(() => {
     _width = 17
   }
 
-  if (tableBody.value?.getViewScrollRef) {
+  if (tableBody.value?.getViewScrollRef && props.dataSource.length) {
     const viewScrollDom = tableBody.value?.getViewScrollRef()
 
     const bodyContainer = viewScrollDom.querySelector('.jetlinks-edit-table-body-container')

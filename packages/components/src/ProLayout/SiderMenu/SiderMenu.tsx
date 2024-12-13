@@ -271,7 +271,7 @@ const SiderMenu: FunctionalComponent<SiderMenuProps> = (
             }}
         />
     );
-
+  console.log('context', context.fixSiderbar)
     return (
         <>
             {context.fixSiderbar && (
