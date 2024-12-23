@@ -12,7 +12,7 @@ import {isFunction, isObject} from 'lodash-es'
 
 interface Options {
 
-  tokenExpiration: () => void
+  tokenExpiration: (err: AxiosError<any>, response: AxiosResponse) => void
   filter_url?: Array<string>
   code?: number
   codeKey?: string
@@ -114,7 +114,7 @@ const errorHandler = (err: AxiosError<any>) => {
         break;
       case 401:
         description = '用户未登录'
-        _options.tokenExpiration?.()
+        _options.tokenExpiration?.(err, err.response)
         break;
       default:
         break;
