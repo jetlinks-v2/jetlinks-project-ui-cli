@@ -1,6 +1,6 @@
 {
   "name": "@jetlinks-web/components",
-  "version": "2.4.11",
+  "version": "2.4.12",
   "description": "",
   "main": "lib/index.js",
   "module": "es/index.js",
@@ -23,7 +23,7 @@
     "@ant-design/icons-vue": "^7.0.1",
     "@vuemap/vue-amap": "^2.0.17",
     "@vueuse/core": "^10.2.1",
-    "@vueuse/router": "^10.9.0",
+    "@vueuse/router": "^12.1.0",
     "async-validator": "^4.2.5",
     "echarts": "^5.4.3",
     "markdown-it": "^14.1.0",

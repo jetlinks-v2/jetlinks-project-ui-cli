@@ -255,6 +255,7 @@ const optionLoading = ref(false);
  * @param column {}
  * @param options {}
  * @param defaultTermType {}
+ * @param termFilter {}
  */
 const getTermType = (
   type?: ItemType,
@@ -364,6 +365,7 @@ const columnChange = (
   }
   cProps.value = item.componentProps;
   optionLoading.value = false;
+
   // 设置value为undefined
   termsModel.column = value;
   getComponent(item.type); // 处理Item的组件类型
@@ -382,7 +384,6 @@ const columnChange = (
     item.defaultTermType,
     item.termFilter,
   );
-
   if (changeValue) {
     termsModel.value = undefined;
     termsModel.termType = termsTypeValue;
@@ -463,6 +464,7 @@ watch(
 watch(
   () => props.termsItem,
   (val, oldVal) => {
+
     if (val?.column) {
       nextTick(() => {
         Object.keys(props.termsItem).forEach((key) => {

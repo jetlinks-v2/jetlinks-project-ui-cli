@@ -149,7 +149,7 @@ import SearchItem from '../Item.vue';
 import { optionsMapKey, typeOptions } from '../setting';
 import { useElementSize } from '@vueuse/core';
 import { useRouteQuery } from '@vueuse/router';
-import { PropType, ref, reactive, watch, provide } from 'vue';
+import {PropType, ref, reactive, watch, provide, defineExpose} from 'vue';
 import SaveHistory from './SaveHistory.vue';
 import History from './History.vue';
 import type {
@@ -163,7 +163,7 @@ import {
   getTermTypeFn,
   handleQData,
   hasExpand,
-  termsParamsFormat,
+  termsParamsFormat, termsToValue,
 } from '../util';
 import { Select, Button, Form, FormItemRest } from 'ant-design-vue'
 import { AIcon } from '../../../'
@@ -227,6 +227,10 @@ const props = defineProps({
     type: [String, Object],
     default: undefined,
   },
+  defaultValues: {
+    type: Object,
+    default: undefined,
+  }
 });
 
 const searchRef = ref(null);
@@ -246,6 +250,7 @@ const compatible = ref(false);
 // 当前组件宽度 true 大于1000
 const screenSize = ref(true);
 const resetNumber = ref(1);
+let isFirstHandleDefaultValues = false
 
 const searchItems = ref<SearchProps[]>([]); // 当前查询条件
 
@@ -320,22 +325,6 @@ const reset = () => {
   emit('search', {terms: []});
 };
 
-watch(
-    width,
-    (value) => {
-      if (value < 1000) {
-        layout.value = 'vertical';
-        screenSize.value = false;
-        compatible.value = value < 760;
-      } else {
-        layout.value = 'horizontal';
-        screenSize.value = true;
-        compatible.value = false;
-      }
-    },
-    {immediate: true},
-);
-
 const historyItemClick = (content: string) => {
   try {
     termsData.terms = handleQData(compatibleOldTerms(content))?.terms || [];
@@ -359,6 +348,22 @@ const handleUrlParams = (_params: UrlParam) => {
     emit('search', termsParamsFormat(termsData, columnOptionMap.value));
   }
 };
+
+
+/**
+ * 处理传入的默认值
+ */
+const handleDefaultValues = () => {
+  const defaultValues = props.defaultValues.terms.map((a) => {
+    a.terms.map((b) => {
+      return termsToValue(b, searchItems.value)
+    });
+    return a
+  })
+  termsData.terms = handleQData(compatibleOldTerms(JSON.stringify({terms:defaultValues})))?.terms || [];
+  expand.value = hasExpand(termsData.terms);
+  emit('search', termsParamsFormat(termsData, columnOptionMap.value));
+}
 
 /**
  * 处理每项的key为Item组件所需要的key
@@ -411,7 +416,12 @@ const handleItems = () => {
 
   submitData();
 
-  handleUrlParams({q: q.value, target: target.value});
+  if (props.defaultValues && !isFirstHandleDefaultValues) {
+    handleDefaultValues()
+    isFirstHandleDefaultValues = true
+  } else {
+    handleUrlParams({q: q.value, target: target.value});
+  }
 };
 
 watch(
@@ -433,7 +443,27 @@ watch(
     },
 );
 
+watch(
+  width,
+  (value) => {
+    if (value < 1000) {
+      layout.value = 'vertical';
+      screenSize.value = false;
+      compatible.value = value < 760;
+    } else {
+      layout.value = 'horizontal';
+      screenSize.value = true;
+      compatible.value = false;
+    }
+  },
+  {immediate: true},
+);
+
 handleItems();
+
+defineExpose({
+  setValues:handleDefaultValues,
+})
 </script>
 
 <style scoped lang="less"></style>

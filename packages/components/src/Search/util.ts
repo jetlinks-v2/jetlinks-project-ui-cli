@@ -183,6 +183,7 @@ export const compatibleOldTerms = (q: string) => {
         });
         return { terms: _terms };
     } catch (e) {
+      console.warn('[Pro Search Error] > ', e)
         return { terms: _terms };
     }
 };
@@ -261,3 +262,27 @@ export const getTermOptions = (type?: SearchProps['type'], column?: string) => {
     }
     return keys.length ? getTermTypes(keys) : termType;
 };
+
+
+export const termsToValue = (targetItem: SearchItemData, searchItems: any[]) => {
+  if (['like', 'nlike'].includes(targetItem.termType) && !!targetItem.value) {
+    if (targetItem.value.startsWith('%') && targetItem.value.endsWith('%')) {
+      targetItem.value = targetItem.value.slice(1, -1)
+    }
+  }
+
+  // 处理重命名
+  const searchItem = searchItems.filter(item => item.rename).find(item => {
+    if (item.rename === targetItem.column) {
+      targetItem.column = item.column
+      return true
+    }
+
+    return item.column === targetItem.column
+  })
+
+  if (!targetItem.termType) {
+    targetItem.termType = getTermTypeFn(searchItem.type)
+  }
+  return targetItem
+}
