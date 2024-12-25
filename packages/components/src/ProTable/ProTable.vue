@@ -136,7 +136,6 @@ const handleSearch = async (_params?: Record<string, any>) => {
 const _debounceFn = debounce(handleSearch, 300);
 
 const onPageChange = (_page, size) => {
-  console.log('[onPageChange > handleSearch]>')
   handleSearch({
     ...props.params,
     pageSize: size,
