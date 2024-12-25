@@ -38,6 +38,7 @@ const _showTotal = (num: number) => {
 }
 
 const onChange = (page: number, size: number) => {
+  console.log('jtable-pagination change')
   emits('change', page, size)
 }
 </script>

@@ -2,6 +2,7 @@ import {tableProps} from "ant-design-vue/es/table/Table";
 import {PropType} from "vue";
 import {TableProps} from "ant-design-vue/es/table";
 import {paginationProps} from 'ant-design-vue/es/pagination/Pagination'
+import { omit } from 'lodash-es'
 
 export const _headerProps = {
   mode: {
@@ -53,7 +54,7 @@ export const _contentProps = {
 }
 
 export const _paginationProps = {
-  ...paginationProps(),
+  ...omit(paginationProps(), ['onChange']),
   total: {
     type: Number,
     default: 0,

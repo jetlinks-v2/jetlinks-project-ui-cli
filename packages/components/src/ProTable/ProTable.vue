@@ -135,25 +135,8 @@ const handleSearch = async (_params?: Record<string, any>) => {
 
 const _debounceFn = debounce(handleSearch, 300);
 
-watch(
-    () => props.params,
-    (newValue) => {
-      _debounceFn(newValue || {});
-    },
-    {deep: true, immediate: true},
-);
-
-watch(
-    () => props.dataSource,
-    (newVal) => {
-      if (newVal && !props.request) {
-        handleSearch(props.params);
-      }
-    },
-    { deep: true, immediate: true },
-);
-
 const onPageChange = (_page, size) => {
+  console.log('[onPageChange > handleSearch]>')
   handleSearch({
     ...props.params,
     pageSize: size,
@@ -211,6 +194,24 @@ const windowChange = () => {
     }
   }
 }
+
+watch(
+  () => props.params,
+  (newValue) => {
+    _debounceFn(newValue || {});
+  },
+  {deep: true, immediate: true},
+);
+
+watch(
+  () => props.dataSource,
+  (newVal) => {
+    if (newVal && !props.request) {
+      handleSearch(props.params);
+    }
+  },
+  { deep: true, immediate: true },
+);
 
 onMounted(() => {
   windowChange(); // 初始化
