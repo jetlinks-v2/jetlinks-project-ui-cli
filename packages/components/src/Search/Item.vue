@@ -5,24 +5,24 @@
         <Select
           v-if="index !== 1 && index !== 4"
           v-model:value="termsModel.type"
-          :options="typeOptions"
+          :options="typeOptions(contextLocale)"
           style="width: 100%"
           @change="valueChange"
         />
         <span v-else>
-                    {{ index === 1 ? '第一组' : '第二组' }}
+                    {{ index === 1 ? contextLocale.item.firstGroup :  contextLocale.item.secondGroup }}
                 </span>
       </div>
       <Select
         v-model:value="termsModel.column"
-        placeholder="请选择"
+        :placeholder="contextLocale.item.placeholder"
         class="JSearch-item--column"
         :options="columnOptions"
         @change="columnChange"
       />
       <Select
         v-model:value="termsModel.termType"
-        placeholder="请选择"
+        :placeholder="contextLocale.item.placeholder"
         class="JSearch-item--termType"
         :options="termTypeOptions.option"
         @change="termTypeChange"
@@ -173,8 +173,11 @@ import {
   FormItem
 } from 'ant-design-vue'
 import { isPromise } from '@jetlinks-web/utils';
+import {useLocaleReceiver} from "../LocaleReciver/index";
 
 type ItemType = SearchProps['type'];
+
+const [contextLocale] = useLocaleReceiver('Search');
 
 type UrlParam = {
   q: string | null;
@@ -245,7 +248,7 @@ const options = ref<any[]>([]);
 const columnOptions = ref<optionItemType[]>([]);
 const columnOptionMap = inject(optionsMapKey, new Map());
 
-const termTypeOptions = reactive({option: termType});
+const termTypeOptions = reactive({option: termType(contextLocale.value)});
 
 const optionLoading = ref(false);
 
@@ -265,8 +268,8 @@ const getTermType = (
   termFilter?: string[],
 ) => {
   termTypeOptions.option = options?.length
-    ? getTermTypes(options)
-    : getTermOptions(type, column);
+    ? getTermTypes(options, contextLocale.value)
+    : getTermOptions(type, column, contextLocale.value);
   if (termFilter?.length) {
     termTypeOptions.option = termTypeOptions.option.filter(
       (item) => !termFilter.includes(item.value),
@@ -350,7 +353,7 @@ const initModel = () => {
   termsModel.column = undefined;
   termsModel.value = undefined;
   termsModel.termType = undefined;
-  termTypeOptions.option = termType;
+  termTypeOptions.option = termType(contextLocale.value);
 };
 const columnChange = (
   value: string,

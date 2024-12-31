@@ -6,7 +6,7 @@
           type="primary"
           html-type="submit"
       >
-        搜索
+        {{ contextLocale.advanced.history.search }}
       </Button>
     </FormItemRest>
     <Popover
@@ -33,7 +33,7 @@
               </Ellipsis>
             </div>
             <Popconfirm
-                title="确认删除吗？"
+                :title="contextLocale.advanced.history.confirmDelete"
                 placement="top"
                 @confirm="deleteHistory(item)"
             >
@@ -64,6 +64,7 @@ import type { PropType } from 'vue';
 import { isFunction } from 'lodash-es';
 import { AIcon, Empty, Ellipsis } from '../../../';
 import { Popconfirm, Button, FormItemRest, Popover, message } from 'ant-design-vue'
+import { useLocaleReceiver } from "../../LocaleReciver";
 
 type Emit = {
   (event: 'click'): void;
@@ -91,6 +92,7 @@ const props = defineProps({
   },
 });
 
+const [contextLocale] = useLocaleReceiver('Search');
 const historyList = ref<SearchHistoryList[]>([]);
 const historyVisible = ref(false);
 const showEmpty = computed(() => {
@@ -129,9 +131,9 @@ const deleteHistory = async (item: any) => {
     );
     historyVisible.value = false;
     if (resp.success || resp.status === 200 || resp.code === 200) {
-      message.success('操作成功');
+      message.success(contextLocale.value.advanced.saveHistory.success);
     } else {
-      message.error('操作失败');
+      message.error(contextLocale.value.advanced.saveHistory.fail);
     }
   }
 };
