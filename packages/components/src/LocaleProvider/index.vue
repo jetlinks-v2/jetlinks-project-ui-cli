@@ -5,6 +5,7 @@
 <script setup lang="ts">
 import type { PropType } from 'vue';
 import { provide, reactive } from "vue";
+import defaultLocal from '../locale/zh-CN'
 
 const props = defineProps({
   locale: {
@@ -13,12 +14,11 @@ const props = defineProps({
 })
 const state = reactive({
   antLocale: {
-    ...props.locale,
+    ...props.locale || defaultLocal || {},
     exist: true,
   },
 });
 
-console.log(state);
 provide('componentLocaleData', state)
 </script>
 
