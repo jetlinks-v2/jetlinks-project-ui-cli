@@ -57,7 +57,7 @@
                 v-model:value="termsData.terms[1].type"
                 class="center-select"
                 style="width: 100px"
-                :options="typeOptions"
+                :options="typeOptions(contextLocale)"
             />
           </div>
           <div v-if="expand" class="right">
@@ -82,7 +82,7 @@
                     ]"
         >
           <div class="JSearch-footer--btns">
-            <Button type="stroke" @click="reset"> 重置</Button>
+            <Button type="stroke" @click="reset"> {{contextLocale.advanced.reset}}</Button>
             <SaveHistory
                 :terms="termsData"
                 :target="target"
@@ -102,7 +102,7 @@
               class="more-btn"
               @click="expandChange"
           >
-            <span class="more-text"> 更多筛选 </span>
+            <span class="more-text"> {{contextLocale.advanced.more}} </span>
             <AIcon
                 type="DoubleRightOutlined"
                 :class="[
@@ -131,10 +131,10 @@
           <div class="JSearch-footer--btns">
             <FormItemRest>
               <Button type="stroke" @click="reset">
-                重置
+                {{contextLocale.advanced.reset}}
               </Button>
               <Button html-type="submit" type="primary">
-                搜索
+                {{contextLocale.advanced.search}}
               </Button>
             </FormItemRest>
           </div>
@@ -168,10 +168,13 @@ import {
 import { Select, Button, Form, FormItemRest } from 'ant-design-vue'
 import { AIcon } from '../../../'
 import { cloneDeep } from 'lodash-es';
+import {useLocaleReceiver} from "../../LocaleReciver/index";
 
 defineOptions({
   name: 'JAdvancedSearch',
 })
+
+const [contextLocale] = useLocaleReceiver('Search');
 
 type UrlParam = {
   q: string | null;

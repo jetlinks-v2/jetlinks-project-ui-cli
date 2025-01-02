@@ -231,11 +231,11 @@ export const getTermTypeFn = (type?: SearchProps['type']) => {
     }
 };
 
-export const getTermTypes = (types: string[]) => {
-    return termType.filter((item) => types.includes(item.value));
+export const getTermTypes = (types: string[], locale: any) => {
+    return termType(locale).filter((item) => types.includes(item.value));
 };
 
-export const getTermOptions = (type?: SearchProps['type'], column?: string) => {
+export const getTermOptions = (type?: SearchProps['type'], column?: string, locale: any) => {
     let keys: string[] = [];
     switch (type) {
         case 'select':
@@ -260,7 +260,7 @@ export const getTermOptions = (type?: SearchProps['type'], column?: string) => {
             //     : ['like', 'nlike'];
             break;
     }
-    return keys.length ? getTermTypes(keys) : termType;
+    return keys.length ? getTermTypes(keys, locale) : termType(locale);
 };
 
 
