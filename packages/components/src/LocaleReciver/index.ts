@@ -16,7 +16,6 @@ export function useLocaleReceiver<T extends LocaleComponentName>(
   propsLocale?: Ref<Record<string, any>[T]>,
 ): [ComputedRef<Record<string, any>[T]>] {
   const localeData = inject<LocaleReceiverContext>('componentLocaleData', {} as LocaleReceiverContext);
-  console.log(localeData);
   const componentLocale = computed<Record<string, any>[T]>(() => {
     const { antLocale } = localeData;
     const locale =
