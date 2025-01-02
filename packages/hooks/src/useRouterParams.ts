@@ -12,7 +12,7 @@ export const setParamsValue = (code, value) => {
   }
 }
 
-export const useRouterParams = (): {params: Ref<Record<string, any>>} => {
+export const useRouterParams = (): {params: Ref<Record<string, any>>, clear: ()=> void} => {
     const params = ref<Record<string, any>>({})
 
     const router = useRouter()
@@ -30,6 +30,7 @@ export const useRouterParams = (): {params: Ref<Record<string, any>>} => {
     })
 
     return {
-        params
+        params,
+        clear
     }
 }
