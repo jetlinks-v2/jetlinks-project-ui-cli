@@ -51,6 +51,9 @@ export default {
     alert: {
       cancelChoose: '取消选择',
       selectItem: '已选择 {0} 项'
+    },
+    pageContainer: {
+      back: '返回'
     }
   },
   AMap: {

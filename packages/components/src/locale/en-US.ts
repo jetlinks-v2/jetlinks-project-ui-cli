@@ -51,6 +51,9 @@ export default {
     alert: {
       cancelChoose: 'Cancel selection',
       selectItem: 'Select {0} items'
+    },
+    pageContainer: {
+      back: 'back'
     }
   },
   AMap: {
