@@ -23,6 +23,7 @@ import { getSlotVNode } from '../util';
 import { VueNode } from 'ant-design-vue/es/_util/type';
 import PropTypes from 'ant-design-vue/es/_util/vue-types';
 import {LayoutType} from "../defaultSettings";
+import { useLocaleReceiver } from "../../LocaleReciver";
 
 export const pageHeaderTabConfig = {
     /**
@@ -255,6 +256,7 @@ const ProPageHeader: FunctionalComponent<
 
     const value = useRouteContext();
 
+    const [contextLocale] = useLocaleReceiver('ProTable');
     if (pageHeaderRender === false) {
         return null;
     }
@@ -278,7 +280,7 @@ const ProPageHeader: FunctionalComponent<
 
     if (showBack) {
         // @ts-ignore
-        backProps.backIcon = <Button>返回</Button>;
+        backProps.backIcon = <Button>{contextLocale.value.pageContainer.back}</Button>;
         backProps.onBack = () => {
             value.back?.();
         };
