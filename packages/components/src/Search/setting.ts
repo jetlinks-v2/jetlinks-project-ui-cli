@@ -14,27 +14,31 @@ export const basicSearch = {
     },
 };
 
-export const typeOptions = [
-    { label: '或者', value: 'or' },
-    { label: '并且', value: 'and' },
-];
+export const typeOptions = (locale) => {
+  return [
+    { label: locale.setting.or, value: 'or' },
+    { label: locale.setting.and, value: 'and' },
+  ];
+}
 
-export const TermTypeMap = {
+export const TermTypeMap = (locale) => {
+  return {
     EQ: { label: '=', value: 'eq' },
     NOT: { label: '!=', value: 'not' },
-    LIKE: { label: '包含', value: 'like' },
-    NLIKE: { label: '不包含', value: 'nlike' },
+    LIKE: { label: locale.setting.include, value: 'like' },
+    NLIKE: { label: locale.setting.exclude, value: 'nlike' },
     GT: { label: '>', value: 'gt' },
     GTE: { label: '>=', value: 'gte' },
     LT: { label: '<', value: 'lt' },
     LTE: { label: '<=', value: 'lte' },
-    IN: { label: '在...之中', value: 'in' },
-    NIN: { label: '不在...之中', value: 'nin' },
-    BTW: { label: '在...之间', value: 'btw' },
-    NBTW: { label: '不在...之间', value: 'nbtw' },
+    IN: { label: locale.setting.in, value: 'in' },
+    NIN: { label: locale.setting.notIn, value: 'nin' },
+    BTW: { label: locale.setting.between, value: 'btw' },
+    NBTW: { label: locale.setting.notBetween, value: 'nbtw' },
+  }
 };
 
-export const termType = Object.values(TermTypeMap);
+export const termType = (locale) => Object.values(TermTypeMap(locale));
 
 export const componentType = {
     input: 'input',

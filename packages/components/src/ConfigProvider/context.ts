@@ -35,5 +35,8 @@ export const configProps = () => ({
   },
   FullPageConfig: {
     reduceHeight: Number
+  },
+  componentsLocale: {
+    type: Object as PropType<Record<string, string>>
   }
 })

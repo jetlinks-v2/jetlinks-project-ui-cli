@@ -9,6 +9,7 @@ import {
   FullPageConfig
 } from '../utils/constants'
 import { ConfigProvider } from 'ant-design-vue'
+import LocaleProvider from '../LocaleProvider/index.vue'
 import {omit} from 'lodash-es'
 import Empty from '../Empty'
 import type { App } from 'vue';
@@ -42,10 +43,14 @@ const JConfigProvider = defineComponent({
       return h(
         ConfigProvider,
         {...omit(props, ['IconConfig', 'MapConfig', 'SearchConfig'])},
-        {
-          default: slots.default,
-          renderEmpty: () => (slots.renderEmpty?.() || <Empty />)
-        }
+        [h(
+          LocaleProvider,
+          {locale: props.componentsLocale},
+          {
+            default: slots.default,
+            renderEmpty: () => (slots.renderEmpty?.() || <Empty />),
+          }
+        )]
       )
     }
   }

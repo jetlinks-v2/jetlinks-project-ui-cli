@@ -1,7 +1,7 @@
 <template>
   <Popover
       v-model:visible="visible"
-      title="搜索名称"
+      :title="contextLocale.advanced.saveHistory.searchName"
       trigger="click"
       placement="bottom"
       @visibleChange="visibleChange"
@@ -12,8 +12,8 @@
           <FormItem
               name="name"
               :rules="[
-                            { required: true, message: '请输入名称' },
-                            { max: 64, message: '最多64个字符' },
+                            { required: true, message: contextLocale.advanced.saveHistory.placeholder },
+                            { max: 64, message: contextLocale.advanced.saveHistory.ruleName },
                         ]"
           >
                         <Textarea
@@ -30,11 +30,11 @@
             style="width: 100%"
             @click="saveHistory"
         >
-          保存
+          {{contextLocale.advanced.saveHistory.save}}
         </Button>
       </div>
     </template>
-    <Button ghost type="primary"> 保存</Button>
+    <Button ghost type="primary">{{contextLocale.advanced.saveHistory.save}}</Button>
   </Popover>
 </template>
 
@@ -44,6 +44,7 @@ import type { PropType } from 'vue';
 import { ref, reactive } from 'vue';
 import { Form, Button, FormItem, Popover, Textarea, message } from 'ant-design-vue'
 import { isFunction } from 'lodash-es';
+import {useLocaleReceiver} from "../../LocaleReciver";
 
 const props = defineProps({
   terms: {
@@ -61,6 +62,7 @@ const props = defineProps({
   },
 });
 
+const [contextLocale] = useLocaleReceiver('Search');
 const saveHistoryLoading = ref(false);
 
 const visible = ref(false);
@@ -92,10 +94,10 @@ const saveHistory = async () => {
     const resp = await props.request(formData, props.target);
     saveHistoryLoading.value = false;
     if (resp.success || resp.status === 200 || resp.code === 200) {
-      message.success('操作成功');
+      message.success(contextLocale.value.advanced.saveHistory.success);
       visibleChange(false);
     } else {
-      message.error('操作失败');
+      message.error(contextLocale.value.advanced.saveHistory.fail);
     }
   }
 };

@@ -3,8 +3,7 @@ import type { App } from 'vue';
 import * as components from './components';
 
 export * from './components';
-
-export const install = function (app: App) {
+export const install = function (app: App, options: any = {}) {
   Object.keys(components).forEach((key) => {
     const component = components[key];
     if (component.install) {

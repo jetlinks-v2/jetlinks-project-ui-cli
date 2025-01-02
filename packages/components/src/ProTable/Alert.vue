@@ -3,7 +3,7 @@
     <slot>
       <Alert type="info" :message="_message">
         <template #closeText>
-          <Button type="link" @click="onClose">取消选择</Button>
+          <Button type="link" @click="onClose">{{contextLocale.alert.cancelChoose}}</Button>
         </template>
       </Alert>
     </slot>
@@ -14,16 +14,22 @@
 import { Alert, Button } from 'ant-design-vue';
 import { computed } from "vue";
 import {_alertProps} from "./setting";
+import {useLocaleReceiver} from "../LocaleReciver/index";
 
 defineOptions({
   name: 'Alert'
 })
 
+const [contextLocale] = useLocaleReceiver('ProTable');
 const props = defineProps({ ..._alertProps })
 const emits = defineEmits(['close'])
 
 const _message = computed(() => {
-  return  '已选择' + (props.rowSelection?.selectedRowKeys?.length || 0) + '项'
+  let locale = contextLocale.value.alert.selectItem;
+  [props.rowSelection?.selectedRowKeys?.length || 0].forEach((item, index) => {
+    locale = locale.replace(`{${index}}`, item)
+  })
+  return  locale
 })
 
 const onClose = () => {

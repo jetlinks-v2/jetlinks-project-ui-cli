@@ -32,14 +32,14 @@
                     :style="footerStyles"
                 >
                   <Button type="stroke" @click="reset">
-                    {{ resetText }}
+                    {{ resetText || contextLocale.search.reset }}
                   </Button>
                   <FormItemRest>
                     <Button
                         html-type="submit"
                         type="primary"
                     >
-                      {{ submitText }}
+                      {{ submitText || contextLocale.search.search + '123123' }}
                     </Button>
                   </FormItemRest>
                 </div>
@@ -68,6 +68,7 @@ import { termsParamsFormat } from './util';
 import SearchItem from './Item.vue';
 import { optionsMapKey } from './setting';
 import { SearchConfig } from '../utils/constants'
+import {useLocaleReceiver} from "../LocaleReciver/index";
 
 defineOptions({
   name: 'JSearch',
@@ -108,11 +109,9 @@ const props = defineProps({
   },
   resetText: {
     type: String,
-    default: '重置',
   },
   submitText: {
     type: String,
-    default: '搜索',
   },
   align: {
     type: String,
@@ -120,6 +119,7 @@ const props = defineProps({
   }
 });
 
+const [contextLocale] = useLocaleReceiver('Search')
 const columnOptionMap = ref(new Map());
 
 const emit = defineEmits<Emit>();

@@ -13,8 +13,8 @@
         </div>
         <div class='jetlinks-drag-modal-footer' v-if='footer !== false'>
           <slot name='footer'>
-            <Button @click.stop='onCancel'>取消</Button>
-            <Button type="primary" @click.stop='onOk'>确认</Button>
+            <Button @click.stop='onCancel'>{{contextLocale.DragModal.cancel}}</Button>
+            <Button type="primary" @click.stop='onOk'>{{contextLocale.DragModal.confirm}}</Button>
           </slot>
         </div>
       </div>
@@ -27,6 +27,7 @@
 <script setup lang='ts'>
 import { ref, useSlots, defineEmits, defineProps, defineOptions, computed, onMounted, watch} from 'vue'
 import { Button } from 'ant-design-vue'
+import {useLocaleReceiver} from "../LocaleReciver/index";
 
 defineOptions({
   name: 'JDragModal'
@@ -61,6 +62,7 @@ const props = defineProps({
 const emits = defineEmits(['cancel', 'heightChange', 'ok', 'visibleChange'])
 const slots = useSlots()
 
+const [contextLocale] = useLocaleReceiver('Search');
 const ele = document.body
 
 const dialog = ref()

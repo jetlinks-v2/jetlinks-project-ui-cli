@@ -17,7 +17,7 @@
       </template>
       <template v-else><slot></slot></template>
     </el-amap>
-    <Empty v-else description="请配置高德地图key" style="padding: 20%" />
+    <Empty v-else :description="contextLocale.description" style="padding: 20%" />
   </div>
 </template>
 
@@ -30,6 +30,7 @@ import { MapProps } from './util'
 import { MAPConfig } from "../utils/constants";
 import Empty from '../Empty'
 import '@vuemap/vue-amap/dist/style.css';
+import {useLocaleReceiver} from "../LocaleReciver/index";
 
 interface AMapProps {
   style?: CSSProperties;
@@ -60,6 +61,8 @@ const props = defineProps({
   JSKey: String,
   WebKey: String,
 });
+
+const [contextLocale] = useLocaleReceiver('AMap');
 
 const config = inject<{ mapStyle: any, JSKey: string, WebKey: string }>(MAPConfig)
 
