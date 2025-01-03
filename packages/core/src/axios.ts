@@ -19,6 +19,10 @@ interface Options {
   timeout?: number
   handleRequest?: () => void
   /**
+   * 用以获取localstorage中的lang
+   */
+  langKey?: string
+  /**
    * response处理函数
    * @param response AxiosResponse实例
    */
@@ -44,6 +48,7 @@ let _options: Options = {
   handleRequest: undefined,
   handleResponse: undefined,
   handleError: undefined,
+  langKey: 'lang',
   requestOptions: (config) => ({}),
   tokenExpiration: () => {},
 }
@@ -52,6 +57,7 @@ const controller = new AbortController();
 
 const handleRequest = (config: InternalAxiosRequestConfig) => {
   const token = getToken()
+  const lang = localStorage.getItem(_options.langKey)
 
   // 没有token，并且该接口需要token校验
   if (!token && !_options.filter_url?.some((url) => config.url?.includes(url))) {
@@ -62,6 +68,10 @@ const handleRequest = (config: InternalAxiosRequestConfig) => {
 
   if (!config.headers[TOKEN_KEY]) {
     config.headers[TOKEN_KEY] = token
+  }
+
+  if (lang) {
+    config.headers[_options.langKey] = lang
   }
 
   if (_options.requestOptions && isFunction(_options.requestOptions)) {
