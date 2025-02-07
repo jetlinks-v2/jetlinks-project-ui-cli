@@ -123,8 +123,11 @@ const errorHandler = (err: AxiosError<any>) => {
         description = (`${data?.message}`).substring(0, 90)
         break;
       case 401:
-        description = '用户未登录'
+        description = err.response.data.result.text || '用户未登录'
         _options.tokenExpiration?.(err, err.response)
+        break;
+      case 404:
+        description = err?.response?.data?.message || `${data?.error} ${data?.path}`
         break;
       default:
         break;
