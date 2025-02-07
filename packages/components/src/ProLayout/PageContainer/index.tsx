@@ -256,7 +256,7 @@ const ProPageHeader: FunctionalComponent<
 
     const value = useRouteContext();
 
-    const [contextLocale] = useLocaleReceiver('ProTable');
+    const [contextLocale] = useLocaleReceiver('ProLayout');
     if (pageHeaderRender === false) {
         return null;
     }

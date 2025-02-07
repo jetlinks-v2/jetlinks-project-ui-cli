@@ -180,7 +180,7 @@ const handleItemModalSubmit = () => {
 
 const onChange = (e) => {
   emit('update:modelValue', myValue.value)
-  emit('change', e)
+  emit('change', e && e.target ? e.target.value : e)
 }
 
 const handleFileChange = (info: any) => {

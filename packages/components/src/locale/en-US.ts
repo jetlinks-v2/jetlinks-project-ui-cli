@@ -13,7 +13,7 @@ export default {
       reset: 'Reset',
       more: 'More',
       saveHistory: {
-        searchName: 'search name',
+        searchName: 'Search name',
         placeholder: 'Please enter a name',
         ruleName: 'Up to 64 characters',
         save: 'Save',
@@ -26,8 +26,8 @@ export default {
       },
     },
     item: {
-      firstGroup: 'First',
-      secondGroup: 'Second',
+      firstGroup: 'Group One',
+      secondGroup: 'Group Two',
       placeholder: 'Please select',
     },
     setting: {
@@ -52,6 +52,8 @@ export default {
       cancelChoose: 'Cancel selection',
       selectItem: 'Select {0} items'
     },
+  },
+  ProLayout: {
     pageContainer: {
       back: 'Back'
     }
