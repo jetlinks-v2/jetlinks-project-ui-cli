@@ -16,13 +16,13 @@ export default {
         searchName: 'search name',
         placeholder: 'Please enter a name',
         ruleName: 'Up to 64 characters',
-        save: 'save',
+        save: 'Save',
         success: 'Operation successful',
         fail: 'Operation fail'
       },
       history: {
         confirmDelete: 'Confirm Delete?',
-        search: 'search'
+        search: 'Search'
       },
     },
     item: {
@@ -53,7 +53,7 @@ export default {
       selectItem: 'Select {0} items'
     },
     pageContainer: {
-      back: 'back'
+      back: 'Back'
     }
   },
   AMap: {
@@ -65,13 +65,13 @@ export default {
       copy: 'Copy row',
       paste: 'Paste row',
       detail: 'View details',
-      delete: 'delete'
+      delete: 'Delete'
     }
   },
   ValueItem: {
     placeholder: 'Please enter the link',
-    cancel: 'cancel',
-    confirm: 'confirm',
-    title: 'edit'
+    cancel: 'Cancel',
+    confirm: 'Confirm',
+    title: 'Edit'
   }
 }

@@ -62,7 +62,7 @@ const props = defineProps({
 const emits = defineEmits(['cancel', 'heightChange', 'ok', 'visibleChange'])
 const slots = useSlots()
 
-const [contextLocale] = useLocaleReceiver('Search');
+const [contextLocale] = useLocaleReceiver('DragModal');
 const ele = document.body
 
 const dialog = ref()
