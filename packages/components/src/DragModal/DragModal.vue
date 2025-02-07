@@ -13,8 +13,8 @@
         </div>
         <div class='jetlinks-drag-modal-footer' v-if='footer !== false'>
           <slot name='footer'>
-            <Button @click.stop='onCancel'>{{contextLocale.DragModal.cancel}}</Button>
-            <Button type="primary" @click.stop='onOk'>{{contextLocale.DragModal.confirm}}</Button>
+            <Button @click.stop='onCancel'>{{contextLocale.cancel}}</Button>
+            <Button type="primary" @click.stop='onOk'>{{contextLocale.confirm}}</Button>
           </slot>
         </div>
       </div>
@@ -62,7 +62,7 @@ const props = defineProps({
 const emits = defineEmits(['cancel', 'heightChange', 'ok', 'visibleChange'])
 const slots = useSlots()
 
-const [contextLocale] = useLocaleReceiver('Search');
+const [contextLocale] = useLocaleReceiver('DragModal');
 const ele = document.body
 
 const dialog = ref()
