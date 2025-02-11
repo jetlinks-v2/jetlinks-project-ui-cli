@@ -293,8 +293,10 @@ const itemValueChange = (value: SearchItemData, index: number) => {
 };
 
 const addUrlParams = () => {
-  q.value = encodeURI(JSON.stringify(termsData));
-  target.value = props.target;
+  if(props.target){
+    q.value = encodeURI(JSON.stringify(termsData));
+    target.value = props.target;
+  }
 };
 
 const submitData = () => {
