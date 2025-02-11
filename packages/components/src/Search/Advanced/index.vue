@@ -427,6 +427,13 @@ const handleItems = () => {
   }
 };
 
+const clearValue = () => {
+  if (props.type === 'advanced' && props.target !== target.value) {
+    q.value = null;
+    target.value = null;
+  }
+}
+
 watch(
     () => props.columns,
     () => {
@@ -435,16 +442,20 @@ watch(
         {terms: [null, null, null], type: 'and'},
       ];
       expand.value = false;
-      if (props.type === 'advanced') {
-        q.value = null;
-        target.value = null;
-      }
+      clearValue()
       handleItems();
     },
     {
       deep: true,
     },
 );
+
+watch(() => props.target, () => {
+  clearValue()
+}, {
+  deep: true,
+  immediate: true
+})
 
 watch(
   width,
