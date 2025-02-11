@@ -435,11 +435,11 @@ watch(
         {terms: [null, null, null], type: 'and'},
       ];
       expand.value = false;
+      handleItems();
       if (props.type === 'advanced') {
         q.value = null;
         target.value = null;
       }
-      handleItems();
     },
     {
       deep: true,
