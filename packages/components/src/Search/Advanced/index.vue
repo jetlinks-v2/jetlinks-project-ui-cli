@@ -293,8 +293,10 @@ const itemValueChange = (value: SearchItemData, index: number) => {
 };
 
 const addUrlParams = () => {
-  q.value = encodeURI(JSON.stringify(termsData));
-  target.value = props.target;
+  if(props.target){
+    q.value = encodeURI(JSON.stringify(termsData));
+    target.value = props.target;
+  }
 };
 
 const submitData = () => {
@@ -427,6 +429,13 @@ const handleItems = () => {
   }
 };
 
+const clearValue = () => {
+  if (props.type === 'advanced' && props.target !== target.value) {
+    q.value = null;
+    target.value = null;
+  }
+}
+
 watch(
     () => props.columns,
     () => {
@@ -436,15 +445,19 @@ watch(
       ];
       expand.value = false;
       handleItems();
-      if (props.type === 'advanced') {
-        q.value = null;
-        target.value = null;
-      }
+      clearValue()
     },
     {
       deep: true,
     },
 );
+
+watch(() => props.target, () => {
+  clearValue()
+}, {
+  deep: true,
+  immediate: true
+})
 
 watch(
   width,
