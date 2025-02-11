@@ -5,7 +5,7 @@
       v-if="typeMap.get(itemType) === 'select'"
       v-model:value="myValue"
       allowClear
-      v-bind="props"
+      v-bind="bindProps"
       @change="(_, options) => onChange(options)"
     />
     <DatePicker
@@ -14,7 +14,7 @@
       :valueFormat="valueFormat || 'YYYY-MM-DD HH:mm:ss'"
       allowClear
       showTime
-      v-bind="props"
+      v-bind="bindProps"
       @change="onChange"
     />
     <TimePicker
@@ -22,21 +22,21 @@
       v-model:value="myValue"
       :valueFormat="valueFormat || 'HH:mm:ss'"
       allowClear
-      v-bind="props"
+      v-bind="bindProps"
       @change="onChange"
     />
     <InputNumber
       v-else-if="typeMap.get(itemType) === 'inputNumber'"
       v-model:value="myValue"
       allowClear
-      v-bind="props"
+      v-bind="bindProps"
       @change="onChange"
     />
     <Input
       v-else-if="typeMap.get(itemType) === 'object'"
       v-model:value="myValue"
       allowClear
-      v-bind="props"
+      v-bind="bindProps"
       @change="onChange"
     >
       <template #addonAfter>
@@ -48,7 +48,7 @@
       v-model:value="myValue"
       allowClear
       placeholder="请输入链接"
-      v-bind="props"
+      v-bind="bindProps"
       @change="onChange"
     >
       <template #addonAfter>
@@ -68,7 +68,7 @@
       v-model:value="myValue"
       allowClear
       type="password"
-      v-bind="props"
+      v-bind="bindProps"
       @change="onChange"
     />
     <Input
@@ -76,7 +76,7 @@
       v-model:value="myValue"
       allowClear
       type="text"
-      v-bind="props"
+      v-bind="bindProps"
       @change="onChange"
     />
 
@@ -99,9 +99,9 @@
 </template>
 
 <script lang="ts" setup>
-import { CSSProperties, PropType, ref, watch } from 'vue'
+import { CSSProperties, PropType, ref, watch, computed } from 'vue'
 import { componentsType } from './util'
-import { MonacoEditor } from '../../'
+import { MonacoEditor } from '../index'
 import {
   Select,
   DatePicker,
@@ -112,6 +112,7 @@ import {
   Upload,
   Modal,
 } from 'ant-design-vue'
+import {omit} from "lodash-es";
 
 defineOptions({
   name: 'JValueItem',
@@ -147,12 +148,17 @@ const props = defineProps({
   },
   placeholder: String,
   options: Array, // 下拉选择框下拉数据
-  style: Object as PropType<ItemProps['style']>,
+  style: Object as PropType<
+    ['style']>,
   class: String,
   valueFormat: String,
   action: [String, Promise],
   headers: Object,
-  disabled: Boolean
+  disabled: Boolean,
+  extraProps: {
+    type: Object,
+    default: () => ({})
+  }
 })
 
 const typeMap = new Map(Object.entries(componentsType))
@@ -160,6 +166,10 @@ const typeMap = new Map(Object.entries(componentsType))
 const myValue = ref<any>(undefined)
 const modalVisible = ref<boolean>(false)
 const objectValue = ref<string>('')
+
+const bindProps = computed(() => {
+  return Object.assign(omit(props, ['extraProps']), props.extraProps)
+})
 
 const handleItemModalSubmit = () => {
   myValue.value = objectValue.value.replace(/[\r\n]\s*/g, '')
@@ -170,7 +180,7 @@ const handleItemModalSubmit = () => {
 
 const onChange = (e) => {
   emit('update:modelValue', myValue.value)
-  emit('change', e)
+  emit('change', e && e.target ? e.target.value : e)
 }
 
 const handleFileChange = (info: any) => {

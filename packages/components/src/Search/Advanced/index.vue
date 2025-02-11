@@ -444,8 +444,8 @@ watch(
         {terms: [null, null, null], type: 'and'},
       ];
       expand.value = false;
-      clearValue()
       handleItems();
+      clearValue()
     },
     {
       deep: true,

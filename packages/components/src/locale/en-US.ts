@@ -13,21 +13,21 @@ export default {
       reset: 'Reset',
       more: 'More',
       saveHistory: {
-        searchName: 'search name',
+        searchName: 'Search name',
         placeholder: 'Please enter a name',
         ruleName: 'Up to 64 characters',
-        save: 'save',
+        save: 'Save',
         success: 'Operation successful',
         fail: 'Operation fail'
       },
       history: {
         confirmDelete: 'Confirm Delete?',
-        search: 'search'
+        search: 'Search'
       },
     },
     item: {
-      firstGroup: 'First',
-      secondGroup: 'Second',
+      firstGroup: 'Group One',
+      secondGroup: 'Group Two',
       placeholder: 'Please select',
     },
     setting: {
@@ -52,8 +52,10 @@ export default {
       cancelChoose: 'Cancel selection',
       selectItem: 'Select {0} items'
     },
+  },
+  ProLayout: {
     pageContainer: {
-      back: 'back'
+      back: 'Back'
     }
   },
   AMap: {
@@ -65,13 +67,13 @@ export default {
       copy: 'Copy row',
       paste: 'Paste row',
       detail: 'View details',
-      delete: 'delete'
+      delete: 'Delete'
     }
   },
   ValueItem: {
     placeholder: 'Please enter the link',
-    cancel: 'cancel',
-    confirm: 'confirm',
-    title: 'edit'
+    cancel: 'Cancel',
+    confirm: 'Confirm',
+    title: 'Edit'
   }
 }
