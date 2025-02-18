@@ -59,6 +59,10 @@ const handleRequest = (config: InternalAxiosRequestConfig) => {
   const token = getToken()
   const lang = localStorage.getItem(_options.langKey)
 
+  if (lang) {
+    config.headers[_options.langKey] = lang
+  }
+
   // 没有token，并且该接口需要token校验
   if (!token && !_options.filter_url?.some((url) => config.url?.includes(url))) {
     // 跳转登录页
@@ -68,10 +72,6 @@ const handleRequest = (config: InternalAxiosRequestConfig) => {
 
   if (!config.headers[TOKEN_KEY]) {
     config.headers[TOKEN_KEY] = token
-  }
-
-  if (lang) {
-    config.headers[_options.langKey] = lang
   }
 
   if (_options.requestOptions && isFunction(_options.requestOptions)) {
