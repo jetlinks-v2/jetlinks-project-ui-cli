@@ -24,7 +24,7 @@
               v-if="(column?.key || column?.dataIndex) && column?.scopedSlots && (slots?.[column?.dataIndex] || slots?.[column?.key])">
             <slot :name="column?.key || column?.dataIndex" v-bind="record" :index="index" :column="column"></slot>
           </template>
-          <template v-else>{{ get(record, column?.dataIndex || column?.key) }}</template>
+          <template v-else>{{ get(record, column?.dataIndex || column?.key) || '--' }}</template>
         </template>
         <template #emptyText>
           <slot name="emptyText">
