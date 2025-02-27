@@ -1,10 +1,17 @@
 {
   "name": "@jetlinks-web/constants",
-  "version": "1.0.7",
+  "version": "1.0.8",
   "description": "",
   "main": "index.ts",
   "module": "index.ts",
-  "keywords": [],
+  "keywords": [
+    "jetlinks",
+    "jetlinks-web",
+    "constants",
+    "jetlinks-web/constants",
+    "@jetlinks-web",
+    "@jetlinks-web/constants"
+  ],
   "files": [
     "src",
     "index.ts"
