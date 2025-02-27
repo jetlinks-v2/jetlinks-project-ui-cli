@@ -20,7 +20,7 @@
             </template>
           </template>
         </Content>
-        <Pagination @change="onPageChange" v-if="showPagination" v-bind="props.pagination" :total="page.total" :pageIndex="page.pageIndex" :pageSize="page.pageSize">
+        <Pagination @change="onPageChange" v-if="showPagination" v-bind="myPagination" :total="page.total" :pageIndex="page.pageIndex" :pageSize="page.pageSize">
           <slot
               name="paginationRender"
               :total="page.total"
@@ -41,17 +41,28 @@ import Header from './Header.vue';
 import Alert from './Alert.vue';
 import Content from './Content.vue';
 import Pagination from './Pagination.vue';
-import {useSlots, watch, onMounted, onUnmounted, computed, ref, reactive} from "vue";
+import {useSlots, watch, onMounted, onUnmounted, computed, ref, reactive, inject} from "vue";
 import {debounce} from 'lodash-es';
+import {TableConfig} from "../utils/constants";
 
 defineOptions({
   name: 'JProTable'
 })
 
+const tableConfig = inject(TableConfig, {})
+
 const props = defineProps({
   ...proTableProps
 })
 const slots = useSlots()
+
+const myPagination = computed(() => {
+  console.log(props.pagination)
+  return {
+    isShowContent: tableConfig.isShowContent,
+    ...props.pagination,
+  }
+})
 
 const loading = ref<boolean>(false)
 const _dataSource = ref<any[]>([])

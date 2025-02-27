@@ -72,7 +72,6 @@ export const _paginationProps = {
    */
   isShowContent: {
     type: Boolean,
-    default: false,
   },
 }
 
