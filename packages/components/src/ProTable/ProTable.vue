@@ -49,7 +49,9 @@ defineOptions({
   name: 'JProTable'
 })
 
-const tableConfig = inject(TableConfig, {})
+const tableConfig = inject(TableConfig, {
+  pagination: {}
+})
 
 const props = defineProps({
   ...proTableProps
@@ -57,10 +59,12 @@ const props = defineProps({
 const slots = useSlots()
 
 const myPagination = computed(() => {
-  console.log(props.pagination)
+  const globalPagination = tableConfig.pagination || {}
+  let showQuickJumper = globalPagination.showQuickJumper ?? props.pagination.showQuickJumper ?? false
   return {
-    isShowContent: tableConfig.isShowContent,
+    ...globalPagination,
     ...props.pagination,
+    showQuickJumper
   }
 })
 

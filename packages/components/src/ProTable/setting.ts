@@ -109,7 +109,6 @@ export const proTableProps = {
     default: () => {
       return {
         showSizeChanger: true,
-        showQuickJumper: false,
         size: 'size',
         pageSizeOptions: ['12', '24', '48', '96'],
       };
