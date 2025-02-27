@@ -244,7 +244,7 @@ export class Request {
    * @param {object} options 请求配置
    * @returns {Promise<AxiosResponse<any>>} 分页查询结果
    */
-  page(data: any, options: RequestOptions= {
+  page(data: any={}, options: RequestOptions= {
     url: undefined,
     method: undefined,
   }) {
@@ -258,7 +258,7 @@ export class Request {
    * @param {object} options 请求配置
    * @returns {Promise<AxiosResponse<any>>} 不分页查询结果
    */
-  noPage(data?: any, options: RequestOptions = {
+  noPage(data?: any={}, options: RequestOptions = {
     url: undefined,
     method: undefined,
   }) {
@@ -287,25 +287,25 @@ export class Request {
    * @param {object} options 请求配置
    * @returns {Promise<AxiosResponse<any>>} 保存结果
    */
-  save(data: any, options: RequestOptions = {
+  save(data: any={}, options: RequestOptions = {
     url: undefined,
     method: undefined,
   }) {
     const { url=``, method = 'post', ...rest } = options
     return request[method](`${this.modulePath}${url}`, data, rest)
   }
-  
+
   /**
    * 更新
    * @param {object} data 更新参数
    * @param {object} options 请求配置
    * @returns {Promise<AxiosResponse<any>>} 更新结果
    */
-  update(data: any, options: RequestOptions = {
+  update(data: any={}, options: RequestOptions = {
     url: undefined,
     method: undefined,
   }) {
-    const { url=``, method = 'post', ...rest } = options
+    const { url=``, method = 'patch', ...rest } = options
     return patch(`${this.modulePath}${url}`, data, rest)
   }
 

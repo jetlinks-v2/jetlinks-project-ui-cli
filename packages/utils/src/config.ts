@@ -47,7 +47,7 @@ export const getModulesComponents = (name: string, modules: Record<string, any>)
  * 获取子模块下的约定式路由
  * @param routerModules
  */
-export const getAsyncRoutesMap = (routerModules: Record<string, any>) => {
+export const getModuleRoutesMap = (routerModules: Record<string, any>) => {
   return Object.entries(routerModules).reduce((modules: ModuleRoutes, [path, component]) => {
     const code = path.replace(/^\.\/views\/(.*)\/index\.vue$/, '$1');
     modules[code] = component;
