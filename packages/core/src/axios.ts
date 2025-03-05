@@ -72,7 +72,7 @@ const handleRequest = (config: InternalAxiosRequestConfig) => {
     config.headers[_options.langKey] = lang
   }
 
-  if (!config.url.startsWith(env)) {
+  if (env && !config.url.startsWith(env)) {
     const _url = config.url.startsWith('/') ? config.url : `/${config.url}`
     config.url = env + _url
   }
