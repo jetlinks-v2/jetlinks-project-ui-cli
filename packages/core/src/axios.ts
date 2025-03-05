@@ -1,4 +1,4 @@
-import { TOKEN_KEY, BASE_API } from '@jetlinks-web/constants'
+import { TOKEN_KEY, BASE_API, LOCAL_BASE_API } from '@jetlinks-web/constants'
 import { getToken } from '@jetlinks-web/utils'
 import axios from 'axios'
 import type {
@@ -66,9 +66,15 @@ const controller = new AbortController();
 const handleRequest = (config: InternalAxiosRequestConfig) => {
   const token = getToken()
   const lang = localStorage.getItem(_options.langKey)
+  const env = localStorage.getItem(LOCAL_BASE_API)
 
   if (lang) {
     config.headers[_options.langKey] = lang
+  }
+
+  if (!config.url.startsWith(env)) {
+    const _url = config.url.startsWith('/') ? config.url : `/${config.url}`
+    config.url = env + _url
   }
 
   // 没有token，并且该接口需要token校验
@@ -258,7 +264,7 @@ export class Request {
    * @param {object} options 请求配置
    * @returns {Promise<AxiosResponse<any>>} 不分页查询结果
    */
-  noPage(data?: any={}, options: RequestOptions = {
+  noPage(data: any={}, options: RequestOptions = {
     url: undefined,
     method: undefined,
   }) {
