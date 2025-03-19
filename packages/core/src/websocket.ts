@@ -14,8 +14,10 @@ interface WebSocketMessage {
 }
 
 type WS_Options = {
-    onError?: (message: WebSocketMessage) => void
+  onError?: (message: WebSocketMessage) => void
 }
+
+const isApp = (window as any).__MICRO_APP_ENVIRONMENT__
 
 export class WebSocketClient {
   private ws: WebSocketSubject<WebSocketMessage> | null = null;
@@ -23,15 +25,25 @@ export class WebSocketClient {
   private pendingSubscriptions = new Map<string, Subject<WebSocketMessage>>();
   private heartbeatSubscription: Subscription | null = null;
   private reconnectAttempts = 0;
-  private readonly maxReconnectAttempts = 100;
+  private readonly maxReconnectAttempts = 2;
   private isConnected = false;
   private tempQueue: WebSocketMessage[] = []; // 缓存消息队列
   private url: string = '';
   private options: WS_Options = {}
+  private wsClient: WebSocketClient | undefined
 
   constructor(options?: WS_Options) {
-    this.options = options || {};
+    this.setOptions(options)
     this.setupConnectionMonitor();
+    if (isApp) {
+      (window as any).microApp.addGlobalDataListener((data) => {
+        this.wsClient = data.wsClient
+      })
+    }
+  }
+
+  public setOptions(options: WS_Options) {
+    this.options = options || {}
   }
 
   public initWebSocket(url: string) {
@@ -39,19 +51,21 @@ export class WebSocketClient {
   }
 
   private setupConnectionMonitor() {
-    window.addEventListener('online', () => {
-      console.log('Network is online, attempting to reconnect...');
-      this.reconnect();
-    });
+    if (!isApp) {
+      window.addEventListener('online', () => {
+        console.log('Network is online, attempting to reconnect...');
+        this.reconnect();
+      });
 
-    window.addEventListener('offline', () => {
-      console.log('Network is offline, caching subscriptions...');
-      this.cacheSubscriptions();
-    });
+      window.addEventListener('offline', () => {
+        console.log('Network is offline, caching subscriptions...');
+        this.cacheSubscriptions();
+      });
 
-    window.addEventListener('beforeunload', () => {
-      this.disconnect();
-    });
+      window.addEventListener('beforeunload', () => {
+        this.disconnect();
+      });
+    }
   }
 
   private getReconnectDelay(): number {
@@ -64,6 +78,12 @@ export class WebSocketClient {
   }
 
   private setupWebSocket() {
+
+    if (isApp && this.wsClient) {
+      this.wsClient.setupWebSocket()
+      return
+    }
+
     if (this.ws || !this.url) {
       return;
     }
@@ -84,9 +104,17 @@ export class WebSocketClient {
         next: () => {
           console.log('WebSocket disconnected');
           this.isConnected = false;
-          this.cacheSubscriptions();
-          this.stopHeartbeat();
-          this.reconnect();
+          const time = this.getReconnectDelay()
+          setTimeout(() => {
+            this.reconnectAttempts += 1;
+            if (this.reconnectAttempts > this.maxReconnectAttempts) {
+              return
+            }
+            this.cacheSubscriptions();
+            this.stopHeartbeat();
+            this.reconnect();
+          }, time)
+
         }
       }
     });
@@ -112,6 +140,10 @@ export class WebSocketClient {
   }
 
   private startHeartbeat() {
+    if (isApp && this.wsClient) {
+      this.wsClient.startHeartbeat()
+      return
+    }
     this.stopHeartbeat();
     this.heartbeatSubscription = timer(0, 2000).subscribe(() => {
       this.send({ type: 'ping' });
@@ -119,6 +151,11 @@ export class WebSocketClient {
   }
 
   private stopHeartbeat() {
+    if (isApp && this.wsClient) {
+      this.wsClient.stopHeartbeat()
+      return
+    }
+
     if (this.heartbeatSubscription) {
       this.heartbeatSubscription.unsubscribe();
       this.heartbeatSubscription = null;
@@ -126,16 +163,22 @@ export class WebSocketClient {
   }
 
   private handleMessage(message: WebSocketMessage) {
+
+    if (isApp && this.wsClient) {
+      this.wsClient.handleMessage(message)
+      return
+    }
+
     if (message.type === 'pong') {
       return;
     }
 
     if (message.type === 'error') {
-        if (this.options.onError) {
-            this.options.onError(message)
-        } else {
-            notification.error({ key: 'error', message: message.message });
-        }
+      if (this.options.onError) {
+        this.options.onError(message)
+      } else {
+        notification.error({ key: 'error', message: message.message });
+      }
       return;
     }
 
@@ -151,6 +194,11 @@ export class WebSocketClient {
   }
 
   private processTempQueue() {
+    if (isApp && this.wsClient) {
+      this.wsClient.processTempQueue()
+      return
+    }
+
     while (this.tempQueue.length > 0) {
       const message = this.tempQueue.shift();
       if (message) {
@@ -160,11 +208,19 @@ export class WebSocketClient {
   }
 
   private cacheSubscriptions() {
+    if (isApp && this.wsClient) {
+      this.wsClient.cacheSubscriptions()
+      return
+    }
     this.pendingSubscriptions = new Map(this.subscriptions);
     this.subscriptions.clear();
   }
 
   private restoreSubscriptions() {
+    if (isApp && this.wsClient) {
+      this.wsClient.restoreSubscriptions()
+      return
+    }
     this.pendingSubscriptions.forEach((subject, id) => {
       this.subscriptions.set(id, subject);
     });
@@ -172,6 +228,10 @@ export class WebSocketClient {
   }
 
   private reconnect() {
+    if (isApp && this.wsClient) {
+      this.wsClient.reconnect()
+      return
+    }
     if (!this.isConnected && navigator.onLine) {
       this.ws = null;
       this.setupWebSocket();
@@ -179,10 +239,18 @@ export class WebSocketClient {
   }
 
   public connect() {
+    if (isApp && this.wsClient) {
+      this.wsClient.connect()
+      return
+    }
     this.setupWebSocket();
   }
 
   public disconnect() {
+    if (isApp && this.wsClient) {
+      this.wsClient.disconnect()
+      return
+    }
     if (this.ws) {
       this.ws.complete();
       this.ws = null;
@@ -194,6 +262,10 @@ export class WebSocketClient {
   }
 
   public send(message: WebSocketMessage) {
+    if (isApp && this.wsClient) {
+      this.wsClient.send(message)
+      return
+    }
     if (this.ws && this.isConnected) {
       this.ws.next(message);
     } else {
@@ -202,6 +274,15 @@ export class WebSocketClient {
   }
 
   public getWebSocket(id: string, topic: string, parameter: Record<string, any> = {}): Observable<WebSocketMessage> {
+    console.log('getWebSocket', this.wsClient, id)
+    if (isApp && this.wsClient) {
+      return this.wsClient.getWebSocket(
+        id,
+        topic,
+        parameter
+      )
+    }
+
     const subject = new Subject<WebSocketMessage>();
     this.subscriptions.set(id, subject);
 
@@ -235,9 +316,9 @@ export class WebSocketClient {
  *   .subscribe(
  *     message => console.log('Received:', message)
  *   );
- * 
+ *
  * // 清理
  * subscription.unsubscribe();
- * 
+ *
  */
 export const wsClient = new WebSocketClient();

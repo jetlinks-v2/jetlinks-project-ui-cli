@@ -27,6 +27,10 @@ export const bodyProps = () => ({
     type: Array,
     default: () => ([])
   },
+  columns: {
+    type: Array,
+    default: () => ([])
+  },
   cellHeight: {
     type: Number,
     default: 50
@@ -43,11 +47,15 @@ export const bodyProps = () => ({
     type: Boolean,
     default: true
   },
-  rowSelection: {
-    type: Object,
-    default: undefined
+  rowKey: {
+    type: String,
+    default: 'id'
   },
-  scroll: {
+  openGroup: {
+    type: Boolean,
+    default: false
+  },
+  rowSelection: {
     type: Object,
     default: undefined
   }

@@ -1,4 +1,4 @@
-import { TOKEN_KEY, BASE_API, LOCAL_BASE_API } from '@jetlinks-web/constants'
+import { TOKEN_KEY, BASE_API } from '@jetlinks-web/constants'
 import { getToken } from '@jetlinks-web/utils'
 import axios from 'axios'
 import type {
@@ -47,7 +47,6 @@ interface RequestOptions {
 }
 
 let instance: AxiosInstance
-
 let _options: Options = {
   filter_url: [],
   code: 200,
@@ -61,20 +60,21 @@ let _options: Options = {
   tokenExpiration: () => {},
 }
 
+const isApp = (window as any).__MICRO_APP_ENVIRONMENT__
 const controller = new AbortController();
 
 const handleRequest = (config: InternalAxiosRequestConfig) => {
   const token = getToken()
   const lang = localStorage.getItem(_options.langKey)
-  const env = localStorage.getItem(LOCAL_BASE_API)
+  const localBaseApi = localStorage.getItem('')
 
   if (lang) {
     config.headers[_options.langKey] = lang
   }
 
-  if (env && !config.url.startsWith(env)) {
+  if (localBaseApi && !config.baseURL) {
     const _url = config.url.startsWith('/') ? config.url : `/${config.url}`
-    config.url = env + _url
+    config.url = localBaseApi + _url
   }
 
   // 没有token，并且该接口需要token校验

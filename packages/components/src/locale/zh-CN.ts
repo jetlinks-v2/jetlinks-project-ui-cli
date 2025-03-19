@@ -62,12 +62,48 @@ export default {
     description: '请配置高德地图key'
   },
   EditTable: {
+    serial: '序号',
+    columns: {
+      sign: '标识',
+      name: '名称',
+      count: '计数'
+    },
     contextMenu: {
       add: '新增行',
       copy: '复制行',
       paste: '粘贴行',
       detail: '查看详情',
       delete: '删除'
+    },
+    Search: {
+      find: '查找',
+      placeholder: '请输入查找内容',
+      all: '查找全部',
+      prev: '上一个',
+      next: '下一个',
+      close: '关闭',
+      rows: '行数',
+      row: '行',
+      rd: '第',
+      found: '查找到',
+      related: '条相关属性'
+    },
+    Sort: {
+      sort: '排序',
+      clean: '清空条件',
+      up: '升序',
+      down: '降序',
+    },
+    Group: {
+      one: '分组_',
+      edit: '编辑',
+      delete: '删除',
+      validate: '校验不合规',
+      editGroup: '编辑分组',
+      addGroup: '新增分组',
+      placeholder: '请输入分组名称',
+      max: '最多可输入16个字符',
+      deleteMessage: '将会同步删除分组内的数据，确认删除？'
     }
   },
   ValueItem: {

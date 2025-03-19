@@ -61,7 +61,11 @@ const slots = useSlots()
 const myPagination = computed(() => {
   const globalPagination = tableConfig.pagination || {}
   let showQuickJumper = globalPagination.showQuickJumper ?? props.pagination.showQuickJumper ?? false
+
   return {
+    showSizeChanger: true,
+    size: 'size',
+    pageSizeOptions: ['12', '24', '48', '96'],
     ...globalPagination,
     ...props.pagination,
     showQuickJumper

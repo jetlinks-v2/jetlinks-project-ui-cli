@@ -1,32 +1,27 @@
 {
-  "name": "@jetlinks-web/core",
-  "version": "2.2.1",
+  "name": "@jetlinks-web/stores",
+  "version": "1.1.0",
   "main": "index.ts",
   "module": "index.ts",
   "scripts": {
-    "clean": "pnpm rimraf .turbo"
+    "clean": "pnpm rimraf node_modules && pnpm rimraf dist && pnpm rimraf .turbo"
   },
   "keywords": [
     "jetlinks",
     "jetlinks-web",
-    "core",
-    "jetlinks-web/core",
+    "stores",
+    "jetlinks-web/stores",
     "@jetlinks-web",
-    "@jetlinks-web/core"
+    "@jetlinks-web/stores"
   ],
   "files": [
-    "src",
     "index.ts"
   ],
   "private": false,
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@jetlinks-web/constants": "workspace:^",
-    "@jetlinks-web/types": "workspace:^",
-    "@jetlinks-web/utils": "workspace:^",
-    "axios": "^1.7.4",
-    "rxjs": "^7.8.1"
+    "pinia": "^2.1.3"
   },
   "publishConfig": {
     "registry": "https://registry.npmjs.org/",

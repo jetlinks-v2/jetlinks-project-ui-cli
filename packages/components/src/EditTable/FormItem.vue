@@ -7,9 +7,9 @@
     <template #title>
       <span style="color: #1d2129">{{errorMap.message}}</span>
     </template>
-    <div v-if="errorMap.visible" class="table-form-error-target" ></div>
+    <div v-if="errorMap.visible" class="jetlinks-table-form-error-target" ></div>
   </a-tooltip>
-  <div :id="eventKey" style="position: relative" :class="{'edit-table-form-has-error': errorMap.message }">
+  <div :id="eventKey" style="position: relative" :class="{'jetlinks-edit-table-form-has-error': errorMap.message }">
     <slot />
   </div>
 </template>
@@ -163,41 +163,3 @@ watch(() => [filedName.value, props.name], () => {
 }, { immediate: true })
 
 </script>
-
-<style scoped lang="less">
-.table-form-error-target {
-  position: absolute;
-  right: 2px;
-  top: -9px;
-  border: 16px solid transparent;
-  border-top-color: @error-color;
-  border-right-width: 0;
-  border-bottom-width: 0;
-}
-</style>
-
-<style lang="less">
-.edit-table-form-has-error {
-
-  .select-no-value {
-    .ant-select-selector {
-      border-color: @error-color !important;
-      &:focus {
-        box-shadow: 0 0 0 2px var(--ant-error-color-outline) !important;
-      }
-    }
-  }
-
-  > input {
-    border-color: @error-color !important;
-
-    &:focus {
-      box-shadow: 0 0 0 2px var(--ant-error-color-outline) !important;
-    }
-  }
-
-  .table-form-required-aicon {
-    color: @error-color;
-  }
-}
-</style>

@@ -11,6 +11,7 @@ import {
 
 export * from './useResizeObserver'
 export * from './useValidate'
+export * from './useGroup'
 
 type FiledExpose = {
 

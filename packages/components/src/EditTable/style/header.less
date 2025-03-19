@@ -1,25 +1,6 @@
 .jetlinks-edit-table-header-container {
   height: 100%;
   position: relative;
-  display: flex;
-  width: 100%;
-
-  .jetlinks-header-left,& .jetlinks-header-center,& .jetlinks-header-right {
-    position: relative;
-    z-index: 5;
-    min-width: 0;
-    height: 100%;
-    width: 100%;
-    background: #fafafa;
-  }
-
-  .jetlinks-header-center {
-    z-index: 2;
-    > div {
-      position: relative;
-      height: 100%;
-    }
-  }
 
   .jetlinks-edit-table-header-cell {
     height: 100%;
@@ -27,12 +8,12 @@
     align-items: center;
     float: left;
     overflow: visible;
-    background: #fafafa;
+    position: absolute;
+    top: 0;
 
     .jetlinks-edit-table-header-cell-box {
       padding: 0 12px;
       width: 100%;
-      position: relative;
 
       &.header-cell-box-tool {
         display: flex;
@@ -72,6 +53,20 @@
           background-color: transparent;
         }
       }
+    }
+  }
+}
+
+.jetlinks-table-search {
+  .jetlinks-table-search-header {
+    display: flex;
+    justify-content: space-between;
+    .jetlinks-drag-modal-footer {
+      display: none;
+    }
+
+    .jetlinks-table-search-result-total {
+      color: @primary-color;
     }
   }
 }

@@ -158,6 +158,9 @@ const props = defineProps({
   extraProps: {
     type: Object,
     default: () => ({})
+  },
+  handleFileChange: {
+    type: Function,
   }
 })
 
@@ -183,9 +186,13 @@ const onChange = (e) => {
   emit('change', e && e.target ? e.target.value : e)
 }
 
-const handleFileChange = (info: any) => {
+const handleFileChange = async (info: any) => {
   if (info.file.status === 'done') {
-    const url = info.file.response?.result
+    let url = info.file.response?.result?.accessUrl
+
+    if (props.handleFileChange) {
+      url = await props.handleFileChange(info, info.file.response)
+    }
     myValue.value = url
     emit('update:modelValue', url)
     emit('change', url)

@@ -1,4 +1,5 @@
-import {onBeforeUnmount, Ref, onMounted} from "vue";
+import {onBeforeUnmount, onMounted} from "vue";
+import type { Ref } from 'vue'
 import ResizeObserver from "resize-observer-polyfill";
 import {debounce} from "lodash-es";
 
