@@ -1,6 +1,6 @@
 {
-  "name": "@jetlinks-web/hooks",
-  "version": "1.0.24",
+  "name": "@jetlinks-web/stores",
+  "version": "1.1.0",
   "main": "index.ts",
   "module": "index.ts",
   "scripts": {
@@ -9,29 +9,19 @@
   "keywords": [
     "jetlinks",
     "jetlinks-web",
-    "hooks",
-    "jetlinks-web/hooks",
+    "stores",
+    "jetlinks-web/stores",
     "@jetlinks-web",
-    "@jetlinks-web/hooks"
+    "@jetlinks-web/stores"
   ],
   "files": [
-    "src",
     "index.ts"
   ],
   "private": false,
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@jetlinks-web/constants": "workspace:^",
-    "@jetlinks-web/types": "workspace:^",
-    "@jetlinks-web/utils": "workspace:^",
-    "echarts": "^5.4.3",
-    "lodash-es": "^4.17.21"
-  },
-  "devDependencies": {
-    "@types/lodash-es": "^4.17.7",
-    "vue": "^3.3.4",
-    "vue-router": "^4.2.2"
+    "pinia": "^2.1.3"
   },
   "publishConfig": {
     "registry": "https://registry.npmjs.org/",

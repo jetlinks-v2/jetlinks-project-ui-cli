@@ -19,6 +19,10 @@ export type FullPageConfigType = {
   reduceHeight: Number
 }
 
+export type TableConfigType = {
+  isShowContent: Boolean
+}
+
 export const configProps = () => ({
   ...configProviderProps(),
   IconConfig: {
@@ -28,6 +32,9 @@ export const configProps = () => ({
     type: Object as PropType<MapConfigType>
   },
   SearchConfig: {
+    type: Object as PropType<SearchConfigType>
+  },
+  TableConfig: {
     type: Object as PropType<SearchConfigType>
   },
   PermissionButtonConfig: {

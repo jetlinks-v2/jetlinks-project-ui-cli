@@ -1,0 +1,25 @@
+.jetlinks-edit-table-context-menu{
+  position: fixed;
+  box-shadow: 0 0 12px rgba(0, 0, 0 ,.2);
+  border-radius: 4px;
+  overflow: hidden;
+  width: 192px;
+  padding: 4px;
+  background-color: #fff;
+  .ant-menu {
+    border-right: none;
+
+    .ant-menu-item {
+      margin: 0;
+      height: 32px;
+
+      &.danger {
+        color: @error-color;
+      }
+    }
+  }
+
+  .ant-menu-item-active {
+    background-color: var(--ant-primary-1);;
+  }
+}

@@ -38,8 +38,15 @@ interface Options {
 
 }
 
-let instance: AxiosInstance
+interface RequestOptions {
+  url?: string
+  method?: string
+  params?: any
+  data?: any
+  [key: string]: any
+}
 
+let instance: AxiosInstance
 let _options: Options = {
   filter_url: [],
   code: 200,
@@ -53,11 +60,22 @@ let _options: Options = {
   tokenExpiration: () => {},
 }
 
+const isApp = (window as any).__MICRO_APP_ENVIRONMENT__
 const controller = new AbortController();
 
 const handleRequest = (config: InternalAxiosRequestConfig) => {
   const token = getToken()
   const lang = localStorage.getItem(_options.langKey)
+  const localBaseApi = localStorage.getItem('')
+
+  if (lang) {
+    config.headers[_options.langKey] = lang
+  }
+
+  if (localBaseApi && !config.baseURL) {
+    const _url = config.url.startsWith('/') ? config.url : `/${config.url}`
+    config.url = localBaseApi + _url
+  }
 
   // 没有token，并且该接口需要token校验
   if (!token && !_options.filter_url?.some((url) => config.url?.includes(url))) {
@@ -68,10 +86,6 @@ const handleRequest = (config: InternalAxiosRequestConfig) => {
 
   if (!config.headers[TOKEN_KEY]) {
     config.headers[TOKEN_KEY] = token
-  }
-
-  if (lang) {
-    config.headers[_options.langKey] = lang
   }
 
   if (_options.requestOptions && isFunction(_options.requestOptions)) {
@@ -221,6 +235,124 @@ export const postStream = (url: string, data: any, ext?: any) => {
 
 export const request = {
   post, get, put, patch, remove, getStream, postStream
+}
+
+export class Request {
+  modulePath: string
+
+  constructor(modulePath: string) {
+    this.modulePath = modulePath
+  }
+
+  /**
+   * 分页查询
+   * @param {object} data 查询参数
+   * @param {object} options 请求配置
+   * @returns {Promise<AxiosResponse<any>>} 分页查询结果
+   */
+  page(data: any={}, options: RequestOptions= {
+    url: undefined,
+    method: undefined,
+  }) {
+    const { url='/_query', method = 'post', ...rest } = options
+    return request[method](`${this.modulePath}${url}`, data, rest)
+  }
+
+  /**
+   * 不分页查询
+   * @param {object} data 查询参数
+   * @param {object} options 请求配置
+   * @returns {Promise<AxiosResponse<any>>} 不分页查询结果
+   */
+  noPage(data: any={}, options: RequestOptions = {
+    url: undefined,
+    method: undefined,
+  }) {
+    const { url='/_query/no-page', method = 'post', ...rest } = options
+    return request[method](`${this.modulePath}${url}`, { paging: false, ...data}, rest)
+  }
+
+  /**
+   * 详情查询
+   * @param {string} id 详情ID
+   * @param {object} params 查询参数
+   * @param {object} options 请求配置
+   * @returns {Promise<AxiosResponse<any>>} 详情查询结果
+   */
+  detail(id: string, params?: any, options: RequestOptions= {
+    url: undefined,
+    method: undefined,
+  }) {
+    const { url=`/${id}/detail`, method = 'get', ...rest } = options
+    return request[method](`${this.modulePath}${url}`, params, rest)
+  }
+
+  /**
+   * 保存
+   * @param {object} data 保存参数
+   * @param {object} options 请求配置
+   * @returns {Promise<AxiosResponse<any>>} 保存结果
+   */
+  save(data: any={}, options: RequestOptions = {
+    url: undefined,
+    method: undefined,
+  }) {
+    const { url=``, method = 'post', ...rest } = options
+    return request[method](`${this.modulePath}${url}`, data, rest)
+  }
+
+  /**
+   * 更新
+   * @param {object} data 更新参数
+   * @param {object} options 请求配置
+   * @returns {Promise<AxiosResponse<any>>} 更新结果
+   */
+  update(data: any={}, options: RequestOptions = {
+    url: undefined,
+    method: undefined,
+  }) {
+    const { url=``, method = 'patch', ...rest } = options
+    return patch(`${this.modulePath}${url}`, data, rest)
+  }
+
+  /**
+   * 删除
+   * @param {string} id 删除ID
+   * @param {object} options 请求配置
+   * @returns {Promise<AxiosResponse<any>>} 删除结果
+   */
+  delete(id: string, params?: any, options: RequestOptions = {
+    url: undefined,
+    method: undefined,
+  }) {
+    const { url=`/${id}`, method = 'post', ...rest } = options
+    return remove(`${this.modulePath}${url}`, params, rest)
+  }
+
+  post(...args) {
+    const [url, data, options] = args
+    return post(`${this.modulePath}${url}`, data, options)
+  }
+
+  get(...args) {
+    const [url, params, options] = args
+    return get(`${this.modulePath}${url}`, params, options)
+  }
+
+  put(...args) {
+    const [url, data, options] = args
+    return put(`${this.modulePath}${url}`, data, options)
+  }
+
+  patch(...args) {
+    const [url, data, options] = args
+    return patch(`${this.modulePath}${url}`, data, options)
+  }
+
+  remove(...args) {
+    const [url, params, options] = args
+    return remove(`${this.modulePath}${url}`, params, options)
+  }
 }
 
 

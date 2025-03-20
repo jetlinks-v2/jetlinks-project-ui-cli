@@ -27,6 +27,9 @@ const definedProps = {
     noPermissionTitle: {
         type: String
     },
+    popConfirmBefore: {
+        type: Function
+    },
     ...omit(buttonProps(), 'icon')
 }
 
@@ -66,21 +69,24 @@ const PermissionButton = defineComponent({
             const {popConfirm, tooltip, hasPermission, noPermissionTitle, ...buttonProps} = props
 
             if (popConfirm) {
-              buttonProps.onClick = () => {
+              buttonProps.onClick = async () => {
+
+                const _popConfirm = await (props.popConfirmBefore?.() || popConfirm)
+
                 if (context.components) {
                   confirm({
-                    ...popConfirm as any,
+                    ..._popConfirm as any,
                     danger: buttonProps.danger
                   }, context.components)
                 } else {
                   Modal.confirm({
-                    title: popConfirm.title,
-                    content: popConfirm.content,
+                    title: _popConfirm.title,
+                    content: _popConfirm.content,
                     onOk() {
-                      return popConfirm.onConfirm?.()
+                      return _popConfirm.onConfirm?.()
                     },
                     onCancel() {
-                      popConfirm.onCancel?.()
+                      _popConfirm.onCancel?.()
                     }
                   })
                 }

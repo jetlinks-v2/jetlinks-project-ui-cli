@@ -1,14 +1,18 @@
 {
   "name": "@jetlinks-web/core",
-  "version": "2.0.6",
-  "description": "",
+  "version": "2.2.1",
   "main": "index.ts",
   "module": "index.ts",
   "scripts": {
     "clean": "pnpm rimraf .turbo"
   },
   "keywords": [
-    "@jetlinks-web"
+    "jetlinks",
+    "jetlinks-web",
+    "core",
+    "jetlinks-web/core",
+    "@jetlinks-web",
+    "@jetlinks-web/core"
   ],
   "files": [
     "src",
@@ -21,7 +25,8 @@
     "@jetlinks-web/constants": "workspace:^",
     "@jetlinks-web/types": "workspace:^",
     "@jetlinks-web/utils": "workspace:^",
-    "axios": "^1.7.4"
+    "axios": "^1.7.4",
+    "rxjs": "^7.8.1"
   },
   "publishConfig": {
     "registry": "https://registry.npmjs.org/",

@@ -1,6 +1,6 @@
 {
   "name": "@jetlinks-web/utils",
-  "version": "1.2.5",
+  "version": "1.2.8",
   "description": "",
   "main": "index.ts",
   "module": "index.ts",
@@ -8,7 +8,12 @@
     "clean": "pnpm rimraf .turbo"
   },
   "keywords": [
-    "@jetlinks-web"
+    "jetlinks",
+    "jetlinks-web",
+    "utils",
+    "jetlinks-web/utils",
+    "@jetlinks-web",
+    "@jetlinks-web/utils"
   ],
   "files": [
     "src",

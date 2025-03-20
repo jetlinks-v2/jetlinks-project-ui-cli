@@ -55,7 +55,7 @@ const contextMenu = (e: Event, data: any, context: any) => {
   // 获取body的可视区域的宽度
   const { clientWidth } = appendTo
   // 取出右键点击时的坐标，clientX是距离左侧的位置，clientY是距离顶部的位置
-  const { clientX, clientY } = e
+  const { clientX, clientY } = e as any
 
   // 当前可视区域的宽度 - 当前鼠标距离浏览器左边的距离
   // 如果 大于菜单的宽度，说明正常设置菜单距离左边界的距离,即设置style.left

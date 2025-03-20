@@ -1,12 +1,12 @@
 import {defineComponent, provide, reactive, h} from 'vue'
 import {configProps, PermissionButtonConfigType} from './context'
-import type { MapConfigType, SearchConfigType,FullPageConfigType } from './context'
+import type { MapConfigType, SearchConfigType,FullPageConfigType,TableConfigType } from './context'
 import {
   ComponentsEnum,
   MAPConfig,
   PermissionButtonConfig,
   SearchConfig,
-  FullPageConfig
+  FullPageConfig, TableConfig
 } from '../utils/constants'
 import { ConfigProvider } from 'ant-design-vue'
 import LocaleProvider from '../LocaleProvider/index.vue'
@@ -27,6 +27,7 @@ const JConfigProvider = defineComponent({
     const _searchConfig = reactive<SearchConfigType>(props.SearchConfig || {})
     const _PermissionButtonConfig = reactive<PermissionButtonConfigType>(props.PermissionButtonConfig || {})
     const _FullPageConfig = reactive<FullPageConfigType>(props.FullPageConfig || {})
+    const _TableConfig = reactive<TableConfigType>(props.TableConfig || {})
 
     provide(ComponentsEnum.Icon, _iconConfig) // 全局Icon 配置
 
@@ -37,6 +38,8 @@ const JConfigProvider = defineComponent({
     provide(PermissionButtonConfig, _PermissionButtonConfig) // 权限组件
 
     provide(FullPageConfig, _FullPageConfig) // 权限组件
+
+    provide(TableConfig, _TableConfig) // ProTable配置
 
     return () => {
 

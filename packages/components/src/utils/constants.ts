@@ -10,3 +10,5 @@ export const SearchConfig = Symbol('search-config')
 export const PermissionButtonConfig = Symbol('permission-button')
 
 export const FullPageConfig = Symbol('full-page')
+
+export const TableConfig = Symbol('table-config')

@@ -1,6 +1,6 @@
 <template>
   <div
-    class="metadata-context-menu"
+    class="jetlinks-edit-table-context-menu"
     ref="contextMenu"
     tabindex="-1"
     @blur="close"
@@ -10,40 +10,41 @@
         <template #icon>
           <AIcon type="PlusSquareOutlined" />
         </template>
-        新增行
+        {{ contextLocale.contextMenu.add }}
       </MenuItem>
       <MenuItem key="copy">
         <template #icon>
           <AIcon type="icon-copy" />
         </template>
-        复制行
+        {{contextLocale.contextMenu.copy}}
       </MenuItem>
       <MenuItem key="paste" :disabled="showPaste">
         <template #icon>
           <AIcon type="icon-paste" />
         </template>
-        粘贴行
+        {{ contextLocale.contextMenu.paste }}
       </MenuItem>
       <MenuItem key="detail" :disabled="showDetail">
         <template #icon>
           <AIcon type="icon-chakan" />
         </template>
-        查看详情
+        {{ contextLocale.contextMenu.detail }}
       </MenuItem>
       <MenuItem key="delete" class="danger" :disabled="showDelete">
         <template #icon>
           <AIcon type="DeleteOutlined" />
         </template>
-        删除
+        {{ contextLocale.contextMenu.delete }}
       </MenuItem>
     </Menu>
   </div>
 </template>
 
 <script setup>
-import { onMounted, ref, nextTick, defineOptions } from "vue";
+import { onMounted, ref, nextTick, defineOptions, defineProps } from "vue";
 import { AIcon } from '../../../components'
 import { Menu } from 'ant-design-vue'
+import {useLocaleReceiver} from "../../../LocaleReciver";
 
 defineOptions({
   name: 'JEditTableContextMenu'
@@ -60,7 +61,7 @@ const props = defineProps({
 });
 
 const contextMenu = ref(null);
-
+const [contextLocale] = useLocaleReceiver('EditTable');
 const showDetail = computed(() => {
   return !props.data.id
 })
@@ -94,31 +95,3 @@ onMounted(async () => {
 });
 
 </script>
-
-<style scoped lang="less">
-.metadata-context-menu{
-  position: fixed;
-  box-shadow: 0 0 12px rgba(0, 0, 0 ,.2);
-  border-radius: 4px;
-  overflow: hidden;
-  width: 192px;
-  padding: 4px;
-  background-color: #fff;
-  :deep(.ant-menu) {
-    border-right: none;
-
-    .ant-menu-item {
-      margin: 0;
-      height: 32px;
-
-      &.danger {
-        color: @error-color;
-      }
-    }
-  }
-
-  :deep(.ant-menu-item-active) {
-    background-color: var(--ant-primary-1);;
-  }
-}
-</style>

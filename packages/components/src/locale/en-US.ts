@@ -62,12 +62,48 @@ export default {
     description: 'Please configure the Amap key for Gaode'
   },
   EditTable: {
+    serial: 'Serial',
+    columns: {
+      sign: 'Sign',
+      name: 'Name',
+      count: 'count'
+    },
     contextMenu: {
-      add: 'Add new row',
-      copy: 'Copy row',
-      paste: 'Paste row',
+      add: 'Add',
+      copy: 'Copy',
+      paste: 'Paste',
       detail: 'View details',
       delete: 'Delete'
+    },
+    Search: {
+      find: 'Find',
+      placeholder: 'Please enter the search content',
+      all: 'Find all',
+      prev: 'Previous',
+      next: 'Next',
+      close: 'Close',
+      rows: 'Rows',
+      row: 'Line',
+      rd: '',
+      found: 'Found',
+      related: 'Related'
+    },
+    Sort: {
+      sort: 'Sort',
+      clean: 'Clear conditions',
+      up: 'Ascending order',
+      down: 'Descending order',
+    },
+    Group: {
+      one: 'Grouping_',
+      edit: 'Edit',
+      delete: 'Delete',
+      validate: 'Verify non-compliance',
+      editGroup: 'Edit Group',
+      addGroup: 'Add Group',
+      placeholder: 'Please enter the group name',
+      max: 'Up to 16 characters can be entered',
+      deleteMessage: 'Will the data within the group be synchronously deleted? Are you sure about deletion?'
     }
   },
   ValueItem: {

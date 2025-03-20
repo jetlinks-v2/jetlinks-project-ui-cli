@@ -1,4 +1,4 @@
-import { watch, ref, inject} from 'vue'
+import {watch, ref, inject, provide} from 'vue'
 import type { Ref } from 'vue'
 import { isBoolean } from "lodash-es";
 import { ComponentsEnum } from '@jetlinks-web/constants'
@@ -20,4 +20,8 @@ export const usePermission = (code?: PermissionCodeType): {
   return {
     hasPerm
   }
+}
+
+export const usePermissionContext = (context: any) => {
+  provide(ComponentsEnum.Permission, context)
 }

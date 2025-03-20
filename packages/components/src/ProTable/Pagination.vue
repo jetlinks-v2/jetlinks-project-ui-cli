@@ -7,8 +7,8 @@
           :pageSize="pageSize"
           :current="pageIndex + 1"
           :show-total="(num) => _showTotal(num)"
-          @change="onChange"
           :class="className"
+          @change="onChange"
       />
     </slot>
   </div>
@@ -18,10 +18,10 @@
 import { Pagination } from 'ant-design-vue';
 import { _paginationProps } from "./setting";
 import {computed} from 'vue';
-import {useLocaleReceiver} from "../LocaleReciver/index";
+import {useLocaleReceiver} from "../LocaleReciver";
 
 defineOptions({
-  name: 'Pagination'
+  name: 'JPagination'
 })
 
 const props = defineProps({ ..._paginationProps })
@@ -31,7 +31,7 @@ const [contextLocale] = useLocaleReceiver('ProTable');
 
 const className = computed(() => {
   return {
-    'show-content': !props.isShowContent,
+    'hide-content': !props.isShowContent,
   };
 });
 const _showTotal = (num: number) => {
