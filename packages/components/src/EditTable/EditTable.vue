@@ -314,10 +314,10 @@ function onResize({width = 0}) {
   const _width = width - scrollWidth.value
 
   tableStyle.width = width || '100%'
-  const viewportDom = document.querySelector('.jetlinks-edit-table-body-viewport')
-  const viewportDivDom = viewportDom.querySelector('div')
-
-  scrollDefaultWidth.value = viewportDom.offsetWidth - viewportDivDom.offsetWidth
+  // const viewportDom = document.querySelector('.jetlinks-edit-table-body-viewport')
+  // const viewportDivDom = viewportDom.querySelector('div')
+  //
+  // scrollDefaultWidth.value = viewportDom.offsetWidth - viewportDivDom.offsetWidth
 
   let newColumns = [...props.columns]
 

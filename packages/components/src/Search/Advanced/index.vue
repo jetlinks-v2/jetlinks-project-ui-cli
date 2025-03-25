@@ -479,6 +479,7 @@ handleItems();
 
 defineExpose({
   setValues:handleDefaultValues,
+  reset
 })
 </script>
 
