@@ -56,7 +56,7 @@ const props = defineProps({
   plugins: Array as PropType<string[]>,
   zooms: {
     type: Array,
-    default: [3, 20]
+    default: () => [3, 20]
   },
   JSKey: String,
   WebKey: String,

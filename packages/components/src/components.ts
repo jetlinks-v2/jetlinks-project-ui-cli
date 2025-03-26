@@ -1,4 +1,4 @@
-import { default as Map } from './AMap'
+export { default as Map } from './AMap'
 export { default as BadgeStatus} from './BadgeStatus'
 export { default as CardSelect} from './CardSelect'
 export { default as CheckButton} from './CheckButton'
