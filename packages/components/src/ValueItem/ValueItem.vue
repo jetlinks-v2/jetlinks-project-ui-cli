@@ -26,9 +26,31 @@
       @change="onChange"
     />
     <InputNumber
-      v-else-if="typeMap.get(itemType) === 'inputNumber'"
+      v-else-if="itemType === 'int'"
       v-model:value="myValue"
-      allowClear
+      :precision="0"
+      :max="2147483647"
+      :min="-2147483648"
+      style="width: 100%"
+      v-bind="bindProps"
+      @change="onChange"
+    />
+    <InputNumber
+      v-else-if="itemType === 'long'"
+      v-model:value="myValue"
+      :max="999999999999999"
+      :min="-999999999999999"
+      :precision="0"
+      style="width: 100%"
+      v-bind="bindProps"
+      @change="onChange"
+    />
+    <InputNumber
+      v-else-if="['float', 'double'].includes(itemType)"
+      v-model:value="myValue"
+      :max="999999999999999"
+      :min="-999999999999999"
+      style="width: 100%"
       v-bind="bindProps"
       @change="onChange"
     />
@@ -88,7 +110,7 @@
       ok-text="确认"
       title="编辑"
       width="700px"
-      @cancel="modalVisible = false"
+      @cancel="monacoCancel"
       @ok="handleItemModalSubmit"
     >
       <div style="width: 100%; height: 300px">
@@ -186,6 +208,10 @@ const onChange = (e) => {
   emit('change', e && e.target ? e.target.value : e)
 }
 
+const monacoCancel = () => {
+  modalVisible.value = false
+  objectValue.value = props.modelValue as string
+}
 const handleFileChange = async (info: any) => {
   if (info.file.status === 'done') {
     let url = info.file.response?.result?.accessUrl
