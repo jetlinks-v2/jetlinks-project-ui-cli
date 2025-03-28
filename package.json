@@ -53,6 +53,7 @@
   },
   "packageManager": "pnpm@7.15.0",
   "dependencies": {
+    "@ant-design/icons-vue": "^7.0.1",
     "@changesets/cli": "^2.26.2",
     "ant-design-vue": "^3.2.20",
     "vite": "^6.2.3",

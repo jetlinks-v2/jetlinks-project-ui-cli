@@ -13,6 +13,7 @@ import LocaleProvider from '../LocaleProvider/index.vue'
 import {omit} from 'lodash-es'
 import Empty from '../Empty'
 import type { App } from 'vue';
+import zh from '../locale/zh-CN'
 
 const JConfigProvider = defineComponent({
   name: 'JConfigProvider',
@@ -48,7 +49,7 @@ const JConfigProvider = defineComponent({
         {...omit(props, ['IconConfig', 'MapConfig', 'SearchConfig'])},
         [h(
           LocaleProvider,
-          {locale: props.componentsLocale},
+          {locale: props.componentsLocale || zh},
           {
             default: slots.default,
             renderEmpty: () => (slots.renderEmpty?.() || <Empty />),
