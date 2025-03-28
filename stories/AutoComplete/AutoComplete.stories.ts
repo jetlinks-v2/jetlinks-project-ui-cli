@@ -12,7 +12,14 @@ const meta: Meta<typeof AutoCompleteComponent> = {
     searchKey: { control: 'text' },
     options: { control: 'array' },
     // 定义事件
-    onSelect: fn(),
+    onSelect: {
+      action: 'onSelect',
+      description: '被选中时调用' ,
+      table: {
+        type: { summary: '(e, option) => void' },
+        defaultValue: { summary: 'undefined' }, 
+      }
+    },
   },
 };
 
@@ -25,8 +32,8 @@ export const 基础使用: Story = {
     searchKey: 'label',
     options: [
       { label: 'Option 1', value: 'option1' },
-      { label: 'Option 2', value: 'option2' },
-      { label: 'Option 3', value: 'option3' },
+      { label: '张三', value: 'zhangsan' },
+      { label: '李四', value: 'lisi' },
     ],
   }
 };

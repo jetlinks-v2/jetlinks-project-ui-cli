@@ -321,6 +321,7 @@ function onResize({width = 0}) {
 
   let newColumns = [...props.columns]
 
+  console.log(contextLocale.value.serial)
   if (props.serial) {
     const serial = {
       dataIndex: '__serial',
