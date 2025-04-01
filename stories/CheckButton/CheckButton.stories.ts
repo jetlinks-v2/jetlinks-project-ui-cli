@@ -1,5 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/vue3';
 import CheckButton from '../../packages/components/src/CheckButton/CheckButton.vue';
+import CheckButtonDemo from "./CheckButton.vue?raw";
 
 // 定义元数据
 const meta: Meta<typeof CheckButton> = {
@@ -40,4 +41,11 @@ export const 基础使用: Story = {
           <CheckButton v-bind="args" />
         `,
     }),
+    parameters: {
+        docs: {
+            source: {
+                code: CheckButtonDemo
+            }
+        }
+    }
 };

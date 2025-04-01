@@ -1,5 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/vue3';
-import RadioButton from '../../packages/components/src/RadioButton/RadioButton.vue';
+import RadioButton from '../../packages/components/src/RadioButton/RadioButton.vue'
+import RadioButtonDemo from "./RadioButton.vue?raw";
 
 // 定义元数据
 const meta: Meta<typeof RadioButton> = {
@@ -37,4 +38,11 @@ export const 基础使用: Story = {
           <RadioButton v-bind="args"></RadioButton>
         `,
     }),
+    parameters: {
+      docs: {
+        source: {
+          code: RadioButtonDemo
+        }
+      }
+    }
 };

@@ -1,5 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/vue3';
 import Markdown from '../../packages/components/src/Markdown/Markdown';
+import {_source} from "./data";
+import MarkdownDemo from './Markdown.vue?raw'
 
 // 定义元数据
 const meta: Meta<typeof Markdown> = {
@@ -29,38 +31,7 @@ type Story = StoryObj<typeof meta>;
 
 export const 基础使用: Story = {
     args: {
-        source: `# 示例 Markdown 文档
-
-这是一个简单的 Markdown 示例，展示基本语法：
-
-## 标题样式
-### 三级标题
-#### 四级标题
-
-## 文本格式
-- **加粗文本**  
-- *斜体文本*  
-- ~~删除线文本~~  
-- \`行内代码\`
-
-## 列表
-### 无序列表
-- 项目一
-- 项目二
-  - 子项目
-  - 子项目
-
-### 有序列表
-1. 第一项
-2. 第二项
-3. 第三项
-
-## 代码块
-\`\`\`javascript
-// JavaScript 示例
-function greet(name) {
-  return \`Hello, ${name}!\`;
-}`
+        source: _source
     },
     render: ({...args }) => ({
         components: { Markdown },
@@ -71,4 +42,11 @@ function greet(name) {
           <Markdown v-bind="args"></Markdown>
         `,
     }),
+    parameters: {
+        docs: {
+            source: {
+                code: MarkdownDemo,
+            },
+        },
+    },
 };

@@ -1,5 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/vue3';
 import Title from '../../packages/components/src/Title/title.vue';
+import TitleDemo from "./Title.vue?raw";
 
 // 定义元数据
 const meta: Meta<typeof Title> = {
@@ -13,7 +14,6 @@ const meta: Meta<typeof Title> = {
 };
 export default meta;
 type Story = StoryObj<typeof meta>;
-
 
 export const 基础使用: Story = {
     args: {
@@ -32,4 +32,11 @@ export const 基础使用: Story = {
           </Title>
         `,
     }),
+    parameters: {
+        docs: {
+            source: {
+                code: TitleDemo
+            }
+        }
+    }
 };
