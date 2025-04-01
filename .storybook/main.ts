@@ -9,6 +9,7 @@ import { join, dirname } from "path"
 function getAbsolutePath(value: string): any {
   return dirname(require.resolve(join(value, 'package.json')))
 }
+
 const config: StorybookConfig = {
   "stories": [
     "../stories/**/*.mdx",
@@ -19,8 +20,9 @@ const config: StorybookConfig = {
     getAbsolutePath('@storybook/addon-onboarding'),
     getAbsolutePath('@chromatic-com/storybook'),
     getAbsolutePath("@storybook/experimental-addon-test"),
+    getAbsolutePath('@storybook/addon-docs')
   ],
-  "framework": {
+  "framework": { 
     "name": getAbsolutePath('@storybook/vue3-vite'),
     "options": {}
   }

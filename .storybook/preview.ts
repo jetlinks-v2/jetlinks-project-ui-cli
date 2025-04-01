@@ -1,7 +1,8 @@
 import type { Preview } from '@storybook/vue3';
 import Antd from 'ant-design-vue';
-import 'ant-design-vue/dist/antd.css';
+import 'ant-design-vue/dist/antd.variable.min.css'
 import { setup } from '@storybook/vue3';
+import { DocsPage, DocsContainer } from '@storybook/addon-docs/blocks'
 import JComponents from '../packages/components/src'
 import '../packages/components/lib/style/index.css'
 import Antdv from "ant-design-vue";
@@ -19,7 +20,12 @@ const preview: Preview = {
         date: /Date$/,
       },
     },
-  }
+    docs: {
+      container: DocsContainer,
+      page: DocsPage,
+    }
+  },
+
 };
 
 export default preview;
