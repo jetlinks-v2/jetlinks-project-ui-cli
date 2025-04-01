@@ -6,7 +6,7 @@ const typeMap = {
   4: 'boolean',
 }
 
-const types = Object.values(typeMap)
+export const types = Object.values(typeMap).map(item => ({ label:item, value: item}))
 
 export const columns = [
   {
@@ -31,6 +31,15 @@ export const columns = [
 ]
 
 export const dataSource = Array.from({ length: 10}).map((_, index) => {
+  const type = index % 5
+  return {
+    id: index + 1,
+    name: `名称 ${index + 1}`,
+    type: `${typeMap[type]}`
+  }
+})
+
+export const bigData = (len = 2000) => Array.from({ length: len}).map((_, index) => {
   const type = index % 5
   return {
     id: index + 1,
