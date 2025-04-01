@@ -1,6 +1,5 @@
 <template>
-<!--  <j-advanced-search :columns="columns" @search="handleParams" type="simple" target="test" />-->
-  <a-input-search placeholder="请输入" @search="handleParams" />
+  <j-search :columns="columns" @search="handleParams" type="terms" />
   <div style="height: 720px">
     <j-pro-table
         :columns="columns"
@@ -49,9 +48,9 @@ const columns = [
     title: '年龄',
     dataIndex: 'age',
     key: 'age',
-    search: {
-      type: 'number',
-    },
+    // search: {
+    //   type: 'number',
+    // },
   },
   {
     title: '地址',
@@ -69,9 +68,7 @@ const refresh = () => {
 
 const handleParams = (p) => {
   params.value = {
-    terms: [
-      { column: 'name', termType: 'like', value: `${p}` },
-    ]
+    terms: p
   }
 };
 </script>

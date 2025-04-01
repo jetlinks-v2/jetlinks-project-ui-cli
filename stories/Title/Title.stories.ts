@@ -27,7 +27,7 @@ export const 基础使用: Story = {
         template: `
           <Title v-bind="args">
             <template #extra>
-            <a-button type="link"><AIcon type="EditOutlined" /></a-button>
+                <a-button type="link"><AIcon type="EditOutlined" /></a-button>
             </template>
           </Title>
         `,
