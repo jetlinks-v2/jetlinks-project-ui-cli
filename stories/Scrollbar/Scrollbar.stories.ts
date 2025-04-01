@@ -1,7 +1,7 @@
 
 import type { Meta, StoryObj } from '@storybook/vue3';
 import Scrollbar from '../../packages/components/src/Scrollbar/Scrollbar.vue';
-
+import ScrollbarDemo from './Scrollbar.vue?raw'
 // 定义元数据
 const meta: Meta<typeof Scrollbar> = {
     title: '示例/Scrollbar',
@@ -32,4 +32,11 @@ export const 基础使用: Story = {
           </Scrollbar>
         `,
     }),
+    parameters: {
+        docs: {
+            source: {
+                code: ScrollbarDemo
+            }
+        }
+    }
 };

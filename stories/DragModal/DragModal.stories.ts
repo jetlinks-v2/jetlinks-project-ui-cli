@@ -1,5 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/vue3';
 import DragModal from '../../packages/components/src/DragModal/DragModal.vue';
+import DragModalDemo from "./DragModal.vue?raw";
 
 // 定义元数据
 const meta: Meta<typeof DragModal> = {
@@ -37,4 +38,11 @@ export const 基础使用: Story = {
          </div>
         `,
     }),
+    parameters: {
+        docs: {
+            source: {
+                code: DragModalDemo
+            }
+        }
+    }
 };

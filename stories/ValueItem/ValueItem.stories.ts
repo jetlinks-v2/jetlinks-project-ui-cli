@@ -1,6 +1,9 @@
 import type { Meta, StoryObj } from '@storybook/vue3';
 import ValueItem from '../../packages/components/src/ValueItem/ValueItem.vue';
+import JValueItem from './ValueItem.vue'
+import ValueItemDemo from './ValueItem.vue?raw'
 import Upload from './Upload.vue'
+import UploadDemo from "./Upload.vue?raw";
 
 // 定义元数据
 const meta: Meta<typeof ValueItem> = {
@@ -29,16 +32,27 @@ type Story = StoryObj<typeof meta>;
 
 // 基本使用示例
 export const 基础使用: Story = {
-    args: {
-        itemType: 'init',
-        modelValue: ''
-    },
+    args: {},
+    render: ({...args }) => ({
+        components: { JValueItem },
+        setup() {
+            return { args };
+        },
+        template: `
+          <JValueItem v-bind="args" />
+        `,
+    }),
+    parameters: {
+        docs: {
+            source: {
+                code: ValueItemDemo
+            }
+        }
+    }
 };
 
 export const 上传组件: Story = {
-    args: {
-        itemType: 'file',
-    },
+    args: {},
     render: ({...args }) => ({
         components: { Upload },
         setup() {
@@ -48,4 +62,11 @@ export const 上传组件: Story = {
           <Upload v-bind="args" />
         `,
     }),
+    parameters: {
+        docs: {
+            source: {
+                code: UploadDemo
+            }
+        }
+    }
 };

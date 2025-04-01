@@ -1,26 +1,10 @@
 <template>
-  <div style="width: 300px">
-    <j-ellipsis v-bind="props">
-      <slot></slot>
-    </j-ellipsis>
-  </div>
+  <j-ellipsis :lineClamp="1" :tooltip="{ color: 'red' }">
+    这是一段测试文字， 这是一段测试文字这是一段测试文字这是一段测试文字这是一段测试文字这是一段测试文字这是一段测试文字这是一段测试文字、这是一段测试文字这是一段测试文字这是一段测试文字这是一段测试文字这是一段测试文字这是一段测试文字这是一段测试文字
+  </j-ellipsis>
 </template>
 
 <script setup>
-const props = defineProps({
-  expandTrigger: {
-    type: String,
-    default: undefined,
-  },
-  lineClamp: {
-    type: [Number, String],
-    default: 1,
-  },
-  tooltip: {
-    type: [Boolean, Object],
-    default: true,
-  },
-})
 </script>
 
 <style lang="less" scoped>
