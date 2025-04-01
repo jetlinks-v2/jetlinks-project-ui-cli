@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div style="height: 700px">
     <j-pro-table
         :columns="columns"
         :request="request"

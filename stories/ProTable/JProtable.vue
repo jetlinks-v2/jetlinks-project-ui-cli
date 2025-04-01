@@ -82,6 +82,7 @@ const props = defineProps({
 <template>
   <div style="height: 600px">
     <j-pro-table
+        v-bind="props"
         :columns="columns"
         :dataSource="dataSource"
         :mode="mode"

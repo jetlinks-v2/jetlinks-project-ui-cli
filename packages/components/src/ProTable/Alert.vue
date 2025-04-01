@@ -3,7 +3,7 @@
     <slot>
       <Alert type="info" :message="_message">
         <template #closeText>
-          <Button type="link" @click="onClose">{{contextLocale.alert.cancelChoose}}</Button>
+          <Button type="link" @click="onClose">{{contextLocale.alert?.cancelChoose}}</Button>
         </template>
       </Alert>
     </slot>
@@ -25,7 +25,7 @@ const props = defineProps({ ..._alertProps })
 const emits = defineEmits(['close'])
 
 const _message = computed(() => {
-  let locale = contextLocale.value.alert.selectItem;
+  let locale = contextLocale.value?.alert?.selectItem || '';
   [props.rowSelection?.selectedRowKeys?.length || 0].forEach((item, index) => {
     locale = locale.replace(`{${index}}`, item)
   })
