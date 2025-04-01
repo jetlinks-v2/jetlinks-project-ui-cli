@@ -62,7 +62,7 @@ const optionsMap = ref(new Map());
 const _options = computed(() => {
   props.options.forEach((item: any) => {
     if (props.disabled) {
-      item.display = props.disabled;
+      item.disabled = props.disabled;
     }
     optionsMap.value.set(item.value, item);
   });

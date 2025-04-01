@@ -1,13 +1,13 @@
 <template>
-  <div class="radio-button" :style="styles">
-    <div v-for="item in options" @click="onClick(item)"  class="radio-button-item" :class="{'active': myValue === item.value }">
+  <div class="j-radio-button" :style="styles">
+    <div v-for="item in options" @click="onClick(item)"  class="j-radio-button-item" :class="{'active': myValue === item.value }">
       {{ item.label }}
     </div>
   </div>
 </template>
 
 <script setup>
-import { defineOptions, defineProps, defineEmits } from 'vue'
+import { defineOptions, defineProps, defineEmits, ref, computed, watch } from 'vue'
 defineOptions({
   name: 'JRadioButton',
 })
@@ -50,24 +50,3 @@ watch(() => props.value, () => {
 })
 
 </script>
-
-<style scoped lang="less">
-.radio-button {
-  display: grid;
-  gap: 16px;
-
-  .radio-button-item {
-    padding: 6px 12px;
-    text-align: center;
-    height: 100%;
-    border-radius: 2px;
-    background-color: #f5f5f5;
-    cursor: pointer;
-
-    &.active {
-      color: #fff;
-      background-color: @primary-color;
-    }
-  }
-}
-</style>
