@@ -1,6 +1,5 @@
 <script setup lang="ts">
-// import { defaultProps, bodyProps} from ‘@jetlinks-web/components/es/EditTable/props’
-import { defaultProps, bodyProps} from '../../packages/components/src/EditTable/props'
+import { defaultProps, bodyProps} from '@jetlinks-web/components/es/EditTable/props'
 import { types } from './data'
 import {ref} from 'vue'
 

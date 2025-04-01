@@ -13,8 +13,10 @@
         </div>
         <div class='jetlinks-drag-modal-footer' v-if='footer !== false'>
           <slot name='footer'>
-            <Button @click.stop='onCancel'>{{contextLocale.cancel}}</Button>
-            <Button type="primary" @click.stop='onOk'>{{contextLocale.confirm}}</Button>
+            <a-space>
+              <Button @click.stop='onCancel'>{{contextLocale.cancel}}</Button>
+              <Button type="primary" @click.stop='onOk'>{{contextLocale.confirm}}</Button>
+            </a-space>
           </slot>
         </div>
       </div>

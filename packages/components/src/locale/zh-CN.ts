@@ -111,5 +111,8 @@ export default {
     cancel: '取消',
     confirm: '确定',
     title: '编辑'
+  },
+  PermissionButton: {
+    hasPermission: '暂无权限，请联系管理员'
   }
 }

@@ -111,5 +111,8 @@ export default {
     cancel: 'Cancel',
     confirm: 'Confirm',
     title: 'Edit'
+  },
+  PermissionButton: {
+    hasPermission: 'No permission, please contact the administrator'
   }
 }
