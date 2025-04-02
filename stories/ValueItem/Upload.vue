@@ -1,6 +1,6 @@
 <template>
   <div style="display: flex; flex-direction: column; gap: 24px">
-    <div>action: <a-input placeholder="请输入action" v-model:value="data.action" /></div>
+    <div>上传地址: <a-input placeholder="例如：http://192.168.33.6:31801/api/file/upload" v-model:value="data.action" /></div>
     <div>token key: <a-input placeholder="请输入token key" v-model:value="data.key" /></div>
     <div>token value: <a-input placeholder="请输入token value" v-model:value="data.token" /></div>
     <j-value-item
