@@ -41,7 +41,7 @@
 
 <script setup>
 import {useTableTool, useTableWrapper} from "../../context";
-import { defineProps, defineOptions, defineEmits, ref} from 'vue'
+import { defineProps, defineOptions, defineEmits, ref, reactive} from 'vue'
 import {useLocaleReceiver} from "../../../LocaleReciver";
 
 defineOptions({

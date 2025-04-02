@@ -39,7 +39,7 @@
                         html-type="submit"
                         type="primary"
                     >
-                      {{ submitText || contextLocale.search.search + '123123' }}
+                      {{ submitText || contextLocale.search.search }}
                     </Button>
                   </FormItemRest>
                 </div>

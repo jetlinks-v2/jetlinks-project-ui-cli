@@ -1,4 +1,4 @@
-import {h, defineComponent, computed, inject} from "vue";
+import {h, defineComponent, computed, inject, getCurrentInstance, toRefs} from "vue";
 import type { PropType, CSSProperties, ExtractPropTypes, App } from 'vue'
 import { Button, Tooltip, Modal } from 'ant-design-vue'
 import { PopconfirmProps, TooltipProps } from "ant-design-vue/es";
@@ -7,6 +7,7 @@ import { buttonProps } from "ant-design-vue/es/button/button";
 import { usePermission } from '@jetlinks-web/hooks'
 import confirm from './confirm'
 import {PermissionButtonConfig} from "../utils/constants";
+import {useLocaleReceiver} from "../LocaleReciver";
 
 type PermissionType = string | Array<string> | boolean
 
@@ -43,13 +44,15 @@ const PermissionButton = defineComponent({
     slots: ['button', 'icon'],
     props: definedProps,
     setup(props, {slots}) {
-
-        const {hasPerm} = usePermission(props.hasPermission as PermissionType)
+        const instance = getCurrentInstance()
+        const propsRef = toRefs(props)
+        const {hasPerm} = usePermission(propsRef.hasPermission)
+      const [contextLocale] = useLocaleReceiver('PermissionButton');
 
         const context = inject(PermissionButtonConfig, { components: undefined })
-
         const permission = computed(() => {
-            if (!props.hasPermission || props.hasPermission === true) {
+          const hasOwnPrototype = Object.prototype.hasOwnProperty.call(instance.props, 'hasPermission')
+            if (props.hasPermission === true || !hasOwnPrototype) {
                 return true
             }
             return hasPerm.value
@@ -57,7 +60,7 @@ const PermissionButton = defineComponent({
 
         const isPermission = computed(() => {
             if ('hasPermission' in props && permission.value) {
-                return 'disabled' in props ? props.disabled : false
+                return 'disabled' in props ? !!props.disabled : false
             }
             return true
         })
@@ -109,25 +112,9 @@ const PermissionButton = defineComponent({
             const _tooltip = tooltip ? h(Tooltip, Object.assign(tooltip, {disabled: isPermission.value}), {default: () => button}) : undefined
 
             // 无权限
-            const noPermissionButton = !permission.value ? h(Tooltip, {title: noPermissionTitle || '暂无权限，请联系管理员'}, {default: () => button}) : undefined
-
-            // 二次确认
-            // const _popConfirm = popConfirm ?
-            //     h(Popconfirm,
-            //         Object.assign(
-            //             {overlayStyle: {width: '220px'}},
-            //             popConfirm,
-            //             {
-            //                 disabled: !permission.value || buttonProps.disabled
-            //             }
-            //         ),
-            //         {default: () => tooltip ? _tooltip : button})
-            //     : undefined
+            const noPermissionButton = !permission.value ? h(Tooltip, {title: noPermissionTitle || contextLocale.value.hasPermission}, {default: () => button}) : undefined
 
             if (permission.value) {
-                // if (hasPopConfirm.value) {
-                //     return _popConfirm
-                // }
 
                 if (hasTooltip.value) {
                     return _tooltip

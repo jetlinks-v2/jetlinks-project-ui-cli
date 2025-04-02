@@ -6,8 +6,10 @@ import { DocsPage, DocsContainer } from '@storybook/addon-docs/blocks'
 import JComponents from '../packages/components/src'
 import '../packages/components/lib/style/index.css'
 import Antdv from "ant-design-vue";
+import App from '../stories/PermissionButton/app.vue'
 
 setup((app) => {
+  app.component('App', App)
   app.use(Antd).use(JComponents).use(Antdv) // 注册自定义通用组件
 })
 
@@ -25,7 +27,11 @@ const preview: Preview = {
       page: DocsPage,
     }
   },
-
+  decorators: [
+    () => ({
+      template: '<App><story /></App>',
+    })
+  ],
 };
 
 export default preview;

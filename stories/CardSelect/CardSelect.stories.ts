@@ -1,26 +1,26 @@
 import type { Meta, StoryObj } from '@storybook/vue3';
-import CardSelect from './CardSelect.vue';
+import component from './CardSelect.vue';
+import componentRaw from './CardSelect.vue?raw';
 
 // 定义元数据
-const meta: Meta<typeof CardSelect> = {
+const meta: Meta<typeof component> = {
   title: '示例/CardSelect',
-  component: CardSelect,
+  component: component,
   tags: ['autodocs'],
   argTypes: {
     // 定义 props 的控制类型
     layout: { control: 'text', description: '布局方式' }, // 可选：horizontal, vertical, grid
     options: { control: 'object', description: '选项数组' }, // 每个选项包含 label 和 value 属性
     value: { description: '选中的值' }, // 选中的值数组
-    disabled: { control: 'boolean' },
-    multiple: { control: 'boolean' },
-    column: { control: 'number' },
-    itemLayout: { control: 'text' },
+    disabled: { control: 'boolean', description: '按钮状态' },
+    multiple: { control: 'boolean', description: '支持多选' },
+    column: { control: 'number', description: '一行 `CardSelectItem` 的数量' },
     onSelect: {
       action: 'onSelect',
       description: '被选中时调用' ,
       table: {
         type: { summary: '(e, option) => void' },
-        defaultValue: { summary: 'undefined' }, 
+        defaultValue: { summary: '-' },
       }
     }
   },
@@ -55,6 +55,13 @@ export const 基础使用: Story = {
         describe: 'https://fuss10.elemecdn.com/e/5d/4a731a90594a4af544c0c25941171jpeg.jpeg',
     },
     ],
+  },
+  parameters: {
+    docs: {
+      source: {
+        code: componentRaw
+      }
+    }
   }
 };
 
@@ -66,7 +73,14 @@ export const 垂直布局: Story = {
       { label: 'Option 2', value: 'option2' },
       { label: 'Option 3', value: 'option3' },
     ],
-  } 
+  },
+  parameters: {
+    docs: {
+      source: {
+        code: componentRaw
+      }
+    }
+  }
 }
 
 export const 全部禁用: Story = {
@@ -77,6 +91,13 @@ export const 全部禁用: Story = {
       { label: 'Option 3', value: 'option3' },
     ],
     disabled: true,
+  },
+  parameters: {
+    docs: {
+      source: {
+        code: componentRaw
+      }
+    }
   }
 }
 
@@ -87,7 +108,13 @@ export const 单个禁用: Story = {
       { label: 'Option 2', value: 'option2' },
       { label: 'Option 3', value: 'option3' },
     ],
-    
+  },
+  parameters: {
+    docs: {
+      source: {
+        code: componentRaw
+      }
+    }
   }
 }
 
@@ -99,6 +126,13 @@ export const 多选: Story = {
       { label: 'Option 3', value: 'option3' },
     ],
     multiple: true, // 多选
+  },
+  parameters: {
+    docs: {
+      source: {
+        code: componentRaw
+      }
+    }
   }
 }
 
@@ -111,7 +145,7 @@ export const 自定义内容: Story = {
     ],
   },
   render: ({...args}) => ({
-    components: { CardSelect },
+    components: { CardSelect: component },
     setup(){
       return { args }
     },
@@ -122,5 +156,53 @@ export const 自定义内容: Story = {
         </template>
       </j-card-select>
     `
-  })
+  }),
+  parameters: {
+    docs: {
+      source: {
+        code: `
+<script setup>
+
+const props = defineProps({
+    layout: {
+    type: String,
+    default: 'horizontal'
+  },
+  options: {
+    type: Array,
+    default: () => [],
+  },
+  disabled: {
+    type: Boolean,
+    default: false,
+  },
+  multiple: {
+    type: Boolean,
+    default: false,
+  },
+  column: {
+    type: Number,
+    default: 3,
+  },
+  value: {
+    type: [String, Array],
+    default: undefined,
+  },
+  itemLayout: {
+    type: String,
+    default: 'horizontal'
+  }
+})
+</script>
+<template>
+  <j-card-select v-bind="props">
+     <template #itemRender={node}>
+        {{ node.label }} - {{ node.value }}
+     </template>
+  </j-card-select>
+</template>
+        `
+      }
+    }
+  }
 }

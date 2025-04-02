@@ -1,5 +1,5 @@
 <script setup>
-import { defaultProps, bodyProps} from '../../packages/components/src/EditTable/props'
+import { defaultProps, bodyProps} from '@jetlinks-web/components/es/EditTable/props'
 
 const props = defineProps({
   ...defaultProps(),
