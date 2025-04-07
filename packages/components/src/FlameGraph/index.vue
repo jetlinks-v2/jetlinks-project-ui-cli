@@ -12,6 +12,10 @@ import { flamegraph } from 'd3-flame-graph'
 import * as d3 from 'd3';
 import { onMounted, watch, ref, computed } from 'vue';
 
+defineOptions({
+  name: 'JSearch',
+})
+
 const props = defineProps({
   data: {
     type: Object,
