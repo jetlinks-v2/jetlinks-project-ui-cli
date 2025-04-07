@@ -13,6 +13,7 @@ import {isFunction, isObject} from 'lodash-es'
 interface Options {
 
   tokenExpiration: (err: AxiosError<any>, response: AxiosResponse) => void
+  handleReconnect: (err: AxiosError<any>, response: AxiosResponse) => Promise<any>
   filter_url?: Array<string>
   code?: number
   codeKey?: string
@@ -58,13 +59,18 @@ let _options: Options = {
   langKey: 'lang',
   requestOptions: (config) => ({}),
   tokenExpiration: () => {},
+  handleReconnect: () => new Promise()
 }
+
+let requestsQueue = [];
+let isRefreshing = false;
 
 const isApp = (window as any).__MICRO_APP_ENVIRONMENT__
 const controller = new AbortController();
 
 const handleRequest = (config: InternalAxiosRequestConfig) => {
   const token = getToken()
+
   const lang = localStorage.getItem(_options.langKey)
   const localBaseApi = localStorage.getItem('')
 
@@ -124,7 +130,7 @@ const handleResponse = (response: AxiosResponse) => {
   return response.data
 }
 
-const errorHandler = (err: AxiosError<any>) => {
+const errorHandler = async (err: AxiosError<any>) => {
   let description = err.response?.message || 'Error'
   let _status: string | number = 0
   if (err.response) {
@@ -137,8 +143,31 @@ const errorHandler = (err: AxiosError<any>) => {
         description = (`${data?.message}`).substring(0, 90)
         break;
       case 401:
-        description = err.response.data.result.text || '用户未登录'
-        _options.tokenExpiration?.(err, err.response)
+        description = err.response.data.result.text || '用户未登录';
+        _options.tokenExpiration?.()
+        const originalRequest = err.config;
+          if (isRefreshing) {
+              return new Promise((resolve, reject) => {
+                  requestsQueue.push({ resolve, reject });
+              }).then(() => instance(originalRequest));
+          }
+        isRefreshing = true
+          try {
+              const loginResult = await _options.handleReconnect?.()
+              if(loginResult){
+                  const token = getToken()
+                  // 更新请求头, 修改全部的token
+                  originalRequest.headers[TOKEN_KEY] = token
+                  requestsQueue.forEach(resolve => resolve());
+                  return instance(originalRequest);
+              }
+          } catch (err) {
+              requestsQueue.forEach(cb => cb.reject(err));
+              throw err;
+          } finally {
+              requestsQueue = [];
+              isRefreshing = false;
+          }
         break;
       case 404:
         description = err?.response?.data?.message || `${data?.error} ${data?.path}`
