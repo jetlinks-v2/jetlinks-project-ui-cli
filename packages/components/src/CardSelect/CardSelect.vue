@@ -107,7 +107,7 @@ const handleSelect = (key, node) => {
 }
 
 watch(() => props.value, () => {
-  selectKeys.value = isMultiple.value ? props.value : [props.value]
+  selectKeys.value = isMultiple.value ? (props.value || []) : [props.value]
 }, { immediate: true })
 
 </script>

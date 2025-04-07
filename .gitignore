@@ -49,3 +49,6 @@ yarn-error.log*
 *.sw?
 !/pnpm-lock.yaml
 !/.gitignore
+
+*storybook.log
+storybook-static

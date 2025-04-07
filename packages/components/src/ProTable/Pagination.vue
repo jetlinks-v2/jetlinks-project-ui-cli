@@ -38,7 +38,7 @@ const _showTotal = (num: number) => {
   const minSize = props.pageIndex * props.pageSize + 1;
   const MaxSize = (props.pageIndex + 1) * props.pageSize;
   // return `第 ${minSize} - ${ MaxSize > num ? num : MaxSize } 条/总共 ${num} 条`
-  let locale = contextLocale.value.pagination.total;
+  let locale = contextLocale.value.pagination?.total || '';
   [minSize, MaxSize > num ? num : MaxSize, num].forEach((item, index) => {
     locale = locale.replace(`{${index}}`, item)
   })

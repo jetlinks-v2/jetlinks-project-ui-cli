@@ -4,16 +4,16 @@ import { isBoolean } from "lodash-es";
 import { ComponentsEnum } from '@jetlinks-web/constants'
 
 export type PermissionCodeType = string | string[] | boolean
-export const usePermission = (code?: PermissionCodeType): {
+export const usePermission = (code?: Ref<PermissionCodeType>): {
   hasPerm: Ref<boolean>
 } => {
   const hasPerm = ref(false)
 
-  const { hasPermission } = inject<{ hasPermission: (code: PermissionCodeType) => boolean}>(ComponentsEnum.Permission)
+  const { hasPermission } = inject<{ hasPermission?: (code: PermissionCodeType) => boolean}>(ComponentsEnum.Permission, {})
 
-  watch(() => code, () => {
-    if (code) {
-      hasPerm.value = isBoolean(code) ? code : hasPermission?.(code)
+  watch(() => code.value, (v) => {
+    if (v !== undefined) {
+      hasPerm.value = isBoolean(v) ? v : (hasPermission?.(v) ?? false)
     }
   }, { immediate: true })
 
