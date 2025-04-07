@@ -75,7 +75,7 @@ const invert = () => {
   inverted.value = !inverted.value
   chart.inverted(inverted.value) 
   d3.select('#flame-graph')
-      .datum(formatData.value)
+      .datum(formatData.value(props.data))
       .call(chart)
 }
 onMounted(() => {
