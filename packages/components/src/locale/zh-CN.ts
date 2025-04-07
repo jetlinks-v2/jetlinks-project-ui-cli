@@ -114,5 +114,9 @@ export default {
   },
   PermissionButton: {
     hasPermission: '暂无权限，请联系管理员'
+  },
+  FlameGraph: {
+    placeholder: '请输入',
+    revert: '反转',
   }
 }
