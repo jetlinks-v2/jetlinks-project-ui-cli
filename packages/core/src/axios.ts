@@ -1,5 +1,5 @@
 import { TOKEN_KEY, BASE_API } from '@jetlinks-web/constants'
-import { getToken } from '@jetlinks-web/utils'
+import {getToken, randomString} from '@jetlinks-web/utils'
 import axios from 'axios'
 import type {
   AxiosInstance,
@@ -70,7 +70,7 @@ const isApp = (window as any).__MICRO_APP_ENVIRONMENT__
 
 const pendingRequests = new Map<string, AbortController>();
 const requestRecords = (config: InternalAxiosRequestConfig) => {
-  const key = `${config.method}-${config.url}}`
+  const key = randomString(32)
 
   // 取消重复请求
   if (pendingRequests.has(key)) {
