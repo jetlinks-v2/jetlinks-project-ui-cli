@@ -36,7 +36,7 @@ interface Options {
    */
   handleError?: (msg: string, status: string | number, error: AxiosError<any>) => void
   requestOptions?: (config: InternalAxiosRequestConfig) => InternalAxiosRequestConfig | Record<string, any>
-
+  isCreateTokenRefresh?: boolean
 }
 
 interface RequestOptions {
@@ -59,18 +59,33 @@ let _options: Options = {
   langKey: 'lang',
   requestOptions: (config) => ({}),
   tokenExpiration: () => {},
-  handleReconnect: () => new Promise()
+  handleReconnect: () => new Promise(),
+  isCreateTokenRefresh: false
 }
 
-let requestsQueue = [];
+let failedQueue = [];
 let isRefreshing = false;
 
 const isApp = (window as any).__MICRO_APP_ENVIRONMENT__
-const controller = new AbortController();
 
+const pendingRequests = new Map<string, AbortController>();
+const requestRecords = (config: InternalAxiosRequestConfig) => {
+  const key = `${config.method}-${config.url}}`
+
+  // 取消重复请求
+  if (pendingRequests.has(key)) {
+    pendingRequests.get(key)?.abort()
+  }
+
+  const controller = new AbortController()
+  config.signal = controller.signal;
+  config.__requestKey = key;
+
+  pendingRequests.set(key, controller)
+}
 const handleRequest = (config: InternalAxiosRequestConfig) => {
-  const token = getToken()
-
+  requestRecords(config)
+  const token = getToken();
   const lang = localStorage.getItem(_options.langKey)
   const localBaseApi = localStorage.getItem('')
 
@@ -103,14 +118,17 @@ const handleRequest = (config: InternalAxiosRequestConfig) => {
     }
   }
 
-
   return config
 }
 
 const handleResponse = (response: AxiosResponse) => {
-
   if (_options.handleResponse && isFunction(_options.handleResponse)) {
     return _options.handleResponse(response)
+  }
+
+  const __key = response.config?.__requestKey
+  if(__key){
+    pendingRequests.delete(__key)
   }
 
   if (response.data instanceof ArrayBuffer) {
@@ -130,6 +148,34 @@ const handleResponse = (response: AxiosResponse) => {
   return response.data
 }
 
+const createTokenRefreshHandler = async (err) => {
+  const originalRequest = err.config;
+  if (isRefreshing) { // 记录之后失败的请求
+    return new Promise((resolve, reject) => {
+      failedQueue.push({ resolve, reject });
+    }).then((_token) => {
+      originalRequest.headers[TOKEN_KEY] = _token;
+      instance(originalRequest)
+    }).catch(err => Promise.reject(err))
+  }
+  originalRequest._retry = true;
+  isRefreshing = true;
+  try {
+    const loginResult = await _options.handleReconnect?.()
+    if(loginResult){
+      const token = getToken() // 更新请求头, 修改全部的token
+      originalRequest.headers[TOKEN_KEY] = token;
+      failedQueue.forEach(a => a.resolve(token));
+      return instance(originalRequest);
+    }
+  } catch (err) {
+    failedQueue.forEach(cb => cb.reject(err));
+    throw err;
+  } finally {
+    failedQueue = [];
+    isRefreshing = false;
+  }
+}
 const errorHandler = async (err: AxiosError<any>) => {
   let description = err.response?.message || 'Error'
   let _status: string | number = 0
@@ -145,29 +191,9 @@ const errorHandler = async (err: AxiosError<any>) => {
       case 401:
         description = err.response.data.result.text || '用户未登录';
         _options.tokenExpiration?.()
-        const originalRequest = err.config;
-          if (isRefreshing) {
-              return new Promise((resolve, reject) => {
-                  requestsQueue.push({ resolve, reject });
-              }).then(() => instance(originalRequest));
-          }
-        isRefreshing = true
-          try {
-              const loginResult = await _options.handleReconnect?.()
-              if(loginResult){
-                  const token = getToken()
-                  // 更新请求头, 修改全部的token
-                  originalRequest.headers[TOKEN_KEY] = token
-                  requestsQueue.forEach(resolve => resolve());
-                  return instance(originalRequest);
-              }
-          } catch (err) {
-              requestsQueue.forEach(cb => cb.reject(err));
-              throw err;
-          } finally {
-              requestsQueue = [];
-              isRefreshing = false;
-          }
+        if(_options.isCreateTokenRefresh){
+          return createTokenRefreshHandler(err)
+        }
         break;
       case 404:
         description = err?.response?.data?.message || `${data?.error} ${data?.path}`
@@ -185,6 +211,11 @@ const errorHandler = async (err: AxiosError<any>) => {
   }
 
   return Promise.reject(err)
+}
+
+export const abortAllRequests = () => {
+  pendingRequests.forEach(controller => controller.abort())
+  pendingRequests.clear()
 }
 
 export const crateAxios = (options: Options) => {
