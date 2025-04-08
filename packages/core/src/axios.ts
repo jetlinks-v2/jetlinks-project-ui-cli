@@ -13,7 +13,7 @@ import {isFunction, isObject} from 'lodash-es'
 interface Options {
 
   tokenExpiration: (err: AxiosError<any>, response: AxiosResponse) => void
-  handleReconnect: (err: AxiosError<any>, response: AxiosResponse) => Promise<any>
+  handleReconnect: () => Promise<any>
   filter_url?: Array<string>
   code?: number
   codeKey?: string
@@ -59,7 +59,7 @@ let _options: Options = {
   langKey: 'lang',
   requestOptions: (config) => ({}),
   tokenExpiration: () => {},
-  handleReconnect: () => new Promise(),
+  handleReconnect: () => Promise.resolve(),
   isCreateTokenRefresh: false
 }
 
@@ -155,7 +155,7 @@ const createTokenRefreshHandler = async (err) => {
       failedQueue.push({ resolve, reject });
     }).then((_token) => {
       originalRequest.headers[TOKEN_KEY] = _token;
-      instance(originalRequest)
+      return instance(originalRequest)
     }).catch(err => Promise.reject(err))
   }
   originalRequest._retry = true;

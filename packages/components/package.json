@@ -1,6 +1,6 @@
 {
   "name": "@jetlinks-web/components",
-  "version": "2.5.5",
+  "version": "2.6.1",
   "description": "",
   "main": "lib/index.js",
   "module": "es/index.js",
