@@ -1,11 +1,11 @@
 import {getToken} from "@jetlinks-web/utils";
 import {BASE_API, TOKEN_KEY} from "@jetlinks-web/constants";
-import {isFunction, isObject, isString} from "lodash-es";
+import {isFunction, isObject} from "lodash-es";
 import { Observable, } from 'rxjs'
 
 const controller = new AbortController();
 
-class NdJson {
+export class NdJson {
   options: any = {
     code: 200,
     codeKey: 'status'
@@ -22,11 +22,10 @@ class NdJson {
   }
 
   get(url, data = '{}', extra = {}) {
+    const _url = this.getUrl(url)
     const that = this
     return new Observable(observer => {
-      const _url = that.getUrl(url)
-      const that = this
-
+      let reader
       fetch(
         _url,
         {
@@ -37,7 +36,7 @@ class NdJson {
           ...this.handleRequest(_url)
         }
       ).then(resp => {
-        const reader = resp.body?.getReader();
+        reader = resp.body?.getReader();
         const decoder = new TextDecoder();
         let data_buf = "";
 
@@ -92,6 +91,10 @@ class NdJson {
       }).catch(e => {
         observer.error(e)
       })
+
+      return () => {
+        that.cancel()
+      }
     })
   }
 
@@ -100,6 +103,7 @@ class NdJson {
     const that = this
 
     return new Observable(observer => {
+      let reader
       fetch(
         _url,
         {
@@ -111,7 +115,7 @@ class NdJson {
           ...this.handleRequest(_url)
         }
       ).then(async resp => {
-        const reader = resp.body?.getReader();
+        reader = resp.body?.getReader();
         const decoder = new TextDecoder();
         let data_buf = "";
 
@@ -166,6 +170,10 @@ class NdJson {
       }).catch(e => {
           observer.error(e)
       })
+
+      return () => {
+        that.cancel()
+      }
     })
   }
   handleRequest(url): RequestInit {
@@ -213,9 +221,8 @@ class NdJson {
   cancel() {
     if (this.isRead) {
       this.isRead = false
-    } else {
-      controller.abort()
     }
+    controller.abort()
   }
 }
 
