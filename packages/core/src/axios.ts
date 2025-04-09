@@ -357,7 +357,7 @@ export class Request {
     url: undefined,
     method: undefined,
   }) {
-    const { url=``, method = 'post', ...rest } = options
+    const { url=`/_create`, method = 'post', ...rest } = options
     return request[method](`${this.modulePath}${url}`, data, rest)
   }
 
@@ -371,7 +371,7 @@ export class Request {
     url: undefined,
     method: undefined,
   }) {
-    const { url=``, method = 'patch', ...rest } = options
+    const { url=`/_update`, method = 'patch', ...rest } = options
     return patch(`${this.modulePath}${url}`, data, rest)
   }
 

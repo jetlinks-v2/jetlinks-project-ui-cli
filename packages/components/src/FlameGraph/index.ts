@@ -1,4 +1,4 @@
-import FlameGraph from './index.vue'
+import FlameGraph from './FlameGraph.vue'
 import type { App } from 'vue';
 
 FlameGraph.install = function (app: App) {

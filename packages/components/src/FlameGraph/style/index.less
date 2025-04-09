@@ -1,0 +1,43 @@
+.j-flame-graph {
+  position: relative;
+
+  .d3-flame-graph {
+    margin-top: 40px;
+  }
+  /* 修改矩形块样式 */
+  .d3-flame-graph {
+    rect {
+      stroke: #fff;
+      stroke-width: 1px;
+    }
+
+    text {
+      font-size: 18px;
+      fill: #333;
+    }
+  }
+
+  .frame {
+    cursor: pointer;
+  }
+  .frame:hover {
+    fill: #E600E6;
+  }
+  .frame:hover rect {
+    fill: #ffffe0;
+  }
+  .frame div {
+    color: #000
+  }
+
+  .j-flame-graph-search {
+    position: sticky;
+    top: 0;
+    left: 0;
+    width: 200px;
+  }
+}
+
+
+
+

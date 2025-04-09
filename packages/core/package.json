@@ -1,6 +1,6 @@
 {
   "name": "@jetlinks-web/core",
-  "version": "2.2.4",
+  "version": "2.2.5",
   "main": "index.ts",
   "module": "index.ts",
   "scripts": {

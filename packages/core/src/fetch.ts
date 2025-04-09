@@ -1,6 +1,7 @@
 import {getToken} from "@jetlinks-web/utils";
 import {BASE_API, TOKEN_KEY} from "@jetlinks-web/constants";
 import {isFunction, isObject, isString} from "lodash-es";
+import { Observable, } from 'rxjs'
 
 const controller = new AbortController();
 
@@ -9,6 +10,7 @@ class NdJson {
     code: 200,
     codeKey: 'status'
   }
+  isRead = false
   constructor() {}
 
   create(options) {
@@ -20,9 +22,10 @@ class NdJson {
   }
 
   get(url, data = '{}', extra = {}) {
-
-    return new Promise((resolve, reject) => {
-      const _url = this.getUrl(url)
+    const that = this
+    return new Observable(observer => {
+      const _url = that.getUrl(url)
+      const that = this
 
       fetch(
         _url,
@@ -34,74 +37,69 @@ class NdJson {
           ...this.handleRequest(_url)
         }
       ).then(resp => {
-        console.log('[fetch GET]>', resp)
-        let is_reader, cancellationRequest = false;
+        const reader = resp.body?.getReader();
+        const decoder = new TextDecoder();
+        let data_buf = "";
 
-        const readable = new ReadableStream({
-          start(controller) {
-            const reader = resp.body.getReader()
-            const decoder = new TextDecoder();
-            let data_buf = "";
+        if (!reader) {
+          observer.error(new Error('No readable stream available'));
+          return;
+        }
 
-            is_reader = !!reader
+        const read = () => {
 
-            reader.read().then(function processResult(result) {
-              if (result.done) {
-                if (cancellationRequest) {
-                  return
-                }
-                data_buf = data_buf.trim()
-
-                if (data_buf.length !== 0) {
-                  try {
-                    controller.enqueue(JSON.parse(data_buf))
-                  } catch (e) {
-                    controller.error(e)
-                    return
-                  }
-                }
-
-                controller.close()
-                return
-              }
-
-              const data = decoder.decode(result.value, { stream: true })
-              data_buf += data
-
-              let lines = data_buf.split('/')
-              for(let i = 0; i < lines.length - 1; ++i) {
-                const l = lines[i].trim();
-                if (l.length > 0) {
-                  try {
-                    controller.enqueue(JSON.parse(l));
-                  } catch(e) {
-                    controller.error(e);
-                    cancellationRequest = true;
-                    reader.cancel();
-                    return;
-                  }
-                }
-              }
-            })
+          if (!that.isRead) {
+            reader.cancel()
+            observer.complete();
+            return
           }
-        })
 
-        return resp.json()
+          reader.read().then(({ done, value }) => {
+            if (done) {
+              if (data_buf.trim().length > 0) {
+                try {
+                  observer.next(JSON.parse(data_buf.trim()));
+                } catch (e) {
+                  observer.error(e);
+                }
+              }
+              observer.complete();
+              return;
+            }
+
+            const data = decoder.decode(value, { stream: true });
+            data_buf += data;
+
+            let lines = data_buf.split('\n');
+            for (let i = 0; i < lines.length - 1; ++i) {
+              const line = lines[i].trim();
+              if (line.length > 0) {
+                try {
+                  observer.next(JSON.parse(line));
+                } catch (e) {
+                  observer.error(e);
+                  reader.cancel();
+                  return;
+                }
+              }
+            }
+            data_buf = lines[lines.length - 1];
+            read();
+          }).catch(err => observer.error(err));
+        };
+        that.isRead = true
+        read();
+      }).catch(e => {
+        observer.error(e)
       })
-        .then((resp) => {
-          console.log(resp)
-        })
-        .catch(e => {
-          reject(e)
-        })
     })
   }
 
-  async post(url, data={}, extra = {}) {
+  post(url, data={}, extra = {}) {
+    const _url = this.getUrl(url)
+    const that = this
 
-    return new Promise(async (resolve, reject) => {
-      const _url = this.getUrl(url)
-
+    return new Observable(observer => {
       fetch(
         _url,
         {
@@ -113,77 +111,61 @@ class NdJson {
           ...this.handleRequest(_url)
         }
       ).then(async resp => {
-        console.log('[fetch 1]>', resp.headers.get('content-type'))
-        let is_reader, cancellationRequest = false;
+        const reader = resp.body?.getReader();
+        const decoder = new TextDecoder();
+        let data_buf = "";
 
-        // return new ReadableStream({
-        //   start(controller) {
-        //     const reader = resp.body.getReader()
-        //     const decoder = new TextDecoder();
-        //     let data_buf = "";
-        //
-        //     is_reader = !!reader
-        //
-        //     reader.read().then(function processResult(result) {
-        //       if (result.done) {
-        //         if (cancellationRequest) {
-        //           return
-        //         }
-        //         data_buf = data_buf.trim()
-        //
-        //         if (data_buf.length !== 0) {
-        //           try {
-        //             controller.enqueue(JSON.parse(data_buf))
-        //           } catch (e) {
-        //             controller.error(e)
-        //             return
-        //           }
-        //         }
-        //
-        //         controller.close()
-        //         return
-        //       }
-        //
-        //       const data = decoder.decode(result.value, { stream: true })
-        //       data_buf += data
-        //       console.log(data)
-        //       let lines = data_buf.split('/')
-        //       for(let i = 0; i < lines.length - 1; ++i) {
-        //         const l = lines[i].trim();
-        //         if (l.length > 0) {
-        //           try {
-        //             console.log(l)
-        //             controller.enqueue( isString(l) ? JSON.parse(l) : l);
-        //           } catch(e) {
-        //             controller.error(e);
-        //             cancellationRequest = true;
-        //             reader.cancel();
-        //             return;
-        //           }
-        //         }
-        //       }
-        //     })
-        //   },
-        //   cancel(reason) {
-        //     console.log("Cancel registered due to ", reason);
-        //     cancellationRequest = true;
-        //     is_reader.cancel();
-        //   }
-        // })
-        // let msg = await readable.getReader()
-        // console.log(resp, msg)
-        return resp.json()
+        if (!reader) {
+          observer.error(new Error('No readable stream available'));
+          return;
+        }
+
+        const read = () => {
+
+          if (!that.isRead) {
+            reader.cancel()
+            observer.complete();
+            return
+          }
+
+          reader.read().then(({ done, value }) => {
+            if (done) {
+              if (data_buf.trim().length > 0) {
+                try {
+                  observer.next(JSON.parse(data_buf.trim()));
+                } catch (e) {
+                  observer.error(e);
+                }
+              }
+              observer.complete();
+              return;
+            }
+
+            const data = decoder.decode(value, { stream: true });
+            data_buf += data;
+
+            let lines = data_buf.split('\n');
+            for (let i = 0; i < lines.length - 1; ++i) {
+              const line = lines[i].trim();
+              if (line.length > 0) {
+                try {
+                  observer.next(JSON.parse(line));
+                } catch (e) {
+                  observer.error(e);
+                  reader.cancel();
+                  return;
+                }
+              }
+            }
+            data_buf = lines[lines.length - 1];
+            read();
+          }).catch(err => observer.error(err));
+        };
+        that.isRead = true
+        read();
+      }).catch(e => {
+          observer.error(e)
       })
-        .then((resp) => {
-          // const reader = resp.getReader();
-          // reader.read().then(result => {
-          //   console.log(result)
-          // })
-          resolve(this.handleResponse(resp))
-        })
-        .catch(e => {
-          reject(e)
-        })
     })
   }
   handleRequest(url): RequestInit {
@@ -222,14 +204,18 @@ class NdJson {
       return this.options.handleResponse(response)
     }
 
-    const status = response[this.options.codeKey || 'status']
-    response.success = status === this.options.code
+    // const status = response[this.options.codeKey || 'status']
+    // response.success = status === this.options.code
 
     return response
   }
 
   cancel() {
-
+    if (this.isRead) {
+      this.isRead = false
+    } else {
+      controller.abort()
+    }
   }
 }
 

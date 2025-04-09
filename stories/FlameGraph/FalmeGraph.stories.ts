@@ -1,5 +1,5 @@
 import type {Meta, StoryObj} from '@storybook/vue3';
-import FlameGraph from '../../packages/components/src/FlameGraph/index.vue';
+import FlameGraph from '../../packages/components/src/FlameGraph/FlameGraph.vue';
 import data from './stack.json';
 
 // 定义元数据
