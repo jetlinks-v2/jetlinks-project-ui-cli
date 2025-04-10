@@ -4,7 +4,7 @@
       <a-input-search class="j-flame-graph-search" placeholder="请输入" @search="search"></a-input-search>
       <a-button @click="invert">反转</a-button>
     </a-space>
-    <div id="j-flame-graph"></div>
+    <div ref="flameGraphRef"></div>
   </div>
 </template>
 <script setup>
@@ -41,14 +41,12 @@ const props = defineProps({
   }
 })
 
+const flameGraphRef = ref(null)
 const inverted = ref(false)
 const chart = flamegraph()
   .setColorMapper(function(d, originalColor) {
       return d.highlight ? "#E600E6" : originalColor;
   })
-  .setSearchHandler(function(searchResults, searchSum, totalValue) {
-      console.log(searchResults, searchSum, totalValue);
-  });
 
 
 const search = (val) => {
@@ -66,22 +64,28 @@ const formatData = computed(() => {
         })
       }
     }
-    formatDataFn(val)
-    return val
+    //格式化数据，增加根节点root
+    const obj = {
+      [props.fieldNames.name]: 'root',
+      [props.fieldNames.value]: val.map(item => item[props.fieldNames.value]).reduce((a, b) => a + b, 0),
+      [props.fieldNames.children || 'children']: val
+    }
+    formatDataFn(obj)
+    return obj
   }
 })
 
 const invert = () => {
   inverted.value = !inverted.value
   chart.inverted(inverted.value)
-  d3.select('#flame-graph')
+  d3.select(flameGraphRef.value)
       .datum(formatData.value(props.data))
       .call(chart)
 }
 onMounted(() => {
   watch(() => props.data, (newVal, oldVal) => {
     if(newVal) {
-      d3.select('#flame-graph')
+      d3.select(flameGraphRef.value)
       .datum(formatData.value(newVal))
       .call(chart)
     }
