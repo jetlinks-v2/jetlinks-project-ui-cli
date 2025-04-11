@@ -28,7 +28,6 @@
     <SearchModal
       v-if="searchData.visible"
       :searchKey="searchData.key"
-      :rowKey="rowKey"
       :columns="searchColumns"
       @close="searchData.visible = false"
     />
@@ -48,6 +47,10 @@ const props = defineProps({
   columns: {
     type: Array,
     default: () => []
+  },
+  searchColumns: {
+    type: Array,
+    default: undefined
   },
   serial: {
     type: Boolean,

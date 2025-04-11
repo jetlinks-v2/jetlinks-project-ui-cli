@@ -10,6 +10,7 @@
       <div class="jetlinks-edit-table-header" style="height: 50px" :style="{paddingRight: scrollWidth + 'px'}">
         <Header
           :columns="myColumns"
+          :searchColumns="searchColumns"
           :style="{width: tableStyle.width}"
         />
       </div>
@@ -84,6 +85,10 @@ const [contextLocale] = useLocaleReceiver('EditTable');
 const props = defineProps({
   ...tableProps(),
   ...bodyProps(),
+  searchColumns: {
+    type: Array,
+    default: undefined
+  },
   serial: {
     type: [Object, Boolean],
     default: () => ({

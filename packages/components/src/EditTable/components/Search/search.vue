@@ -29,7 +29,7 @@
         <Table
           ref="tableRef"
           :data-source="filterArray"
-          :columns="columns"
+          :columns="myColumns"
           :height="tableHeight"
           :disableMenu="false"
           :cellHeight="36"
@@ -74,7 +74,7 @@
 <script setup>
 import Table from '../../EditTable.vue'
 import {useTableDataSource, useTableOpenGroup, useTableTool, useGroupOptions} from "../../context";
-import {ref, reactive, defineProps, defineOptions, defineEmits} from "vue";
+import {ref, computed, defineProps, defineOptions, defineEmits} from "vue";
 import Ellipsis from '../../../Ellipsis/Ellipsis.vue'
 import DragModal from '../../../DragModal/DragModal.vue'
 import {useLocaleReceiver} from "../../../LocaleReciver/index";
@@ -88,6 +88,10 @@ const props = defineProps({
   searchKey: {
     type: String,
     default: 'id'
+  },
+  columns: {
+    type: Array,
+    default: undefined
   }
 })
 
@@ -107,16 +111,26 @@ const tableHeight = ref(230)
 const selectedRowKeys = ref([])
 const tableRef = ref()
 
-const columns = reactive([
-  {
-    title: contextLocale.value.columns.sign,
-    dataIndex: 'id',
-  },
-  {
-    title: contextLocale.value.columns.name,
-    dataIndex: 'name',
+const myColumns = computed(() => {
+
+  if (props.columns) {
+    return props.columns.map(item => ({
+      title: item.title,
+      dataIndex: item.dataIndex
+    }))
   }
-])
+
+  return [
+    {
+      title: contextLocale.value.columns.sign,
+      dataIndex: 'id',
+    },
+    {
+      title: contextLocale.value.columns.name,
+      dataIndex: 'name',
+    }
+  ]
+})
 
 const selectedTableRow = (record) => {
   tableTool.scrollTo({
