@@ -1,4 +1,4 @@
-import { TOKEN_KEY, BASE_API } from '@jetlinks-web/constants'
+import { TOKEN_KEY, BASE_API, LOCAL_BASE_API } from '@jetlinks-web/constants'
 import {getToken, randomString} from '@jetlinks-web/utils'
 import axios from 'axios'
 import type {
@@ -87,7 +87,7 @@ const handleRequest = (config: InternalAxiosRequestConfig) => {
   requestRecords(config)
   const token = getToken();
   const lang = localStorage.getItem(_options.langKey)
-  const localBaseApi = localStorage.getItem('')
+  const localBaseApi = localStorage.getItem(LOCAL_BASE_API)
 
   if (lang) {
     config.headers[_options.langKey] = lang
@@ -189,8 +189,8 @@ const errorHandler = async (err: AxiosError<any>) => {
         description = (`${data?.message}`).substring(0, 90)
         break;
       case 401:
-        description = err.response.data.result.text || '用户未登录';
-        _options.tokenExpiration?.()
+        description = err.response.data.result?.text || '用户未登录';
+        _options.tokenExpiration?.(err)
         if(_options.isCreateTokenRefresh){
           return createTokenRefreshHandler(err)
         }

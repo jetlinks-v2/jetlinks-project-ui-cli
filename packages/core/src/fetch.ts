@@ -3,14 +3,13 @@ import {BASE_API, TOKEN_KEY} from "@jetlinks-web/constants";
 import {isFunction, isObject} from "lodash-es";
 import { Observable, } from 'rxjs'
 
-const controller = new AbortController();
-
 export class NdJson {
   options: any = {
     code: 200,
     codeKey: 'status'
   }
   isRead = false
+  controller = null
   constructor() {}
 
   create(options) {
@@ -24,6 +23,8 @@ export class NdJson {
   get(url, data = '{}', extra = {}) {
     const _url = this.getUrl(url)
     const that = this
+    const controller = this.controller = new AbortController();
+
     return new Observable(observer => {
       let reader
       fetch(
@@ -101,6 +102,7 @@ export class NdJson {
   post(url, data={}, extra = {}) {
     const _url = this.getUrl(url)
     const that = this
+    const controller = this.controller = new AbortController();
 
     return new Observable(observer => {
       let reader
@@ -222,7 +224,8 @@ export class NdJson {
     if (this.isRead) {
       this.isRead = false
     }
-    controller.abort()
+
+    this.controller.abort()
   }
 }
 
