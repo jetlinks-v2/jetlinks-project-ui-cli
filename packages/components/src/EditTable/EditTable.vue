@@ -11,7 +11,7 @@
         <Header
           :columns="myColumns"
           :searchColumns="searchColumns"
-          :style="{width: tableStyle.width}"
+          :style="{width: tableStyle.width, transform: `translateX(-${horizontalScrollLeft}px)`}"
         />
       </div>
       <div class="jetlinks-edit-table-body" :style="{width: tableStyle.width, height: `${height}px`}">
@@ -27,6 +27,7 @@
           :openGroup="openGroup"
           :rowSelection="rowSelection"
           :readonly="readonly"
+          :width="horizontalScrollWidth"
           @scrollDown="onScrollDown"
         >
         <template v-for="(_, name) in slots" #[name]="slotData">
@@ -34,6 +35,21 @@
         </template>
         </Body>
         <slot name="bodyExtra"></slot>
+      </div>
+      <div class="jetlinks-table-horizontal-scroll" v-if="showScroll">
+        <div
+          class="jetlinks-table-horizontal-scroll-bar"
+          ref="scrollBarRef"
+          :style="{
+            width: 'calc(100% - 15px)',
+            height: '100%',
+            overflowX: 'scroll'
+          }"
+          @scroll="onHorizontalScroll"
+        >
+          <div :style="{ minWidth: horizontalScrollWidth + 'px', maxWidth: horizontalScrollWidth + 'px', height: '100%'}"> </div>
+        </div>
+        <div style="width: 15px; height: 100%; overflow-x: hidden;"></div>
       </div>
       <Group
         v-if="dataSource.length && openGroup"
@@ -57,7 +73,7 @@ import {
   TABLE_ERROR,
   TABLE_GROUP_ACTIVE,
   TABLE_GROUP_ERROR,
-  TABLE_GROUP_OPTIONS,
+  TABLE_GROUP_OPTIONS, TABLE_H_SCROLL,
   TABLE_OPEN_GROUP,
   TABLE_TOOL,
   TABLE_WRAPPER
@@ -110,10 +126,14 @@ const slots = useSlots()
 const myColumns = ref([])
 const tableWrapper = ref()
 const tableBody = ref()
+const scrollBarRef = ref()
 const tableStyle = reactive({
   width: '100%',
   height: props.height
 })
+const showScroll = ref(false)
+const horizontalScrollWidth = ref(0)
+const horizontalScrollLeft = ref(0)
 
 const fields = {}
 const defaultGroupId = 'group_1'
@@ -285,6 +305,7 @@ provide(TABLE_TOOL, {
 })
 provide(TABLE_GROUP_OPTIONS, groupOptions)
 provide(TABLE_GROUP_ACTIVE, groupActive)
+provide(TABLE_H_SCROLL, horizontalScrollLeft)
 
 const addField = (key, field) => {
   fields[key] = field
@@ -314,18 +335,8 @@ const scrollWidth = computed(() => {
   return (props.dataSource.length * props.cellHeight) > props.height ? scrollDefaultWidth.value : 0
 })
 
-function onResize({width = 0}) {
-
-  const _width = width - scrollWidth.value
-
-  tableStyle.width = width || '100%'
-  // const viewportDom = document.querySelector('.jetlinks-edit-table-body-viewport')
-  // const viewportDivDom = viewportDom.querySelector('div')
-  //
-  // scrollDefaultWidth.value = viewportDom.offsetWidth - viewportDivDom.offsetWidth
-
+const handleColumns = () => {
   let newColumns = [...props.columns]
-
   if (props.serial) {
     const serial = {
       dataIndex: '__serial',
@@ -336,12 +347,34 @@ function onResize({width = 0}) {
         }
         return customData.index + 1
       },
-      width: props.serial?.width
+      width: props.serial?.width,
+      fixed: 'left'
     }
     newColumns = [serial, ...props.columns]
   }
 
-  myColumns.value = handleColumnsWidth(newColumns, _width)
+  myColumns.value = handleColumnsWidth(newColumns, tableStyle.width - scrollWidth.value)
+
+  horizontalScrollWidth.value = myColumns.value.reduce((prev, next) => {
+    prev += next.width
+    return prev
+  }, 0)
+
+  if (horizontalScrollWidth.value > tableStyle.width) {
+    showScroll.value = true
+  }
+}
+
+function onResize({width = 0}) {
+
+  const _width = width - scrollWidth.value
+
+  tableStyle.width = width || '100%'
+  // const viewportDom = document.querySelector('.jetlinks-edit-table-body-viewport')
+  // const viewportDivDom = viewportDom.querySelector('div')
+  //
+  // scrollDefaultWidth.value = viewportDom.offsetWidth - viewportDivDom.offsetWidth
+  handleColumns()
 }
 
 const onScrollDown = (len) => {
@@ -387,6 +420,10 @@ const getGroupActive = () => {
   return groupActive.value
 }
 
+const onHorizontalScroll = (e) => {
+  horizontalScrollLeft.value = scrollBarRef.value.scrollLeft
+}
+
 watch(() => fieldsErrMap.value, (errorMap) => {
   fieldsGroupError.value = {}
 
@@ -422,6 +459,10 @@ watch(() => fieldsErrMap.value, (errorMap) => {
 
 watch(() => scrollWidth.value, () => {
   onResize({width: tableStyle.width})
+})
+
+watch(() => [JSON.stringify(props.columns), tableStyle.width], () => {
+  handleColumns()
 })
 
 useFormContext({

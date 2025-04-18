@@ -6,7 +6,8 @@ import {
   TABLE_WRAPPER,
   TABLE_TOOL,
   TABLE_FORM_ITEM_ERROR,
-  FULL_SCREEN
+  FULL_SCREEN,
+  TABLE_H_SCROLL
 } from "../consts";
 
 export * from './useResizeObserver'
@@ -46,3 +47,5 @@ export const useTableTool = () => inject(TABLE_TOOL, false)
 export const useFormItemError = () => inject(TABLE_FORM_ITEM_ERROR)
 
 export const useTableFullScreen = () => inject(FULL_SCREEN)
+
+export const useHScroll = () => inject(TABLE_H_SCROLL)

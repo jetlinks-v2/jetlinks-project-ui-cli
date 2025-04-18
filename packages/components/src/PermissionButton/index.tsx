@@ -51,8 +51,7 @@ const PermissionButton = defineComponent({
 
         const context = inject(PermissionButtonConfig, { components: undefined })
         const permission = computed(() => {
-          const hasOwnPrototype = Object.prototype.hasOwnProperty.call(instance.props, 'hasPermission')
-            if (props.hasPermission === true || !hasOwnPrototype) {
+            if (props.hasPermission === true || props.hasPermission === undefined) {
                 return true
             }
             return hasPerm.value
