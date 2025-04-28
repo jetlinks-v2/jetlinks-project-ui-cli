@@ -1,18 +1,16 @@
-import { green, red } from "picocolors";
+import pc from "picocolors";
 import { load as yamlLoad } from "js-yaml";
-import { readFile } from "fs-extra";
-import { IGNORE_WORKSPACE } from "./constant";
+import fs from "fs-extra";
+import { IGNORE_WORKSPACE } from "./constant.js";
 import minimist from "minimist";
 import { execa } from "execa";
 
-export type WorkspacePackage = { name: string; version?: string; path: string };
-
-export function error(err: any) {
-  console.log(red(err));
+export function error(err) {
+  console.log(pc.red(err));
 }
 
-export function succeed(msg: any) {
-  console.log(green(msg));
+export function succeed(msg) {
+  console.log(pc.green(msg));
 }
 
 /**
@@ -20,7 +18,7 @@ export function succeed(msg: any) {
  * @param argvName
  * @returns
  */
-export function commandArgv(argvName: string | undefined = undefined) {
+export function commandArgv(argvName) {
   const argv = minimist(process.argv.slice(2));
   return argvName ? argv[argvName] || undefined : argv;
 }
@@ -28,10 +26,10 @@ export function commandArgv(argvName: string | undefined = undefined) {
 export async function readWorkspace() {
   const path = "../pnpm-workspace.yaml";
   try {
-    const workspace = yamlLoad(await readFile(path, { encoding: "utf8" }), {
+    const workspace = yamlLoad(await fs.readFile(path, { encoding: "utf8" }), {
       json: true,
-    }) as any;
-    return workspace.packages as string[];
+    });
+    return workspace.packages;
   } catch (e) {
     throw e;
   }
@@ -50,11 +48,11 @@ export async function filterWorkspace() {
   }
 }
 
-export async function getWorkspacePackages(filterArgv: string[] = []) {
+export async function getWorkspacePackages(filterArgv = []) {
   const { stdout } = await execa(
     "pnpm",
     ["ls", "-r", "--depth", "-1", "--json"].concat(filterArgv)
   );
   if (!stdout) return [];
-  return JSON.parse(stdout) as WorkspacePackage[];
+  return JSON.parse(stdout);
 }

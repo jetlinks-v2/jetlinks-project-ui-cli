@@ -1,8 +1,9 @@
 {
   "name": "@jetlinks-web/core",
-  "version": "2.2.9",
-  "main": "index.ts",
-  "module": "index.ts",
+  "version": "2.2.13",
+  "main": "dist/index.mjs",
+  "module": "dist/index.mjs",
+  "types": "dist/index.d.ts",
   "scripts": {
     "clean": "pnpm rimraf .turbo"
   },
@@ -16,7 +17,13 @@
   ],
   "files": [
     "src",
-    "index.ts"
+    "index.ts",
+    "dist"
+  ],
+  "sideEffects": [
+    "./src/axios.ts",
+    "./src/fetch.ts",
+    "./src/websocket.ts"
   ],
   "private": false,
   "author": "",

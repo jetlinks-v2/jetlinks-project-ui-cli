@@ -99,7 +99,7 @@ export class NdJson {
     })
   }
 
-  post(url, data={}, extra = {}) {
+  post(url, data: BodyInit | any ={}, extra = {}) {
     const _url = this.getUrl(url)
     const that = this
     const controller = this.controller = new AbortController();

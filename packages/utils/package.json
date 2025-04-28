@@ -1,9 +1,10 @@
 {
   "name": "@jetlinks-web/utils",
-  "version": "1.2.9",
+  "version": "1.2.12",
   "description": "",
-  "main": "index.ts",
-  "module": "index.ts",
+  "main": "dist/index.mjs",
+  "module": "dist/index.mjs",
+  "types": "dist/index.d.ts",
   "scripts": {
     "clean": "pnpm rimraf .turbo"
   },
@@ -17,7 +18,8 @@
   ],
   "files": [
     "src",
-    "index.ts"
+    "index.ts",
+    "dist"
   ],
   "author": "",
   "private": false,

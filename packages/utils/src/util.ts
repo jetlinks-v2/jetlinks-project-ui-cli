@@ -169,11 +169,11 @@ export const accessConfigTypeFilter = (data: any[]): any[] => {
 }
 
 export const isFullScreen = () => {
-  return !!(document.fullscreen ||
-    document.mozFullScreen ||
-    document.webkitIsFullScreen ||
-    document.webkitFullScreen ||
-    document.msFullScreen)
+  return !!((document as any).fullscreen ||
+    (document as any).mozFullScreen ||
+    (document as any).webkitIsFullScreen ||
+    (document as any).webkitFullScreen ||
+    (document as any).msFullScreen)
 }
 
 export const isNoCommunity = !(localStorage.getItem('version_code') === 'community');

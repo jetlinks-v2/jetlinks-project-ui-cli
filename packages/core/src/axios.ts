@@ -12,7 +12,7 @@ import {isFunction, isObject} from 'lodash-es'
 
 interface Options {
 
-  tokenExpiration: (err: AxiosError<any>, response: AxiosResponse) => void
+  tokenExpiration: (err?: AxiosError<any>, response?: AxiosResponse) => void
   handleReconnect: () => Promise<any>
   filter_url?: Array<string>
   code?: number
@@ -37,6 +37,19 @@ interface Options {
   handleError?: (msg: string, status: string | number, error: AxiosError<any>) => void
   requestOptions?: (config: InternalAxiosRequestConfig) => InternalAxiosRequestConfig | Record<string, any>
   isCreateTokenRefresh?: boolean
+}
+
+interface typeRequestConfig extends InternalAxiosRequestConfig {
+  __requestKey?: string
+}
+
+interface typeAxiosResponse extends AxiosResponse {
+  config: typeRequestConfig
+  message: string
+}
+
+interface typeAxiosError<T> extends AxiosError<T> {
+  response: typeAxiosResponse
 }
 
 interface RequestOptions {
@@ -69,7 +82,7 @@ let isRefreshing = false;
 const isApp = (window as any).__MICRO_APP_ENVIRONMENT__
 
 const pendingRequests = new Map<string, AbortController>();
-const requestRecords = (config: InternalAxiosRequestConfig) => {
+const requestRecords = (config: typeRequestConfig) => {
   const key = randomString(32)
 
   // 取消重复请求
@@ -83,7 +96,7 @@ const requestRecords = (config: InternalAxiosRequestConfig) => {
 
   pendingRequests.set(key, controller)
 }
-const handleRequest = (config: InternalAxiosRequestConfig) => {
+const handleRequest = (config: typeRequestConfig) => {
   requestRecords(config)
   const token = getToken();
   const lang = localStorage.getItem(_options.langKey)
@@ -121,7 +134,7 @@ const handleRequest = (config: InternalAxiosRequestConfig) => {
   return config
 }
 
-const handleResponse = (response: AxiosResponse) => {
+const handleResponse = (response: typeAxiosResponse) => {
   if (_options.handleResponse && isFunction(_options.handleResponse)) {
     return _options.handleResponse(response)
   }
@@ -176,7 +189,7 @@ const createTokenRefreshHandler = async (err) => {
     isRefreshing = false;
   }
 }
-const errorHandler = async (err: AxiosError<any>) => {
+const errorHandler = async (err: typeAxiosError<any>) => {
   let description = err.response?.message || 'Error'
   let _status: string | number = 0
   if (err.response) {

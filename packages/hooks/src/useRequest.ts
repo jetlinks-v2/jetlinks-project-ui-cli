@@ -1,5 +1,5 @@
 import {onUnmounted, ref} from 'vue'
-import type { Ref } from 'vue'
+import type { Ref, UnwrapRef } from 'vue'
 import {isFunction, get, isArray} from 'lodash-es'
 import type { AxiosResponseRewrite } from '@jetlinks-web/types'
 
@@ -25,6 +25,13 @@ interface RequestOptions<T, S> {
   defaultValue?: S
 }
 
+interface UseRequestResult<S> {
+  data: Ref<UnwrapRef<S>>,
+  loading: Ref<boolean>,
+  run: (...args: any[]) => Promise<S>,
+  reload: Reload,
+}
+
 const defaultOptions: any = {
   immediate: true,
   formatName: 'result'
@@ -35,19 +42,14 @@ type Reload = () => void
 export const useRequest = <T = any, S = any>(
   request: (...args: any[]) => Promise<AxiosResponseRewrite<T>>,
   options: Partial<RequestOptions<T, S>> = defaultOptions,
-): {
-  data: Ref<S | undefined>,
-  loading: Ref<boolean>,
-  run: (...args: any[]) => Promise<S>,
-  reload: Reload,
-} => {
+): UseRequestResult<S> => {
   const _options = {
     ...defaultOptions,
     ...options
   }
 
   const loading = ref(false)
-  const data = ref<S>(_options.defaultValue)
+  const data = ref<S>(_options.defaultValue as S)
 
   function run(...arg: any[]): Promise<S> {
     return new Promise(async ( resolve, reject) => {
