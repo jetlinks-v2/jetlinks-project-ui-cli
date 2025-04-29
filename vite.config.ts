@@ -7,6 +7,7 @@ const alias: AliasOptions = {
 }
 
 export default defineConfig({
+    base: './',
     resolve: {
         alias
     },
@@ -24,5 +25,8 @@ export default defineConfig({
                 javascriptEnabled: true,
             },
         },
+    },
+    optimizeDeps: {
+      exclude: ['@storybook/manager-api', '@storybook/theming'],
     },
 })

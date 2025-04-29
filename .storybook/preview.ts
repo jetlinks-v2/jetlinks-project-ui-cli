@@ -23,9 +23,8 @@ const preview: Preview = {
     docs: {
       container: DocsContainer,
       page: DocsPage,
-    }
+    },
   },
-
 };
 
 export default preview;
