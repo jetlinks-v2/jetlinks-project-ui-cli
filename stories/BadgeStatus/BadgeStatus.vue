@@ -11,7 +11,12 @@ const props = defineProps({
   },
   statusNames: {
     type: Object,
-    default: () => ({'default': 'default'})
+    default: () => ({
+      'success': 'success',
+      'warning': 'warning',
+      'error': 'error',
+      'default': 'default',
+    })
 },
 })
 </script>

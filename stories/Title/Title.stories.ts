@@ -15,7 +15,6 @@ const meta: Meta<typeof Title> = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-
 export const 基础使用: Story = {
     args: {
         data: '这是一段测试文字'
@@ -28,7 +27,7 @@ export const 基础使用: Story = {
         template: `
           <Title v-bind="args">
             <template #extra>
-            <a-button type="link"><AIcon type="EditOutlined" /></a-button>
+                <a-button type="link"><AIcon type="EditOutlined" /></a-button>
             </template>
           </Title>
         `,

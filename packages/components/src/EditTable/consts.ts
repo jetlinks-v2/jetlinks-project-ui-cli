@@ -20,3 +20,5 @@ export const TABLE_TOOL = Symbol('table-tool')
 export const TABLE_FORM_ITEM_ERROR = Symbol('table-form-item-error')
 
 export const TABLE_GROUP_ACTIVE = Symbol('table-group-active')
+
+export const TABLE_H_SCROLL = Symbol('table-h-scroll')

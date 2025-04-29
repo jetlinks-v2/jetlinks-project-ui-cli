@@ -33,7 +33,7 @@ export const bodyProps = () => ({
   },
   cellHeight: {
     type: Number,
-    default: 50
+    default: 65
   },
   height: {
     type: Number,

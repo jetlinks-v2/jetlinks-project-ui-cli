@@ -3,7 +3,10 @@
     <div class="jetlinks-edit-table-header-cell" v-for="(item, index) in columns" :id="item.dataIndex" :style="{width: `${item.width}px`, left: `${item.left || (200 * index)}px`}">
       <div :class="{ 'jetlinks-edit-table-header-cell-box': true, 'header-cell-box-tool': !!(item.sort || item.filter) }">
         <div class="table-header-cell-title">
-          <span>{{ item.title }}</span>
+          <div class="cell-title-box">
+            <HeaderItemRender v-if="item.render" :render-fn="item.render" :value="item.title" />
+            <span v-else>{{ item.title }}</span>
+          </div>
           <span v-if="item.form?.required" class="header-cell-required">*</span>
         </div>
         <div v-if="!!(item.sort || item.filter)" class="table-header-cell-trigger">
@@ -28,7 +31,6 @@
     <SearchModal
       v-if="searchData.visible"
       :searchKey="searchData.key"
-      :rowKey="rowKey"
       :columns="searchColumns"
       @close="searchData.visible = false"
     />
@@ -38,7 +40,8 @@
 <script setup>
 import { SearchModal, Sort } from './components/Search'
 import {reactive, defineProps, defineOptions} from 'vue'
-import {useTableTool} from "./hooks";
+import {useHScroll, useTableTool} from "./hooks";
+import HeaderItemRender from './HeaderRender.vue'
 
 defineOptions({
   name: 'JEditTableHeader'
@@ -48,6 +51,10 @@ const props = defineProps({
   columns: {
     type: Array,
     default: () => []
+  },
+  searchColumns: {
+    type: Array,
+    default: undefined
   },
   serial: {
     type: Boolean,
@@ -60,7 +67,7 @@ const props = defineProps({
 })
 
 const tableTool = useTableTool()
-
+const hScroll = useHScroll()
 const searchData = reactive({
   visible: false,
   key: undefined

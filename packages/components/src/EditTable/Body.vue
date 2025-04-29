@@ -8,7 +8,14 @@
   >
     <div :style="{position: 'relative'}">
       <div class="jetlinks-edit-scrollbar" :style="containerStyle"> </div>
-      <div class="jetlinks-edit-table-center" ref="tableCenterRef" >
+      <div
+        class="jetlinks-edit-table-center"
+        ref="tableCenterRef"
+        :style="{
+          transform: `translate3d(-${hScroll || 0}px, ${virtualRang.start * cellHeight}px, 0)`,
+          width: width + 'px'
+        }"
+      >
         <div
           v-if="virtualData.length"
           v-for="(item, index) in virtualData"
@@ -17,7 +24,10 @@
               'jetlinks-edit-table-row-selected': selectedRowKeys?.includes(item[rowKey] || virtualRang.start + index + 1)
             }"
           :key="`record_${item.__key}`"
-          :style="{height: `${cellHeight}px`,}"
+          :style="{
+            height: `${cellHeight}px`,
+            transform: `-${hScroll || 0}px`
+          }"
           :data-row-key="item[rowKey] || virtualRang.start + index + 1"
           @click.right.native="(e) => showContextMenu(e,item, virtualRang.start + index)"
           @click.stop="() => rowClick(item)"
@@ -37,7 +47,10 @@
             </div>
             <div v-else class="body-cell-box">
               <slot :name="column.dataIndex" :record="item" :index="item.__dataIndex" :column="column" >
-                {{ item[column.dataIndex] }}
+                <CellRender v-if="column.customRender" :record="item" :value="item[column.dataIndex]" :index="item.__dataIndex" :render-fn="column.customRender" />
+                <template v-else>
+                  {{ item[column.dataIndex] }}
+                </template>
               </slot>
             </div>
           </div>
@@ -57,11 +70,12 @@
 
 <script setup>
 import ContextMenu from './components/ContextMenu'
-import {useRightMenuContext} from "./hooks";
+import {useHScroll, useRightMenuContext} from "./hooks";
 import {randomString} from "@jetlinks-web/utils";
 import {bodyProps} from "./props";
 import { ref, reactive, computed, watch, onMounted, onBeforeUnmount, defineExpose, nextTick} from 'vue'
 import Empty from '../Empty/Empty.vue'
+import CellRender from './CellRender.vue'
 
 defineOptions({
   name: 'JEditTableBody'
@@ -72,6 +86,9 @@ const props = defineProps({
   groupKey: {
     type: [String, Number],
     default: undefined
+  },
+  width: {
+    type: Number
   },
   readonly: {
     type: Boolean,
@@ -89,6 +106,7 @@ const virtualRang = reactive({
 })
 const containerStyle = ref(0)
 const context = useRightMenuContext()
+const hScroll = useHScroll()
 
 let scrollLock = ref(false)
 let menuInstance
@@ -103,7 +121,7 @@ const virtualData = computed(()=> {
 
   const array = props.dataSource.slice(virtualRang.start, virtualRang.end)
   if (tableCenterRef.value) {
-    tableCenterRef.value.style.webkitTransform  =  `translate3d(0, ${virtualRang.start * props.cellHeight}px, 0)`
+    // tableCenterRef.value.style.webkitTransform  =  `translateY(${virtualRang.start * props.cellHeight}px)`
   }
   return array
 })

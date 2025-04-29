@@ -8,15 +8,16 @@ type Options = {
 
 export const useNetwork = (options?: Options): { isOnline: Ref<boolean> } => {
   const isOnline = ref(true)
-  const connection = navigator.connection || navigator.webkitConnection || navigator.mozConnection;
+  const _navigator = navigator as any
+  const connection = _navigator.connection || _navigator.webkitConnection || _navigator.mozConnection;
   const downLink = connection.downlink;
 
   const connectionChange = () => {
-    if (downLink !== navigator.connection.downlink || navigator.connection.rtt === 0) {
+    if (downLink !== _navigator.connection.downlink || _navigator.connection.rtt === 0) {
       //网络断开
       isOnline.value = false
       options?.offline?.()
-    } else if (downLink === navigator.connection.downlink || navigator.connection.rtt !== 0) {
+    } else if (downLink === _navigator.connection.downlink || _navigator.connection.rtt !== 0) {
       //连接到网络
       isOnline.value = true
       options?.onLine?.()

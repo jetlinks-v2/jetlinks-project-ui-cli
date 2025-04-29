@@ -1,4 +1,5 @@
-import { webSocket, WebSocketSubject } from 'rxjs/webSocket';
+import { webSocket,  } from 'rxjs/webSocket';
+import type { WebSocketSubject } from 'rxjs/webSocket';
 import { Observable, Subject, timer, Subscription, EMPTY } from 'rxjs';
 import { retry, catchError } from 'rxjs/operators';
 import { notification } from 'ant-design-vue';

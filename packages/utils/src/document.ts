@@ -17,6 +17,12 @@ export const downloadFileByUrl = (url: string, name: string, type?: string) => {
   document.body.removeChild(downNode);
 };
 
+export const downloadBlob = (record: any, name: string, type?: string) => {
+  const blob = new Blob([record]);
+  const url = URL.createObjectURL(blob);
+  downloadFileByUrl(url, name, type);
+}
+
 export const downloadJson = (record: Record<string, any>, fileName: string, format?: string) => {
   const time = new Date()
   const y = time.getFullYear()

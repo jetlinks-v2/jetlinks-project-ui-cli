@@ -4,13 +4,13 @@ import {
   error,
   filterWorkspace,
   getWorkspacePackages,
-} from "./helper";
-import { DEFAULT_SELECT_TYPE } from "./constant";
+} from "./helper.js";
+import { DEFAULT_SELECT_TYPE } from "./constant.js.js";
 import { isArray, isString } from "lodash-es";
 
 import prompts from "prompts";
 
-async function runScript(argv: string[], script: string) {
+async function runScript(argv, script) {
   // spinner.stop()
   execa("pnpm", ["-w", "run", `turbo:${script}`].concat(argv), {
     stdio: "inherit",
@@ -18,9 +18,9 @@ async function runScript(argv: string[], script: string) {
   });
 }
 
-async function baseScript(command: string, isFilterWorkspace: boolean) {
+async function baseScript(command, isFilterWorkspace) {
   const argv = commandArgv("filter");
-  let filterArgv: string[] = [];
+  let filterArgv = [];
   try {
     if (isArray(argv)) {
       filterArgv = argv
@@ -67,7 +67,7 @@ async function baseScript(command: string, isFilterWorkspace: boolean) {
   }
 }
 
-export function run(command: string, isFilterWorkspace = false) {
+export function run(command, isFilterWorkspace = false) {
   baseScript(command, isFilterWorkspace).catch((err) => {
     error(err);
     process.exit(1);
