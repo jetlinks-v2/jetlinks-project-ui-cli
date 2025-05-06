@@ -3,6 +3,7 @@
     :width="800"
     :height="modalHeight"
     :title="false"
+    :footer="false"
     :dragRang="[600, 200]"
     :bodyStyle="{
       overflow: 'hidden'
@@ -14,7 +15,7 @@
         <div>
           <a-space>
             <span>{{ contextLocale.Search.find }}</span>
-            <a-input v-model:value="searchValue" :maxlength="64" :placeholder="contextLocale.Search.placeholder" />
+            <a-input v-model:value="searchValue" allow-clear :maxlength="64" :placeholder="contextLocale.Search.placeholder" @drag.stop />
             <a-button type="primary" ghost @click="() => search('all')">{{ contextLocale.Search.all }}</a-button>
             <a-button type="primary" ghost @click="() => search('prev')">{{ contextLocale.Search.prev }}</a-button>
             <a-button type="primary" ghost @click="() => search('next')">{{ contextLocale.Search.next }}</a-button>
@@ -28,7 +29,7 @@
         <Table
           ref="tableRef"
           :data-source="filterArray"
-          :columns="columns"
+          :columns="myColumns"
           :height="tableHeight"
           :disableMenu="false"
           :cellHeight="36"
@@ -73,10 +74,11 @@
 <script setup>
 import Table from '../../EditTable.vue'
 import {useTableDataSource, useTableOpenGroup, useTableTool, useGroupOptions} from "../../context";
-import {ref, defineProps, defineOptions, defineEmits} from "vue";
+import {ref, computed, defineProps, defineOptions, defineEmits} from "vue";
 import Ellipsis from '../../../Ellipsis/Ellipsis.vue'
 import DragModal from '../../../DragModal/DragModal.vue'
 import {useLocaleReceiver} from "../../../LocaleReciver/index";
+import { isNumber, isArray, isObject, isBoolean} from 'lodash-es'
 
 defineOptions({
   name:'JEditTableSearch'
@@ -86,6 +88,10 @@ const props = defineProps({
   searchKey: {
     type: String,
     default: 'id'
+  },
+  columns: {
+    type: Array,
+    default: undefined
   }
 })
 
@@ -105,21 +111,31 @@ const tableHeight = ref(230)
 const selectedRowKeys = ref([])
 const tableRef = ref()
 
-const columns = reactive([
-  {
-    title: contextLocale.value.columns.sign,
-    dataIndex: 'id',
-  },
-  {
-    title: contextLocale.value.columns.name,
-    dataIndex: 'name',
+const myColumns = computed(() => {
+
+  if (props.columns) {
+    return props.columns.map(item => ({
+      title: item.title,
+      dataIndex: item.dataIndex
+    }))
   }
-])
+
+  return [
+    {
+      title: contextLocale.value.columns.sign,
+      dataIndex: 'id',
+    },
+    {
+      title: contextLocale.value.columns.name,
+      dataIndex: 'name',
+    }
+  ]
+})
 
 const selectedTableRow = (record) => {
   tableTool.scrollTo({
     ...record,
-    __serial: record.__serial - 1
+    __serial: record.__oldSerial - 1
   })
   tableTool.selected([record.id])
 }
@@ -127,8 +143,15 @@ const selectedTableRow = (record) => {
 const handleFilterArray = () => {
   const cloneDataSource = JSON.parse(JSON.stringify(dataSource.value || '[]')).map(item => Object.assign(item, { __oldSerial: item.__serial}))
   const _filterArray = cloneDataSource.filter(item => {
-    if (item[props.searchKey]) {
-      return item[props.searchKey].includes(searchValue.value)
+    let targetValue = item[props.searchKey]
+    if (targetValue) {
+      // 判断是否为string
+      if (isNumber(targetValue) || isBoolean(targetValue)) {
+        targetValue = toString(targetValue)
+      } else if (isArray(targetValue) || isObject(targetValue)) {
+        targetValue = JSON.stringify(targetValue)
+      }
+      return targetValue.includes(searchValue.value)
     }
     return false
   })

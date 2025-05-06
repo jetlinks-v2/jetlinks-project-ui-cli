@@ -1,5 +1,5 @@
 <template>
-  <div ref="echartsDom" class="echarts-warp" :style="style"></div>
+  <div ref="echartsDom" style="height: 100%;width: 100%" :style="style"></div>
 </template>
 
 <script lang="ts" setup>
@@ -25,7 +25,7 @@ const props = defineProps({
 
 const echartsDom = ref<Ref<HTMLDivElement> | HTMLDivElement>()
 
-const {setOptions} = useECharts(echartsDom.value)
+const {setOptions} = useECharts(echartsDom)
 
 watch(
   () => JSON.stringify(props.options),
@@ -40,9 +40,3 @@ watch(
 )
 </script>
 
-<style scoped>
-.echarts-warp {
-  width: 100%;
-  height: 100%;
-}
-</style>

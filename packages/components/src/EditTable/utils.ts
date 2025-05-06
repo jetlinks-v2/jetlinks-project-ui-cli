@@ -1,5 +1,5 @@
 import type { ColumnType } from 'ant-design-vue/lib/table'
-import { omit} from "lodash-es";
+import {cloneDeep, omit} from "lodash-es";
 
 
 type ColumnsFormType = {
@@ -39,7 +39,8 @@ export const handlePureRecord = (record: Record<string, any>) => {
 
 export const handleColumnsWidth = (columns: any[], warpWidth: number): any[] => {
 
-  let newColumns = [...columns]
+  // let newColumns = [...columns]
+  let newColumns = cloneDeep(columns)
   let noWidthLen = 0 // 没有width属性的长度
   let hasWidthCount = 0 // 有width属性的合计
   let average = 0 // 每个column宽度

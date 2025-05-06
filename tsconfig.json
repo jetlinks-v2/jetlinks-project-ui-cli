@@ -15,8 +15,6 @@
     "allowJs": true,
     "baseUrl": "./",
     "types": ["ant-design-vue/typings/global", "vite/client"],
-    "suppressImplicitAnyIndexErrors": true,
-    "importsNotUsedAsValues": "preserve",
   },
-  "exclude": ["node_modules", "lib", "es", "dist"]
+  "exclude": ["node_modules", "lib", "es", "dist", "packages/*/**/dist"],
 }

@@ -20,6 +20,9 @@
     },
     "compile": {
       "cache": false
+    },
+    "compile-es": {
+      "cache": false
     }
   }
 }

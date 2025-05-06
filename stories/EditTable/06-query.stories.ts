@@ -19,7 +19,7 @@ type Story = StoryObj<typeof component>;
 
 export const 筛选: Story = {
   args: {
-    columns: columns,
+    columns: columns.map(item => ({...item, filter: item.dataIndex !== 'id'})),
     dataSource: dataSource,
   },
   parameters: {

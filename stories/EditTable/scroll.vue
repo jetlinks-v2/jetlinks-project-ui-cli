@@ -1,6 +1,5 @@
 <script setup lang="ts">
-// import { defaultProps, bodyProps} from ‘@jetlinks-web/components/es/EditTable/props’
-import { defaultProps, bodyProps} from '../../packages/components/src/EditTable/props'
+import { defaultProps, bodyProps} from '@jetlinks-web/components/es/EditTable/props'
 import { types, bigData } from './data'
 import {ref} from 'vue'
 import { randomNumber } from '@jetlinks-web/utils'
