@@ -114,7 +114,7 @@
       @ok="handleItemModalSubmit"
     >
       <div style="width: 100%; height: 300px">
-        <MonacoEditor v-model:modelValue="objectValue" />
+<!--        <MonacoEditor v-model:modelValue="objectValue" />-->
       </div>
     </Modal>
   </div>
@@ -123,7 +123,7 @@
 <script lang="ts" setup>
 import { CSSProperties, PropType, ref, watch, computed } from 'vue'
 import { componentsType } from './util'
-import { MonacoEditor } from '../index'
+// import { MonacoEditor } from '../index'
 import {
   Select,
   DatePicker,
