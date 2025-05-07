@@ -61,9 +61,6 @@
       v-bind="bindProps"
       @change="onChange"
     >
-      <template #addonAfter>
-        <AIcon type="FormOutlined" @click="modalVisible = true" />
-      </template>
     </Input>
     <Input
       v-else-if="typeMap.get(itemType) === 'file'"
@@ -102,28 +99,12 @@
       @change="onChange"
     />
 
-    <!-- 代码编辑器弹窗 -->
-    <Modal
-      v-model:visible="modalVisible"
-      :zIndex="1100"
-      cancel-text="取消"
-      ok-text="确认"
-      title="编辑"
-      width="700px"
-      @cancel="monacoCancel"
-      @ok="handleItemModalSubmit"
-    >
-      <div style="width: 100%; height: 300px">
-        <MonacoEditor v-model:modelValue="objectValue" />
-      </div>
-    </Modal>
   </div>
 </template>
 
 <script lang="ts" setup>
 import { CSSProperties, PropType, ref, watch, computed } from 'vue'
 import { componentsType } from './util'
-import { MonacoEditor } from '../index'
 import {
   Select,
   DatePicker,
@@ -132,7 +113,6 @@ import {
   InputNumber,
   InputPassword,
   Upload,
-  Modal,
 } from 'ant-design-vue'
 import {omit} from "lodash-es";
 
@@ -189,29 +169,17 @@ const props = defineProps({
 const typeMap = new Map(Object.entries(componentsType))
 
 const myValue = ref<any>(undefined)
-const modalVisible = ref<boolean>(false)
 const objectValue = ref<string>('')
 
 const bindProps = computed(() => {
   return Object.assign(omit(props, ['extraProps']), props.extraProps)
 })
 
-const handleItemModalSubmit = () => {
-  myValue.value = objectValue.value.replace(/[\r\n]\s*/g, '')
-  modalVisible.value = false
-  emit('update:modelValue', objectValue.value)
-  emit('change', objectValue.value)
-}
-
 const onChange = (e) => {
   emit('update:modelValue', myValue.value)
   emit('change', e && e.target ? e.target.value : e)
 }
 
-const monacoCancel = () => {
-  modalVisible.value = false
-  objectValue.value = props.modelValue as string
-}
 const handleFileChange = async (info: any) => {
   if (info.file.status === 'done') {
     let url = info.file.response?.result?.accessUrl
