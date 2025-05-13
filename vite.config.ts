@@ -25,4 +25,7 @@ export default defineConfig({
             },
         },
     },
+    optimizeDeps: {
+        exclude: ['@storybook/manager-api', '@storybook/theming'],
+    },
 })
