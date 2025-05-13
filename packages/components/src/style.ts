@@ -9,5 +9,4 @@ import './EditTable/style';
 import './Scrollbar/style';
 import './Title/style';
 import './RadioButton/style';
-import './FlameGraph/style'
 import './Skeketon/style'
