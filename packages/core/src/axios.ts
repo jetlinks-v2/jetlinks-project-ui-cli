@@ -60,7 +60,8 @@ interface RequestOptions {
   [key: string]: any
 }
 
-let instance: AxiosInstance
+export let instance: AxiosInstance = (window as any).JetlinksCore?.instance || null
+
 let _options: Options = {
   filter_url: [],
   code: 200,
