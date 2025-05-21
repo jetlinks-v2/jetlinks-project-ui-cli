@@ -63,7 +63,7 @@ const dropdownVisibleChange = (open: boolean) => {
 };
 
 watch(
-  () => props.options,
+  () => props.options, // 处理options变化
   () => {
     _options.value = props.options || [];
   }
