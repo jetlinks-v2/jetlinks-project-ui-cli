@@ -1,23 +1,23 @@
 import type { Meta, StoryObj } from '@storybook/vue3';
-import component from './AutoComplete.vue';
-import componentRaw from './AutoComplete.vue?raw';
+import { fn } from '@storybook/test';
+import AutoCompleteComponent from './AutoComplete.vue';
 
 // 定义元数据
-const meta: Meta<typeof component> = {
+const meta: Meta<typeof AutoCompleteComponent> = {
   title: '示例/AutoComplete',
-  component: component,
+  component: AutoCompleteComponent,
   tags: ['autodocs'],
   argTypes: {
     // 定义 props 的控制类型
-    searchKey: { control: 'text', description: '搜索字段' },
-    options: { control: 'array', description: 'options 数据' },
+    searchKey: { control: 'text' },
+    options: { control: 'array' },
     // 定义事件
     onSelect: {
       action: 'onSelect',
       description: '被选中时调用' ,
       table: {
         type: { summary: '(e, option) => void' },
-        defaultValue: { summary: 'undefined' },
+        defaultValue: { summary: 'undefined' }, 
       }
     },
   },
@@ -35,12 +35,5 @@ export const 基础使用: Story = {
       { label: '张三', value: 'zhangsan' },
       { label: '李四', value: 'lisi' },
     ],
-  },
-  parameters: {
-    docs: {
-      source: {
-        code: componentRaw
-      }
-    }
   }
 };
