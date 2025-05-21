@@ -148,7 +148,7 @@ export class NdJson {
             }
 
             const data = decoder.decode(value, { stream: true });
-            data_buf += data;
+            data_buf += data.startsWith('data:') ? data.slice(5) : data;
 
             let lines = data_buf.split('\n');
             for (let i = 0; i < lines.length - 1; ++i) {
