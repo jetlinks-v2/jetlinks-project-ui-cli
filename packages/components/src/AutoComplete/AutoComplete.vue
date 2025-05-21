@@ -2,7 +2,7 @@
   <AutoComplete
     v-bind="props"
     style="width: 100%"
-    :options="options"
+    :options="_options"
     @search="onSearch"
     @dropdownVisibleChange="dropdownVisibleChange"
   >
@@ -19,7 +19,7 @@
 import { AutoComplete } from 'ant-design-vue';
 import type { DefaultOptionType } from 'ant-design-vue/lib/vc-select/Select';
 import { autoCompleteProps } from 'ant-design-vue/lib/auto-complete';
-import { ref, defineProps, defineEmits, defineOptions } from 'vue';
+import { ref, defineProps, defineEmits, defineOptions, watch } from 'vue';
 
 defineOptions({
   name: 'JAutoComplete'
@@ -38,18 +38,18 @@ const props = defineProps({
 });
 const emit = defineEmits<Emit>();
 
-const options = ref<DefaultOptionType[]>(props.options);
+const _options = ref<DefaultOptionType[]>(props.options);
 
 /**
  * 根据关键词提示
  * @param searchText 关键词
  */
 const onSearch = (searchText: string) => {
-  options.value = props.options?.filter(
+  _options.value = props.options?.filter(
     (item) => !!item[props.searchKey]?.includes(searchText),
   ) || [];
-  if (!options.value.length) {
-    options.value.unshift({ label: searchText, value: searchText });
+  if (!_options.value.length) {
+    _options.value.unshift({ label: searchText, value: searchText });
   }
 };
 
@@ -57,8 +57,15 @@ const dropdownVisibleChange = (open: boolean) => {
   if (!open) {
     // 关闭还原下拉options
     setTimeout(() => {
-      options.value = props.options || [];
+      _options.value = props.options || [];
     });
   }
 };
+
+watch(
+  () => props.options, // 处理options变化
+  () => {
+    _options.value = props.options || [];
+  }
+)
 </script>
