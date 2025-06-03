@@ -38,7 +38,7 @@ const props = defineProps({
 });
 const emit = defineEmits<Emit>();
 
-const _options = ref<DefaultOptionType[]>(props.options);
+const _options = ref<DefaultOptionType[]>([]);
 
 /**
  * 根据关键词提示
@@ -63,9 +63,10 @@ const dropdownVisibleChange = (open: boolean) => {
 };
 
 watch(
-  () => props.options, // 处理options变化
+  () => JSON.stringify(props.options), // 处理options变化
   () => {
     _options.value = props.options || [];
-  }
+  },
+  {immediate: true},
 )
 </script>

@@ -31,6 +31,11 @@
             <Empty/>
           </slot>
         </template>
+        <template v-for="(_, slotKey) in slots" :key="slotKey" v-slot:[slotKey]="slotProps">
+          <template v-if="!['headerCell', 'bodyCell', 'emptyText'].includes(slotKey)">
+            <slot :name="slotKey" v-bind="slotProps"></slot>
+          </template>
+        </template>
       </Table>
     </template>
   </div>
