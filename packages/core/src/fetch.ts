@@ -75,7 +75,7 @@ export class NdJson {
               const line = lines[i].trim();
               if (line.length > 0) {
                 try {
-                  observer.next(JSON.parse(line));
+                  observer.next(JSON.parse(line.startsWith('data:') ? line.slice(5) : line));
                 } catch (e) {
                   observer.error(e);
                   reader.cancel();
@@ -148,14 +148,14 @@ export class NdJson {
             }
 
             const data = decoder.decode(value, { stream: true });
-            data_buf += data.startsWith('data:') ? data.slice(5) : data;
+            data_buf += data;
 
             let lines = data_buf.split('\n');
             for (let i = 0; i < lines.length - 1; ++i) {
               const line = lines[i].trim();
               if (line.length > 0) {
                 try {
-                  observer.next(JSON.parse(line));
+                  observer.next(JSON.parse(line.startsWith('data:') ? line.slice(5) : line));
                 } catch (e) {
                   observer.error(e);
                   reader.cancel();

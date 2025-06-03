@@ -240,8 +240,8 @@ const searchRef = ref(null);
 const searchRefContentRef = ref(null);
 const {width} = useElementSize(searchRef);
 
-const q = ref('q');
-const target = ref('target');
+const q = useRouteQuery('q');
+const target = useRouteQuery('target');
 const hasOnceSearch = ref(false);
 
 // 是否展开更多筛选
