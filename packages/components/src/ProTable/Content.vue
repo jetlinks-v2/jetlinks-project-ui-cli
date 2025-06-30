@@ -64,10 +64,16 @@ const slots = useSlots()
 const _columns = computed(() => props.columns.filter((i) => !i?.hideInTable))
 
 const _scroll = computed(() => {
-  let y = props.scroll?.y || '100%'
+  if(props.scroll === false) {
+    return {
+      x: undefined,
+      y: undefined
+    }
+  }
+
   return {
-    x: props.scroll?.x || '100%',
-    y
+    x: props.scroll.x === false ? undefined : props.scroll.x || '100%',
+    y: props.scroll.y === false ? undefined : props.scroll.y || '100%'
   }
 })
 

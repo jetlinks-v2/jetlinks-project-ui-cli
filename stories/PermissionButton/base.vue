@@ -1,4 +1,5 @@
 <script setup>
+import { usePermission } from '@jetlinks-web/hooks'
 
 const props = defineProps({
   tooltip: {
@@ -18,6 +19,9 @@ const props = defineProps({
     type: String
   }
 })
+
+const { hasPerm } = usePermission('device:add')
+
 </script>
 
 <template>

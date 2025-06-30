@@ -4,6 +4,8 @@ const compactVars = require('./scripts/compact-vars');
 const vueCompiler = require('@vue/compiler-sfc');
 const { transform } = require('sucrase');
 
+const regex = /(['"])(ant-design-vue)(?!\/es|\/lib)(\1)/g;
+
 function generateThemeFileContent(theme) {
     return `const { ${theme}ThemeSingle } = require('./theme');\nconst defaultTheme = require('./default-theme');\n
 module.exports = {
@@ -142,7 +144,7 @@ function needTransformStyle(content) {
 module.exports = {
     compile: {
         includeLessFile: [/(\/|\\)src(\/|\\)style(\/|\\)variable.less$/],
-        transformTSFile(file) {
+        transformTSFile(file, modules) {
             if (isComponentStyleEntry(file)) {
                 let content = file.contents.toString();
                 if (needTransformStyle(content)) {
@@ -152,21 +154,25 @@ module.exports = {
                     content = content.replace(
                         '../../style/index.less',
                         '../../style/default.less',
-                    );
+                    ).replace(regex, modules === false ?`$1$2/es/$3`: `$1$2/lib/$3`)
+                      .replace('/lib/', modules === false ?`/es/`: `/lib/`)
+                      .replace('/es/', modules === false ?`/es/`: `/lib/`);
 
                     cloneFile.contents = Buffer.from(content);
-
                     return cloneFile;
                 }
             } else {
                 let content = file.contents.toString();
                 const cloneFile = file.clone();
-                content = content.replace(/\.vue/g, '.js');
+                content = content.replace(/\.vue/g, '.js')
+                  .replace(regex, modules === false ?`$1$2/es/$3`: `$1$2/lib/$3`)
+                  .replace('/lib/', modules === false ?`/es/`: `/lib/`)
+                  .replace('/es/', modules === false ?`/es/`: `/lib/`);
                 cloneFile.contents = Buffer.from(content);
                 return cloneFile;
             }
         },
-        transformVue(file) {
+        transformVue(file, modules) {
             if (file.path.endsWith('.vue')) {
                 const cloneFile = file.clone();
                 const content = fs.readFileSync(file.path, 'utf-8');
@@ -210,8 +216,7 @@ module.exports = {
                     }
 
                     code += `\nexport default __sfc_main__`;
-
-                    code = code.replace(/\.vue/g, '.js');
+                    code = code.replace(/\.vue/g, '.js').replace(regex, modules === false ?`$1$2/es/$3`: `$1$2/lib/$3`).replace('/lib/', modules === false ?`/es/`: `/lib/`).replace('/es/', modules === false ?`/es/`: `/lib/`);
 
                     // codeList.push(vueCompiler.rewriteDefault(script.content, `__sfc_main__`, ['typescript']))
                     // codeList.push(`__sfc_main__.__scopeId='${scopeId}'`)
@@ -235,7 +240,7 @@ module.exports = {
                 }
             }
         },
-        transformFile(file, module) {
+        transformFile(file, modules) {
             if (isComponentStyleEntry(file)) {
                 const indexLessFilePath = file.path.replace(
                     'index.tsx',
@@ -255,6 +260,7 @@ module.exports = {
 
                     // Rewrite `index.less` file with `root-entry-name`
                     const indexLessFile = file.clone();
+                    indexLessFile.contents = indexLessFile.contents.replace(regex, modules === false ?`$1$2/es/$3`: `$1$2/lib/$3`).replace('/lib/', modules === false ?`/es/`: `/lib/`).replace('/es/', modules === false ?`/es/`: `/lib/`);
                     indexLessFile.contents = Buffer.from(
                         [
                             // Inject variable
@@ -266,7 +272,7 @@ module.exports = {
                     indexLessFile.path = indexLessFile.path.replace(
                         'index.tsx',
                         'index.less',
-                    );
+                    )
 
                     return [indexLessFile, pureFile];
                 }

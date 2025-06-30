@@ -25,6 +25,7 @@ const libDir = getProjectPath('lib');
 const esDir = getProjectPath('es');
 
 const tsConfig = getTSCommonConfig();
+const regex = /(['"])(ant-design-vue)(?!\/es)(\1)/g;
 
 function dist(done) {
     rimraf.sync(path.join(cwd, 'dist'));
@@ -167,7 +168,8 @@ function compile(modules) {
                 const content = file.contents
                     .toString()
                     .replace(/^\uFEFF/, '')
-                    .replace(/\/lib\//g, modules === false ? '/es/' : '/lib/');
+                    .replace(/\/lib\//g, modules === false ? '/es/' : '/lib/')
+                    .replace(/\/es\//g, modules === false ? '/es/' : '/lib/');
 
                 cloneFile.contents = Buffer.from(content);
 
@@ -258,8 +260,7 @@ function compile(modules) {
     if (transformTSFile) {
         sourceStream = sourceStream.pipe(
             through2.obj(function (file, encoding, next) {
-                let nextFile = transformTSFile(file) || file;
-                console.log(file.path);
+                let nextFile = transformTSFile(file, modules) || file;
                 nextFile = Array.isArray(nextFile) ? nextFile : [nextFile];
                 nextFile.forEach((f) => this.push(f));
                 next();
@@ -271,7 +272,7 @@ function compile(modules) {
         sourceVueStream = sourceVueStream
             .pipe(
                 through2.obj(function (file, encoding, next) {
-                    let nextFile = transformVue(file) || file;
+                    let nextFile = transformVue(file, modules) || file;
                     nextFile = Array.isArray(nextFile) ? nextFile : [nextFile];
                     nextFile.forEach((f) => this.push(f));
                     next();

@@ -1,6 +1,6 @@
 {
   "name": "@jetlinks-web/components",
-  "version": "2.6.18",
+  "version": "2.6.21",
   "description": "",
   "main": "lib/index.js",
   "module": "es/index.js",
@@ -25,6 +25,9 @@
   "license": "ISC",
   "dependencies": {
     "@ant-design/icons-vue": "^7.0.1",
+    "@jetlinks-web/constants": "workspace:^",
+    "@jetlinks-web/hooks": "workspace:^",
+    "@jetlinks-web/utils": "workspace:^",
     "@vuemap/vue-amap": "^2.0.17",
     "@vueuse/core": "^10.2.1",
     "@vueuse/router": "^12.1.0",
@@ -70,9 +73,6 @@
     "@babel/runtime": "^7.24.4",
     "@commitlint/cli": "^17.4.2",
     "@commitlint/config-conventional": "^17.4.2",
-    "@jetlinks-web/constants": "workspace:^",
-    "@jetlinks-web/hooks": "workspace:^",
-    "@jetlinks-web/utils": "workspace:^",
     "@rollup/plugin-commonjs": "^22.0.1",
     "@rollup/plugin-node-resolve": "^13.3.0",
     "@types/eslint": "^8.21.0",
