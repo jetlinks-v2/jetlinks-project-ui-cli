@@ -80,7 +80,7 @@ import {
 } from './consts'
 import {handleColumnsWidth} from './utils'
 import {useGroup, useResizeObserver, useValidate} from './hooks'
-import {tableProps} from 'ant-design-vue/es/table'
+import {tableProps} from 'ant-design-vue/lib/table'
 import {useFormContext} from './context'
 import {useFullscreen} from '@vueuse/core';
 import {provide, useSlots, ref, reactive, defineOptions, defineEmits, defineProps, computed, watch} from 'vue'

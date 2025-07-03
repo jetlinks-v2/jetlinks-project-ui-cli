@@ -8,9 +8,9 @@ const colorMap = {
 
 export const getHexColor = (code: string, pe: number = 0.1) => {
   const _color = colorMap[code] || colorMap.default
-  if (code === 'default') {
-    pe = 0.1
-  }
+  // if (code === 'default') {
+  //   pe = 0.1
+  // }
   return `rgba(${_color}, ${pe})`
 }
 
