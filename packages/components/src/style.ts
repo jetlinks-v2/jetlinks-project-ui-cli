@@ -6,8 +6,7 @@ import './Search/style';
 import './CardSelect/style';
 import './DragModal/style';
 import './EditTable/style';
-import './MonacoEditor/style';
 import './Scrollbar/style';
 import './Title/style';
 import './RadioButton/style';
-import './FlameGraph/style'
+import './Skeketon/style'

@@ -17,8 +17,8 @@
 
 <script lang="ts" setup>
 import { AutoComplete } from 'ant-design-vue';
-import type { DefaultOptionType } from 'ant-design-vue/lib/vc-select/Select';
-import { autoCompleteProps } from 'ant-design-vue/lib/auto-complete';
+import type { DefaultOptionType } from 'ant-design-vue/es/vc-select/Select';
+import { autoCompleteProps } from 'ant-design-vue/es/auto-complete';
 import { ref, defineProps, defineEmits, defineOptions } from 'vue';
 
 defineOptions({
