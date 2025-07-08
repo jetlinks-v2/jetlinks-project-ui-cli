@@ -1,6 +1,6 @@
 <template>
   <div class="jtable-body-spin" :style="bodyStyle" id="jtable-body-spin">
-    <Spin :spinning="loading">
+    <JSkeletonList :loading="loading" :active="true" :mode="_mode">
       <div class="jtable-body">
         <Header :initMode="mode" :mode="_mode" :modeValue="modeValue" @change="onCheck">
           <template #headerLeftRender>
@@ -30,13 +30,12 @@
           ></slot>
         </Pagination>
       </div>
-    </Spin>
+    </JSkeletonList>
   </div>
 </template>
 
 <script setup lang="ts">
 import {proTableProps} from "./setting";
-import {Spin} from 'ant-design-vue';
 import Header from './Header.vue';
 import Alert from './Alert.vue';
 import Content from './Content.vue';
@@ -44,6 +43,7 @@ import Pagination from './Pagination.vue';
 import {useSlots, watch, onMounted, onUnmounted, computed, ref, reactive, inject} from "vue";
 import {debounce} from 'lodash-es';
 import {TableConfig} from "../utils/constants";
+import {JSkeletonList} from "../Skeleton";
 
 defineOptions({
   name: 'JProTable'

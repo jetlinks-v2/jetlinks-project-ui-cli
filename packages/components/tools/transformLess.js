@@ -4,6 +4,13 @@ const postcss = require('postcss');
 const autoprefixer = require('autoprefixer');
 const NpmImportPlugin = require('less-plugin-npm-import');
 const { getConfig } = require('./utils/projectHelper');
+const { theme } = require('ant-design-vue/lib');
+const convertLegacyToken = require('ant-design-vue/lib/theme/convertLegacyToken');
+
+const { defaultAlgorithm, defaultSeed } = theme;
+
+const mapToken = defaultAlgorithm(defaultSeed);
+const v3Token = convertLegacyToken.default(mapToken);
 
 function transformLess(lessContent, lessFilePath, config = {}) {
     const { cwd = process.cwd() } = config;
@@ -17,6 +24,7 @@ function transformLess(lessContent, lessFilePath, config = {}) {
         plugins: [new NpmImportPlugin({ prefix: '~' })],
         javascriptEnabled: true,
         ...lessConfig,
+        modifyVars: v3Token
     };
     return less
         .render(lessContent, lessOpts)

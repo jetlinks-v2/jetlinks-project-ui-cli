@@ -115,8 +115,4 @@ export default {
   PermissionButton: {
     hasPermission: 'No permission, please contact the administrator'
   },
-  FlameGraph: {
-    placeholder: 'Please input',
-    revert: 'Revert',
-  }
 }
