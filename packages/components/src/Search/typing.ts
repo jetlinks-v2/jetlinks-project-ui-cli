@@ -29,6 +29,7 @@ export interface SearchBaseProps {
     termOptions?: Array<{ label: string; value: string }>;
 
     handleValue?: (value: SearchItemData) => any;
+    handleTerms?: (value: SearchItemData) => any;
 }
 
 export interface SearchItemProps {
@@ -50,7 +51,7 @@ export interface TermsItem {
 }
 
 export interface Terms {
-    terms: TermsItem[];
+    terms: TermsItem[] | SearchItemData[];
 }
 
 export interface SortItem {
@@ -74,3 +75,9 @@ export interface JColumnsProps extends ColumnType {
     scopedSlots?: boolean;
     search: SearchProps;
 }
+
+export interface ColumnsMap extends JColumnsProps {
+  _sort_index?: number;
+}
+
+export type SearchType = 'terms' | 'object';
