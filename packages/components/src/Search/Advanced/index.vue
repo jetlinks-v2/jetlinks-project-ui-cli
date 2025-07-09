@@ -1,9 +1,10 @@
 <template>
-  <Form :model="termsData" @finish="searchSubmit">
+  <Form :model="terms" @finish="searchSubmit">
     <div
         ref="searchRef"
-        :class="['JSearch-warp', 'senior', props.class]"
-        :style="style"
+        class="JSearch-warp senior"
+        :class="attrs.class"
+        :style="attrs.style"
     >
       <!--  高级模式  -->
       <div
@@ -24,37 +25,22 @@
         >
           <div class="left">
             <div class="left-items">
-              <SearchItem
+              <template v-for="(item, index) in terms.terms.slice(0, 3)">
+                <SearchItem
                   :expand="expand"
-                  :index="1"
-                  :columns="searchItems"
-                  :terms-item="termsData.terms[0].terms[0]"
-                  :reset="resetNumber"
-                  @change="(v) => itemValueChange(v, 1)"
-              />
-              <SearchItem
-                  v-if="expand"
-                  :expand="expand"
-                  :index="2"
-                  :columns="searchItems"
-                  :terms-item="termsData.terms[0].terms[1]"
-                  :reset="resetNumber"
-                  @change="(v) => itemValueChange(v, 2)"
-              />
-              <SearchItem
-                  v-if="expand"
-                  :expand="expand"
-                  :index="3"
-                  :columns="searchItems"
-                  :terms-item="termsData.terms[0].terms[2]"
-                  :reset="resetNumber"
-                  @change="(v) => itemValueChange(v, 3)"
-              />
+                  :index="index + 1"
+                  :onlyValue="false"
+                  v-model:value="item.value"
+                  v-model:termType="item.termType"
+                  v-model:column="item.column"
+                  v-model:type="item.type"
+                />
+              </template>
             </div>
           </div>
           <div v-if="expand" class="center">
             <Select
-                v-model:value="termsData.terms[1].type"
+                v-model:value="terms.terms[3].type"
                 class="center-select"
                 style="width: 100px"
                 :options="typeOptions(contextLocale)"
@@ -62,16 +48,18 @@
           </div>
           <div v-if="expand" class="right">
             <div class="right-items">
-              <SearchItem
-                  v-for="item in [4, 5, 6]"
-                  :key="`search_item_${item}`"
+              <template v-for="(item, index) in terms.terms.slice(3, 6)">
+                <SearchItem
+                  v-if="expand && index !== 4"
                   :expand="expand"
-                  :index="item"
-                  :columns="searchItems"
-                  :terms-item="termsData.terms[1].terms[item - 4]"
-                  :reset="resetNumber"
-                  @change="(v) => itemValueChange(v, item)"
-              />
+                  :index="index + 4"
+                  :onlyValue="false"
+                  v-model:value="item.value"
+                  v-model:termType="item.termType"
+                  v-model:column="item.column"
+                  v-model:type="item.type"
+                />
+              </template>
             </div>
           </div>
         </div>
@@ -84,15 +72,15 @@
           <div class="JSearch-footer--btns">
             <Button type="stroke" @click="reset"> {{contextLocale.advanced.reset}}</Button>
             <SaveHistory
-                :terms="termsData"
+                :terms="terms"
                 :target="target"
-                :request="request"
+                :request="request || context.saveRequest"
             />
             <History
                 :target="target"
-                :request="historyRequest"
-                :delete-request="deleteRequest"
-                :delete-key="deleteKey"
+                :request="historyRequest || context.historyRequest"
+                :delete-request="deleteRequest || context.deleteRequest"
+                :delete-key="deleteKey || context.deleteKey"
                 @click="searchSubmit"
                 @itemClick="historyItemClick"
             />
@@ -118,19 +106,20 @@
         <div class="JSearch-items">
           <div class="left">
             <SearchItem
-                :expand="false"
-                :index="1"
-                :columns="searchItems"
-                :terms-item="termsData.terms[0].terms[0]"
-                :reset="resetNumber"
-                @change="(v) => itemValueChange(v, 1)"
+              :expand="false"
+              :index="1"
+              :onlyValue="false"
+              v-model:value="terms.terms[0].value"
+              v-model:termType="terms.terms[0].termType"
+              v-model:column="terms.terms[0].column"
+              v-model:type="terms.terms[0].type"
             />
           </div>
         </div>
         <div class="JSearch-footer">
           <div class="JSearch-footer--btns">
             <FormItemRest>
-              <Button type="stroke" @click="reset">
+              <Button @click="reset">
                 {{contextLocale.advanced.reset}}
               </Button>
               <Button html-type="submit" type="primary">
@@ -146,35 +135,29 @@
 
 <script setup lang="ts">
 import SearchItem from '../Item.vue';
-import { optionsMapKey, typeOptions } from '../setting';
-import { useElementSize } from '@vueuse/core';
-import { useRouteQuery } from '@vueuse/router';
-import {PropType, ref, reactive, watch, provide, defineExpose} from 'vue';
+import { typeOptions } from '../setting';
+import {useHandleColumns, useOptionMapContent, useRouteQuery} from '../hooks';
+import {PropType, ref, reactive, watch, defineExpose, useAttrs, inject} from 'vue';
 import SaveHistory from './SaveHistory.vue';
 import History from './History.vue';
 import type {
-  SearchItemData,
-  SearchProps,
   Terms,
   JColumnsProps,
 } from '../typing';
 import {
-  compatibleOldTerms,
-  getTermTypeFn,
-  handleQData,
+  compatibleOldTerms, getItemDefaultValue,
   hasExpand,
-  termsParamsFormat, termsToValue,
+  termsParamsFormat,
 } from '../util';
 import { Select, Button, Form, FormItemRest } from 'ant-design-vue'
 import { AIcon } from '../../../'
-import { cloneDeep } from 'lodash-es';
 import {useLocaleReceiver} from "../../LocaleReciver/index";
+import {SearchConfig} from "../../utils/constants";
 
 defineOptions({
   name: 'JAdvancedSearch',
+  inheritAttrs: false
 })
-
-const [contextLocale] = useLocaleReceiver('Search');
 
 type UrlParam = {
   q: string | null;
@@ -200,10 +183,6 @@ const props = defineProps({
     default: '',
     required: true,
   },
-  class: {
-    type: String,
-    default: '',
-  },
   request: {
     type: Function as PropType<(data: any, target: string) => Promise<any>>,
     default: undefined,
@@ -222,85 +201,61 @@ const props = defineProps({
     type: String,
     default: 'key',
   },
-  routerMode: {
-    type: String,
-    default: 'hash',
-  },
-  style: {
-    type: [String, Object],
-    default: undefined,
-  },
   defaultValues: {
     type: Object,
     default: undefined,
   }
 });
 
-const searchRef = ref(null);
-const searchRefContentRef = ref(null);
-const {width} = useElementSize(searchRef);
+const emit = defineEmits(['search'])
 
-const q = useRouteQuery('q');
-const target = useRouteQuery('target');
-const hasOnceSearch = ref(false);
-
-// 是否展开更多筛选
+const columnsOptionMap = ref({}); // 存储每个columnItem的option
+const terms = reactive<Terms>({terms: []});// 当前查询条件
 const expand = ref(false);
-
-// 组件方向
 const layout = ref('horizontal');
 const compatible = ref(false);
-// 当前组件宽度 true 大于1000
 const screenSize = ref(true);
-const resetNumber = ref(1);
-let isFirstHandleDefaultValues = false
 
-const searchItems = ref<SearchProps[]>([]); // 当前查询条件
+const context = inject(SearchConfig)
 
-const termsData = reactive<Terms>({
-  terms: [
-    {terms: [null, null, null]},
-    {terms: [null, null, null], type: 'and'},
-  ],
-});
+const [contextLocale] = useLocaleReceiver('Search')
+const attrs = useAttrs()
+const q = useRouteQuery('q');
+const target = useRouteQuery('target');
+const { initValues, columnsMap, defaultCacheValues } = useHandleColumns({...props, mode: 'advanced'}, terms)
 
-const columnOptionMap = ref(new Map());
-
-provide(optionsMapKey, columnOptionMap);
-
-const emit = defineEmits<Emit>();
+useOptionMapContent(columnsOptionMap)
 
 const expandChange = () => {
   expand.value = !expand.value;
-  if (!expand.value) {
-    // 收起
-    const firstItem = termsData.terms[0].terms[0];
-    termsData.terms = [
-      {terms: [firstItem, null, null]},
-      {type: 'or', terms: [null, null, null]},
-    ];
-  }
-};
+  terms.terms.length = 1
+  if (expand.value) { // 展开
+    let arr = Object.values(columnsMap.value)
+    const mergeArr = []
 
-const itemValueChange = (value: SearchItemData, index: number) => {
-  if (index < 4) {
-    // 第一组数据
-    termsData.terms[0].terms[index - 1] = value;
-  } else {
-    // 第二组数据
-    termsData.terms[1].terms[index - 4] = value;
+    for (let i = 1; i < 6; i++) {
+      const indexIn = i % arr.length;
+      const obj = getItemDefaultValue(arr[indexIn], defaultCacheValues.value)
+      if (i === 3) {
+        obj.type = 'and'
+      }
+      mergeArr.push(obj);
+    }
+
+    terms.terms = [...terms.terms,...mergeArr]
   }
 };
 
 const addUrlParams = () => {
   if(props.target){
-    q.value = encodeURI(JSON.stringify(termsData));
+    q.value = encodeURI(JSON.stringify(terms));
     target.value = props.target;
   }
 };
 
 const submitData = () => {
-  emit('search', termsParamsFormat(termsData, columnOptionMap.value));
+  const data = termsParamsFormat(terms, columnsMap.value)
+  emit('search', data);
 };
 
 /**
@@ -317,118 +272,52 @@ const searchSubmit = () => {
  * 重置查询
  */
 const reset = () => {
-  termsData.terms = [
-    {terms: [null, null, null]},
-    {terms: [null, null, null], type: 'and'},
-  ];
   expand.value = false;
+  initValues()
   if (props.type === 'advanced') {
     q.value = null;
     target.value = null;
   }
-  resetNumber.value += 1;
   emit('search', {terms: []});
 };
 
+/**
+ * 历史下拉单选
+ * @param content {string}
+ */
 const historyItemClick = (content: string) => {
   try {
-    termsData.terms = handleQData(compatibleOldTerms(content))?.terms || [];
-    expand.value = hasExpand(termsData.terms);
+    const object = compatibleOldTerms(content, columnsMap.value, defaultCacheValues.value)
+    terms.terms = object.terms || [];
+    expand.value = object.expand
     searchSubmit();
   } catch (e) {
-    console.warn(`Search组件中handleUrlParams处理JSON时异常：【${e}】`);
+    console.warn(`Search组件中han.dleUrlParams处理JSON时异常：【${e}】`);
   }
 };
 
 /**
  * 处理URL中的查询参数
- * @param _params
  */
-const handleUrlParams = (_params: UrlParam) => {
-  // URL中的target和props的一致，则还原查询参数
-  if (props.target && _params.target === props.target && _params.q) {
-    const qStr = decodeURI(_params.q);
-    termsData.terms = handleQData(compatibleOldTerms(qStr))?.terms || [];
-    expand.value = hasExpand(termsData.terms);
-    emit('search', termsParamsFormat(termsData, columnOptionMap.value));
+const handleUrlParams = () => {
+  if (props.target && props.target === target.value) {
+    const params = decodeURI(q.value)
+    historyItemClick(params)
   }
-};
-
+}
 
 /**
  * 处理传入的默认值
  */
 const handleDefaultValues = () => {
-  const defaultValues = props.defaultValues.terms.map((a) => {
-    a.terms.map((b) => {
-      return termsToValue(b, searchItems.value)
-    });
-    return a
-  })
-  termsData.terms = handleQData(compatibleOldTerms(JSON.stringify({terms:defaultValues})))?.terms || [];
-  expand.value = hasExpand(termsData.terms);
-  emit('search', termsParamsFormat(termsData, columnOptionMap.value));
+  initValues();
+  expand.value = hasExpand(terms.terms);
+  emit('search', termsParamsFormat(terms, columnsMap.value));
 }
 
 /**
- * 处理每项的key为Item组件所需要的key
+ * 清除值
  */
-const handleItems = () => {
-  searchItems.value = [];
-  columnOptionMap.value.clear();
-  props.columns!.forEach((item, index) => {
-    const _item = cloneDeep(item);
-    if (_item.search && Object.keys(_item.search).length) {
-      columnOptionMap.value.set(
-          // _item.search?.rename || _item.dataIndex,
-          _item.dataIndex,
-          _item.search,
-      );
-
-      // 默认值
-      const {search} = _item;
-      let defaultTerms = null;
-      // 包含defaultValue 或者 defaultOnceValue
-      if (search.defaultValue !== undefined || search.defaultOnceValue) {
-        const _value = search.defaultValue || search.defaultOnceValue;
-        defaultTerms = {
-          type: 'and',
-          value: _value,
-          termType:
-              search.defaultTermType || getTermTypeFn(search.type),
-          column: _item.dataIndex,
-        };
-      }
-
-      if (
-          search.defaultValue !== undefined ||
-          search.defaultOnceValue !== undefined
-      ) {
-        hasOnceSearch.value = true;
-      }
-      searchItems.value.push({
-        ..._item.search,
-        sortIndex: _item.search.first ? 0 : index + 1,
-        title: _item.title as any,
-        // column: _item.search?.rename || _item.dataIndex,
-        column: _item.dataIndex,
-      });
-      if (defaultTerms) {
-        itemValueChange(defaultTerms, search.first ? 1 : index + 1);
-      }
-    }
-  });
-
-  submitData();
-
-  if (props.defaultValues && !isFirstHandleDefaultValues) {
-    handleDefaultValues()
-    isFirstHandleDefaultValues = true
-  } else {
-    handleUrlParams({q: q.value, target: target.value});
-  }
-};
-
 const clearValue = () => {
   if (props.type === 'advanced' && props.target !== target.value) {
     q.value = null;
@@ -436,46 +325,13 @@ const clearValue = () => {
   }
 }
 
-watch(
-    () => props.columns,
-    () => {
-      termsData.terms = [
-        {terms: [null, null, null]},
-        {terms: [null, null, null], type: 'and'},
-      ];
-      expand.value = false;
-      handleItems();
-      clearValue()
-    },
-    {
-      deep: true,
-    },
-);
+handleUrlParams()
 
 watch(() => props.target, () => {
   clearValue()
 }, {
-  deep: true,
   immediate: true
 })
-
-watch(
-  width,
-  (value) => {
-    if (value < 1000) {
-      layout.value = 'vertical';
-      screenSize.value = false;
-      compatible.value = value < 760;
-    } else {
-      layout.value = 'horizontal';
-      screenSize.value = true;
-      compatible.value = false;
-    }
-  },
-  {immediate: true},
-);
-
-handleItems();
 
 defineExpose({
   setValues:handleDefaultValues,
@@ -483,4 +339,3 @@ defineExpose({
 })
 </script>
 
-<style scoped lang="less"></style>
