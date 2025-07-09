@@ -86,7 +86,7 @@ const gridTemplateColumns = computed(() => {
 
 
 const onClick = (item) => {
-  if(_rowSelection.value) {
+  if(_rowSelection && _rowSelection.value) {
     const _selected = _rowSelection.value?.selectedRowKeys?.includes(item[props.rowKey])
     _rowSelection.value?.onSelect?.(item, !_selected)
   }
