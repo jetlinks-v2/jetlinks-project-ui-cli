@@ -3,7 +3,7 @@
     <template v-if="mode === 'CARD'">
       <div class="jtable-card">
         <div class="jtable-card-items" :style="{ gridTemplateColumns }" v-if="dataSource.length">
-          <div :class="['jtable-card-item', props.cardBodyClass]" v-for="item in dataSource" :key="item[props.rowKey]">
+          <div :class="['jtable-card-item', props.cardBodyClass]" v-for="item in dataSource" :key="item[props.rowKey]" @click="onClick(item)">
             <slot name="card" v-bind="item"></slot>
           </div>
         </div>
@@ -15,7 +15,7 @@
       </div>
     </template>
     <template v-else>
-      <Table v-bind="props" :dataSource="dataSource" :columns="_columns" :pagination="false" :scroll="_scroll" :class="{'j-table-scroll': !props.scroll?.y}">
+      <Table v-bind="props" :row-selection="rowSelection || _rowSelection" :dataSource="dataSource" :columns="_columns" :pagination="false" :scroll="_scroll" :class="{'j-table-scroll': !props.scroll?.y}">
         <template #headerCell="{ column, title }">
           <slot name="headerCell" v-bind="{column, title}"></slot>
         </template>
@@ -42,11 +42,12 @@
 </template>
 
 <script setup lang="ts">
-import {useSlots, computed} from 'vue';
+import {useSlots, computed, inject} from 'vue';
 import {_contentProps} from "./setting";
 import {Table} from 'ant-design-vue';
 import {get} from 'lodash-es';
 import Empty from '../Empty';
+import { PROTABLE_ROW_SELECTION_KEY } from './hooks'
 
 defineOptions({
   name: 'Content'
@@ -60,6 +61,8 @@ const props = defineProps({
   }
 })
 const slots = useSlots()
+
+const _rowSelection = inject(PROTABLE_ROW_SELECTION_KEY, null)
 
 const _columns = computed(() => props.columns.filter((i) => !i?.hideInTable))
 
@@ -81,4 +84,11 @@ const gridTemplateColumns = computed(() => {
   return `repeat(${props.column}, 1fr)`
 })
 
+
+const onClick = (item) => {
+  if(_rowSelection.value) {
+    const _selected = _rowSelection.value?.selectedRowKeys?.includes(item[props.rowKey])
+    _rowSelection.value?.onSelect?.(item, !_selected)
+  }
+}
 </script>
