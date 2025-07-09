@@ -8,7 +8,7 @@ interface SelectionOptions extends TableRowSelection {
   isCheck?: MaybeRef<boolean>; // 使用 MaybeRef 类型
 }
 
-export const PROTABLE_ROW_SELECTION_KEY = 'protable-row-selection-key' // Symbol('protable-row-selection-key')
+export const PROTABLE_ROW_SELECTION_KEY = Symbol('protable-row-selection-key')
 
 export const useTableSelection = (options: SelectionOptions = {
   type: 'checkbox',

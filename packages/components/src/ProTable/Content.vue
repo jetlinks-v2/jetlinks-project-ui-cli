@@ -42,12 +42,12 @@
 </template>
 
 <script setup lang="ts">
-import {useSlots, computed, inject} from 'vue';
+import {useSlots, computed} from 'vue';
 import {_contentProps} from "./setting";
 import {Table} from 'ant-design-vue';
 import {get} from 'lodash-es';
 import Empty from '../Empty';
-import { PROTABLE_ROW_SELECTION_KEY } from './hooks'
+import {useTableInject} from './hooks'
 
 defineOptions({
   name: 'Content'
@@ -62,7 +62,7 @@ const props = defineProps({
 })
 const slots = useSlots()
 
-const _rowSelection = inject(PROTABLE_ROW_SELECTION_KEY, null)
+const _rowSelection = useTableInject()
 
 const _columns = computed(() => props.columns.filter((i) => !i?.hideInTable))
 
@@ -87,8 +87,8 @@ const gridTemplateColumns = computed(() => {
 
 const onClick = (item) => {
   if(_rowSelection && _rowSelection.value) {
-    const _selected = _rowSelection.value?.selectedRowKeys?.includes(item[props.rowKey])
-    _rowSelection.value?.onSelect?.(item, !_selected)
+    const _selected = _rowSelection.value.selectedRowKeys?.includes(item[props.rowKey])
+    _rowSelection.value.onSelect?.(item, !_selected)
   }
 }
 </script>

@@ -44,7 +44,7 @@ import Pagination from './Pagination.vue';
 import {useSlots, watch, onMounted, onUnmounted, computed, ref, reactive, inject} from "vue";
 import {debounce} from 'lodash-es';
 import {TableConfig} from "../utils/constants";
-import {PROTABLE_ROW_SELECTION_KEY} from "./hooks";
+import {useTableInject} from "./hooks";
 
 defineOptions({
   name: 'JProTable'
@@ -85,10 +85,10 @@ const page = reactive({
 
 const extraSlots = ['headerRightRender', 'headerLeftRender', 'paginationRender', 'alertRender']
 
-const _rowSelection = inject(PROTABLE_ROW_SELECTION_KEY, null)
+const _rowSelection = useTableInject()
 
 const showAlert = computed(() => {
-  return props.alertShow && (props?.rowSelection?.selectedRowKeys?.length || _rowSelection?.value?.selectedRowKeys?.length)
+  return props.alertShow && (props.rowSelection?.selectedRowKeys?.length || _rowSelection?.value?.selectedRowKeys?.length)
 })
 
 const showPagination = computed(() => {
@@ -166,10 +166,10 @@ const onPageChange = (_page, size) => {
 }
 const onClose = () => {
   if(props.rowSelection){
-    rops.rowSelection?.onChange?.([], []);
-    props.rowSelection?.onSelectNone?.();
+    props.rowSelection.onChange?.([], []);
+    props.rowSelection.onSelectNone?.();
   } else if(_rowSelection?.value){
-    _rowSelection?.value?.onSelectNone?.()
+    _rowSelection.value?.onSelectNone?.()
   }
 }
 /**
