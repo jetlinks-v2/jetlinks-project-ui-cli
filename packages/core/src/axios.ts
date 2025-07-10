@@ -3,62 +3,10 @@ import {getToken, randomString} from '@jetlinks-web/utils'
 import axios from 'axios'
 import type {
   AxiosInstance,
-  AxiosResponse,
-  AxiosError,
-  InternalAxiosRequestConfig,
 } from 'axios'
 import type { AxiosResponseRewrite } from '@jetlinks-web/types'
 import {isFunction, isObject} from 'lodash-es'
-
-interface Options {
-
-  tokenExpiration: (err?: AxiosError<any>, response?: AxiosResponse) => void
-  handleReconnect: () => Promise<any>
-  filter_url?: Array<string>
-  code?: number
-  codeKey?: string
-  timeout?: number
-  handleRequest?: () => void
-  /**
-   * 用以获取localstorage中的lang
-   */
-  langKey?: string
-  /**
-   * response处理函数
-   * @param response AxiosResponse实例
-   */
-  handleResponse?: (response: AxiosResponse) => void
-  /**
-   * 错误处理函数
-   * @param msg 错误消息
-   * @param status 错误code
-   * @param error 错误实例
-   */
-  handleError?: (msg: string, status: string | number, error: AxiosError<any>) => void
-  requestOptions?: (config: InternalAxiosRequestConfig) => InternalAxiosRequestConfig | Record<string, any>
-  isCreateTokenRefresh?: boolean
-}
-
-interface typeRequestConfig extends InternalAxiosRequestConfig {
-  __requestKey?: string
-}
-
-interface typeAxiosResponse extends AxiosResponse {
-  config: typeRequestConfig
-  message: string
-}
-
-interface typeAxiosError<T> extends AxiosError<T> {
-  response: typeAxiosResponse
-}
-
-interface RequestOptions {
-  url?: string
-  method?: string
-  params?: any
-  data?: any
-  [key: string]: any
-}
+import type { Options, ExpandRequestConfig, ExpandAxiosResponse, ExpandAxiosError, RequestOptions, PageResult, UpdateResult } from './type'
 
 export let instance: AxiosInstance = (window as any).JetlinksCore?.instance || null
 
@@ -83,7 +31,7 @@ let isRefreshing = false;
 const isApp = (window as any).__MICRO_APP_ENVIRONMENT__
 
 const pendingRequests = new Map<string, AbortController>();
-const requestRecords = (config: typeRequestConfig) => {
+const requestRecords = (config: ExpandRequestConfig) => {
   const key = randomString(32)
 
   // 取消重复请求
@@ -97,7 +45,8 @@ const requestRecords = (config: typeRequestConfig) => {
 
   pendingRequests.set(key, controller)
 }
-const handleRequest = (config: typeRequestConfig) => {
+
+const handleRequest = (config: ExpandRequestConfig) => {
   requestRecords(config)
   const token = getToken();
   const lang = localStorage.getItem(_options.langKey)
@@ -135,7 +84,7 @@ const handleRequest = (config: typeRequestConfig) => {
   return config
 }
 
-const handleResponse = (response: typeAxiosResponse) => {
+const handleResponse = (response: ExpandAxiosResponse) => {
   if (_options.handleResponse && isFunction(_options.handleResponse)) {
     return _options.handleResponse(response)
   }
@@ -190,7 +139,7 @@ const createTokenRefreshHandler = async (err) => {
     isRefreshing = false;
   }
 }
-const errorHandler = async (err: typeAxiosError<any>) => {
+const errorHandler = async (err: ExpandAxiosError<any>) => {
   let description = err.response?.message || 'Error'
   let _status: string | number = 0
   if (err.response) {
@@ -312,38 +261,43 @@ export const request = {
 }
 
 export class Request {
-  modulePath: string
 
-  constructor(modulePath: string) {
-    this.modulePath = modulePath
+  constructor(public basePath: string) {
+    this.basePath = basePath.startsWith('/') ? basePath : `/${basePath}`
+  }
+
+  private requestWrapper<T = any>(
+    defaultUrl: string,
+    defaultMethod: 'post'| 'get'| 'put'| 'patch'| 'remove'| 'getStream'| 'postStream',
+    dataOrParams: any = {},
+    options: RequestOptions = {}
+  ): Promise<AxiosResponseRewrite<T>> {
+    const { url = defaultUrl, method = defaultMethod, ...rest } = options
+    return request[method]<T>(`${this.basePath}${url}`, dataOrParams, rest)
   }
 
   /**
    * 分页查询
    * @param {object} data 查询参数
    * @param {object} options 请求配置
-   * @returns {Promise<AxiosResponse<any>>} 分页查询结果
    */
-  page(data: any={}, options: RequestOptions= {
+  page<T = any>(data: any={}, options: RequestOptions= {
     url: undefined,
     method: undefined,
   }) {
-    const { url='/_query', method = 'post', ...rest } = options
-    return request[method](`${this.modulePath}${url}`, data, rest)
+    return this.requestWrapper<PageResult<T>>('/_query', 'post', data, options)
   }
 
   /**
    * 不分页查询
    * @param {object} data 查询参数
    * @param {object} options 请求配置
-   * @returns {Promise<AxiosResponse<any>>} 不分页查询结果
    */
-  noPage(data: any={}, options: RequestOptions = {
+  noPage<T = any>(data: any={}, options: RequestOptions = {
     url: undefined,
     method: undefined,
   }) {
-    const { url='/_query/no-page', method = 'post', ...rest } = options
-    return request[method](`${this.modulePath}${url}`, { paging: false, ...data}, rest)
+    return this.requestWrapper<T[]>('/_query/no-paging', 'post', { paging: false, ...data }, options)
   }
 
   /**
@@ -351,81 +305,89 @@ export class Request {
    * @param {string} id 详情ID
    * @param {object} params 查询参数
    * @param {object} options 请求配置
-   * @returns {Promise<AxiosResponse<any>>} 详情查询结果
    */
-  detail(id: string, params?: any, options: RequestOptions= {
+  detail<T = any>(id: string, params?: any, options: RequestOptions= {
     url: undefined,
     method: undefined,
   }) {
-    const { url=`/${id}/detail`, method = 'get', ...rest } = options
-    return request[method](`${this.modulePath}${url}`, params, rest)
+    return this.requestWrapper<T>(`/${id}/detail`, 'get', params, options)
   }
 
   /**
    * 保存
    * @param {object} data 保存参数
    * @param {object} options 请求配置
-   * @returns {Promise<AxiosResponse<any>>} 保存结果
    */
-  save(data: any={}, options: RequestOptions = {
+  save<T = any>(data: any={}, options: RequestOptions = {
     url: undefined,
     method: undefined,
   }) {
-    const { url=`/_create`, method = 'post', ...rest } = options
-    return request[method](`${this.modulePath}${url}`, data, rest)
+    return this.requestWrapper<T>('', 'post', data, options)
   }
 
   /**
    * 更新
    * @param {object} data 更新参数
    * @param {object} options 请求配置
-   * @returns {Promise<AxiosResponse<any>>} 更新结果
    */
-  update(data: any={}, options: RequestOptions = {
+  update<T extends UpdateResult>(data: any={}, options: RequestOptions = {
     url: undefined,
     method: undefined,
   }) {
-    const { url=`/_update`, method = 'patch', ...rest } = options
-    return patch(`${this.modulePath}${url}`, data, rest)
+    return this.requestWrapper<T>('', 'patch', data, options)
   }
 
   /**
    * 删除
    * @param {string} id 删除ID
+   * @param {object} params 请求参数
    * @param {object} options 请求配置
-   * @returns {Promise<AxiosResponse<any>>} 删除结果
+   * @example ${basePath}/${id}
    */
-  delete(id: string, params?: any, options: RequestOptions = {
+  delete<T = any>(id: string, params?: any, options: RequestOptions = {
     url: undefined,
     method: undefined,
   }) {
-    const { url=`/${id}`, method = 'post', ...rest } = options
-    return remove(`${this.modulePath}${url}`, params, rest)
+    return this.requestWrapper<T>(`/${id}`, 'post', params, options)
   }
 
-  post(...args) {
-    const [url, data, options] = args
-    return post(`${this.modulePath}${url}`, data, options)
+  /**
+   * 批量操作
+   * @param data
+   * @param type
+   * @param options
+   */
+  batch<T = any>(data = {}, type?: string, options?: RequestOptions) {
+    const url = `/_batch${type ? '/' + type : ''}`
+    return this.requestWrapper<T>(url, 'post', data, options)
   }
 
-  get(...args) {
-    const [url, params, options] = args
-    return get(`${this.modulePath}${url}`, params, options)
+  post<T = any>(url: string, data?: any, options?: any) {
+    return post<T>(`${this.basePath}${url}`, data, options)
   }
 
-  put(...args) {
-    const [url, data, options] = args
-    return put(`${this.modulePath}${url}`, data, options)
+  get<T = any>(url: string, params?: any, options?: any) {
+    return get<T>(`${this.basePath}${url}`, params, options)
   }
 
-  patch(...args) {
-    const [url, data, options] = args
-    return patch(`${this.modulePath}${url}`, data, options)
+  put<T = any>(url: string, data?: any, options?: any) {
+    return put<T>(`${this.basePath}${url}`, data, options)
   }
 
-  remove(...args) {
-    const [url, params, options] = args
-    return remove(`${this.modulePath}${url}`, params, options)
+  patch<T = any>(url: string, data?: any, options?: any) {
+    return patch<T>(`${this.basePath}${url}`, data, options)
+  }
+
+  remove<T = any>(url: string, params?: any, options?: any) {
+    return remove<T>(`${this.basePath}${url}`, params, options)
+  }
+
+  getStream(url: string, params?: any, options?: any) {
+    return get(`${this.basePath}${url}`, params, { responseType: 'arraybuffer', ...options })
+  }
+
+  postStream(url: string, data?: any, options?: any) {
+    return post(`${this.basePath}${url}`, data, { responseType: 'arraybuffer', ...options })
   }
 }
 
