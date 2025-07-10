@@ -72,13 +72,13 @@ export const useTableSelection = (options: SelectionOptions = {
       // 提供选择上下文
       selectionObj.value = type === 'checkbox' ? {
         ...omit(options, ['isCheck']),
-        selectedRowKeys: selectedRowKeys.value,
+        selectedRowKeys: selectedRowKeys,
         onSelect,
         onSelectAll,
         onSelectNone,
       } : {
         ...omit(options, ['isCheck']),
-        selectedRowKeys: selectedRowKeys.value,
+        selectedRowKeys: selectedRowKeys,
         onChange,
         onSelectNone
       }
@@ -96,14 +96,6 @@ export const useTableSelection = (options: SelectionOptions = {
     },
     { immediate: true, deep: false } // 注意：deep 设为 false
   );
-
-  watch(() => selectedRows.value, () => {
-    if (isCheckRef.value) {
-      updateSelection();
-    }
-  }, {
-    deep: true,
-  });
 
   provide(PROTABLE_ROW_SELECTION_KEY, selectionObj);
 
