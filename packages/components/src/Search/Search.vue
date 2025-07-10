@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import {reactive, ref, computed, inject, useAttrs} from 'vue';
+import {reactive, ref, computed, inject, useAttrs, defineExpose} from 'vue';
 import {searchProps} from "./setting";
 import {useLocaleReceiver} from "../LocaleReciver";
 import type {Terms} from './typing';
@@ -46,6 +46,25 @@ const searchSubmit = () => {
 const reset = () => {
   initValues()
 }
+
+const handleDefaultValues = (value) => {
+  const isObject = Object.prototype.toString.call(value) === '[object Object]'
+  let _params = isObject ? Object.keys(value).map((key) => ({ column: key, value: value[key], termType: 'eq' })) : [...value]
+
+  terms.terms.forEach((item) => {
+    const paramsItem = _params.find(paramsItem => paramsItem.column === item.column)
+    if (paramsItem) {
+      item.value = paramsItem.value
+    }
+  })
+
+  emit('search', termsParamsFormat(terms, columnsMap.value));
+}
+
+defineExpose({
+  setValues:handleDefaultValues,
+  reset
+})
 
 </script>
 

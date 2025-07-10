@@ -160,7 +160,6 @@ export const compatibleOldTerms = (q: string, columnsMap, defaultCacheValues) =>
           const expand = shouldExpand(terms.terms[0].terms, terms.terms[1].terms)
           let _terms = []
 
-
           if (!expand) {
             _terms = [terms.terms[0].terms[0]]
           } else {
@@ -177,11 +176,12 @@ export const compatibleOldTerms = (q: string, columnsMap, defaultCacheValues) =>
                 _terms[i] = obj
               }
             }
-
           }
           return { terms: _terms, expand}
         } else {
-          return { terms: terms.terms, expand: terms.terms.length > 1};
+          const hasTermsKey = Reflect.has(terms.terms[0], 'terms') // 兼容历史数据
+
+          return { terms: hasTermsKey ? terms.terms[0].terms : terms.terms, expand: terms.terms.length > 1};
         }
 
     } catch (e) {

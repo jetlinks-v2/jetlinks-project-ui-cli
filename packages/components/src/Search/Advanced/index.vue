@@ -69,36 +69,38 @@
                         expand || compatible ? 'expand' : '',
                     ]"
         >
-          <div class="JSearch-footer--btns">
-            <Button type="stroke" @click="reset"> {{contextLocale.advanced.reset}}</Button>
-            <SaveHistory
-                :terms="terms"
-                :target="target"
-                :request="request || context.saveRequest"
-            />
-            <History
-                :target="target"
-                :request="historyRequest || context.historyRequest"
-                :delete-request="deleteRequest || context.deleteRequest"
-                :delete-key="deleteKey || context.deleteKey"
-                @click="searchSubmit"
-                @itemClick="historyItemClick"
-            />
-          </div>
-          <Button
-              type="link"
-              class="more-btn"
-              @click="expandChange"
-          >
-            <span class="more-text"> {{contextLocale.advanced.more}} </span>
-            <AIcon
-                type="DoubleRightOutlined"
-                :class="[
-                                'more-icon',
-                                expand ? 'more-up' : 'more-down',
-                            ]"
-            />
-          </Button>
+          <slot name="footerRender" :reset="reset" :submit="searchSubmit" :expandChange="expandChange">
+            <div class="JSearch-footer--btns">
+              <Button type="stroke" @click="reset"> {{contextLocale.advanced.reset}}</Button>
+              <SaveHistory
+                  :terms="terms"
+                  :target="target"
+                  :request="request || context.saveRequest"
+              />
+              <History
+                  :target="target"
+                  :request="historyRequest || context.historyRequest"
+                  :delete-request="deleteRequest || context.deleteRequest"
+                  :delete-key="deleteKey || context.deleteKey"
+                  @click="searchSubmit"
+                  @itemClick="historyItemClick"
+              />
+            </div>
+            <Button
+                type="link"
+                class="more-btn"
+                @click="expandChange"
+            >
+              <span class="more-text"> {{contextLocale.advanced.more}} </span>
+              <AIcon
+                  type="DoubleRightOutlined"
+                  :class="[
+                                  'more-icon',
+                                  expand ? 'more-up' : 'more-down',
+                              ]"
+              />
+            </Button>
+          </slot>
         </div>
       </div>
       <!--  简单模式  -->
@@ -153,6 +155,7 @@ import { Select, Button, Form, FormItemRest } from 'ant-design-vue'
 import { AIcon } from '../../../'
 import {useLocaleReceiver} from "../../LocaleReciver/index";
 import {SearchConfig} from "../../utils/constants";
+import {isObject} from "lodash-es";
 
 defineOptions({
   name: 'JAdvancedSearch',
@@ -307,12 +310,59 @@ const handleUrlParams = () => {
 }
 
 /**
+ * 递归补全 terms 数组
+ * @param data 原始 terms 对象
+ * @param callback 补全函数，返回一个 term 对象
+ */
+function completeTerms(data: TermsObject, callback: () => Term): TermsObject {
+  const fillTerms = (terms: Term[]) => {
+    const completed = terms.map(term => {
+      if (Array.isArray(term.terms)) {
+        // 递归补全子 terms
+        term.terms = fillTerms(term.terms);
+      }
+      return term;
+    });
+
+    // 补足到长度为 3
+    while (completed.length < 3) {
+      completed.push(callback());
+    }
+
+    return completed;
+  };
+
+  return {
+    terms: fillTerms(data.terms),
+  };
+}
+
+/**
  * 处理传入的默认值
  */
-const handleDefaultValues = () => {
-  initValues();
-  expand.value = hasExpand(terms.terms);
-  emit('search', termsParamsFormat(terms, columnsMap.value));
+const handleDefaultValues = (value) => {
+
+  if (!isObject(value)) return
+
+  const _value = JSON.parse(JSON.stringify(value));
+  if (!(_value.terms.length === 1 && _value.terms[0].terms.length === 1)) {
+    let arr = Object.values(columnsMap.value)
+
+    for (let i = 1; i < 6; i++) {
+      const aIndex = i < 3 ? 0 : 1
+      const bIndex = i % 3
+      const item = _value.terms[aIndex].terms[bIndex]
+
+      if (!item) {
+        const fillItem = getItemDefaultValue(arr[aIndex * 3 + bIndex], defaultCacheValues.value)
+        if (i === 3) {
+          fillItem.type = 'and'
+        }
+        _value.terms[aIndex].terms[bIndex] = fillItem
+      }
+    }
+  }
+  historyItemClick(JSON.stringify(_value))
 }
 
 /**
