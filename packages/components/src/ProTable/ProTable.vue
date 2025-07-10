@@ -10,8 +10,8 @@
             <slot name="headerRightRender"></slot>
           </template>
         </Header>
-        <Alert v-if="showAlert" :rowSelection="rowSelection" @close="onClose">
-          <slot name="alertRender" :rowSelection="rowSelection" :onClose="onClose"></slot>
+        <Alert v-if="showAlert" :rowSelection="rowSelection || _rowSelection" @close="onClose">
+          <slot name="alertRender" :rowSelection="rowSelection || _rowSelection" :onClose="onClose"></slot>
         </Alert>
         <Content v-bind="props" :mode="_mode" :dataSource="_dataSource" :column="column">
           <template v-for="(_, key) in slots" :key="key" v-slot:[key]="slotProps">
@@ -44,6 +44,7 @@ import Pagination from './Pagination.vue';
 import {useSlots, watch, onMounted, onUnmounted, computed, ref, reactive, inject} from "vue";
 import {debounce} from 'lodash-es';
 import {TableConfig} from "../utils/constants";
+import {useTableInject} from "./hooks";
 
 defineOptions({
   name: 'JProTable'
@@ -84,8 +85,10 @@ const page = reactive({
 
 const extraSlots = ['headerRightRender', 'headerLeftRender', 'paginationRender', 'alertRender']
 
+const _rowSelection = useTableInject()
+
 const showAlert = computed(() => {
-  return props.alertShow && props?.rowSelection?.selectedRowKeys?.length
+  return props.alertShow && (props.rowSelection?.selectedRowKeys?.length || _rowSelection?.value?.selectedRowKeys?.length)
 })
 
 const showPagination = computed(() => {
@@ -162,8 +165,12 @@ const onPageChange = (_page, size) => {
   })
 }
 const onClose = () => {
-  props.rowSelection?.onChange?.([], []);
-  props.rowSelection?.onSelectNone?.();
+  if(props.rowSelection){
+    props.rowSelection.onChange?.([], []);
+    props.rowSelection.onSelectNone?.();
+  } else if(_rowSelection?.value){
+    _rowSelection.value?.onSelectNone?.()
+  }
 }
 /**
  * 刷新数据
