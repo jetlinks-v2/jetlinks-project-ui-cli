@@ -3,7 +3,7 @@ import type { Ref, UnwrapRef } from 'vue'
 import {isFunction, get, isArray} from 'lodash-es'
 import type { AxiosResponseRewrite } from '@jetlinks-web/types'
 
-interface RequestOptions<T, S> {
+export interface RequestOptions<T, S> {
   immediate: boolean
   /**
    * 成功回调
@@ -25,14 +25,14 @@ interface RequestOptions<T, S> {
   defaultValue?: S
 }
 
-interface UseRequestResult<S> {
+export interface UseRequestResult<S> {
   data: Ref<UnwrapRef<S>>,
   loading: Ref<boolean>,
   run: (...args: any[]) => Promise<S>,
   reload: Reload,
 }
 
-const defaultOptions: any = {
+export const defaultOptions: any = {
   immediate: true,
   formatName: 'result'
 }
