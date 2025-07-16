@@ -42,7 +42,7 @@ export function getSlotVNode<T>(slots: Slots, props: Record<string, unknown>, pr
  * @returns
  */
 export const randomString = (length: number = 32) => {
-  const chars = 'ABCDEFGHJKMNPQRSTWXYZabcdefhijkmnprstwxyz2345678';
+  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0987654321';
   const maxPos = chars.length;
   let pwd = '';
   for (let i = 0; i < length; i += 1) {
