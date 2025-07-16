@@ -7,9 +7,9 @@
     <template #title>
       <span style="color: #1d2129">{{errorMap.message}}</span>
     </template>
-    <div v-if="errorMap.visible" class="jetlinks-table-form-error-target" ></div>
+    <div v-if="errorMap.visible" :class="['jetlinks-table-form-error-target', hashId, 'hashId']" ></div>
   </a-tooltip>
-  <div :id="eventKey" style="position: relative" :class="{'jetlinks-edit-table-form-has-error': errorMap.message }">
+  <div :id="eventKey" style="position: relative" :class="{'jetlinks-edit-table-form-has-error': errorMap.message, [hashId]: true }">
     <slot />
   </div>
 </template>
@@ -20,6 +20,7 @@ import {get, isArray } from 'lodash-es'
 import { useProvideFormItemContext } from 'ant-design-vue/es/form/FormItemContext'
 import {useInjectError, useInjectForm} from "./hooks";
 import {TABLE_FORM_ITEM_ERROR} from "./consts";
+import genEditTableStyle from './style'
 
 defineOptions({
   name: 'JEditTableFormItem'
@@ -38,6 +39,8 @@ const props = defineProps({
 
 const emit = defineEmits(['change'])
 
+const prefixCls = computed(() => 'jetlinks-edit-table')
+const [wrapSSR, hashId] = genEditTableStyle(prefixCls)
 const context = useInjectForm()
 const globalErrorMessage = useInjectError()
 

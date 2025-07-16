@@ -1,17 +1,17 @@
 <template>
-  <div ref='dialog' :style='styles' class='jetlinks-drag-modal'>
+  <div ref='dialog' :style='styles' :class='["jetlinks-drag-modal", hashId]'>
     <Transition name='dialog'>
       <div class='jetlinks-drag-modal-sprite' ref='header'>
-        <div class='header' v-if="title !== false">
+        <div :class='["header"]' v-if="title !== false">
           <span>{{ title }}</span>
           <a-button size='small' type='text' @click.stop='onCancel'>
             <AIcon type='CloseOutlined' />
           </a-button>
         </div>
-        <div class='jetlinks-drag-modal-body' :style="bodyStyle">
+        <div :class='["jetlinks-drag-modal-body"]' :style="bodyStyle">
           <slot></slot>
         </div>
-        <div class='jetlinks-drag-modal-footer' v-if='footer !== false'>
+        <div :class='["jetlinks-drag-modal-footer"]' v-if='footer !== false'>
           <slot name='footer'>
             <a-space>
               <Button @click.stop='onCancel'>{{contextLocale.cancel}}</Button>
@@ -22,7 +22,7 @@
       </div>
     </Transition>
 
-    <div class="jetlinks-drag-modal-range drag-bottom-right" @mousedown.stop='rangeMove($event,"drag-bottom-right")'></div>
+    <div :class="['jetlinks-drag-modal-range', 'drag-bottom-right']" @mousedown.stop='rangeMove($event,"drag-bottom-right")'></div>
   </div>
 </template>
 
@@ -30,6 +30,7 @@
 import { ref, useSlots, defineEmits, defineProps, defineOptions, computed, onMounted, watch} from 'vue'
 import { Button } from 'ant-design-vue'
 import {useLocaleReceiver} from "../LocaleReciver/index";
+import genDragModalStyle from './style'
 
 defineOptions({
   name: 'JDragModal'
@@ -73,6 +74,10 @@ const baseWidth = ref(props.width || 400)
 const baseHeight = ref(props.height || 100)
 const baseLeft = ref(100)
 const baseTop = ref(100)
+
+const prefixCls = computed(() => 'jetlinks-drag-modal')
+
+const [wrapSSR, hashId] = genDragModalStyle(prefixCls)
 
 const styles = computed(() => {
   return {

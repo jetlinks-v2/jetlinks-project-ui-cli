@@ -7,6 +7,7 @@ import {useLocaleReceiver} from "../LocaleReciver";
 import type {SearchItemData} from "./typing";
 import {useColumnsMap, useDefaultValue, useOptionMap} from "./hooks";
 import {isArray, isFunction} from "lodash-es";
+import useSearchStyle from './style'
 
 defineOptions({
   name: 'JSearchItem'
@@ -60,6 +61,8 @@ const columnsValues = useDefaultValue()
 const targetComponents = ref<{ type?:string, label?: string, name?: any, props?: Record<string, any> }>({})
 const valueOptions = ref()
 
+const prefixCls = computed(() => 'JSearch')
+const [wrapSSR, hashId] = useSearchStyle(prefixCls);
 const termTypeOptions = computed(() => {
   return getTermOptions(targetComponents.value.type, contextLocale.value)
 })
@@ -157,7 +160,7 @@ watch(() => [props.value, props.termType, props.column, props.type], () => {
 </script>
 
 <template>
-  <div class="JSearch-item">
+  <div :class="['JSearch-item', hashId]">
     <div
       v-if="onlyValue"
       class="JSearch-item--label"

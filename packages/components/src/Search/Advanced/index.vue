@@ -3,7 +3,7 @@
     <div
         ref="searchRef"
         class="JSearch-warp senior"
-        :class="attrs.class"
+        :class="[attrs.class, hashId]"
         :style="attrs.style"
     >
       <!--  高级模式  -->
@@ -139,7 +139,7 @@
 import SearchItem from '../Item.vue';
 import { typeOptions } from '../setting';
 import {useHandleColumns, useOptionMapContent, useRouteQuery} from '../hooks';
-import {PropType, ref, reactive, watch, defineExpose, useAttrs, inject} from 'vue';
+import {PropType, ref, reactive, watch, defineExpose, useAttrs, inject, computed} from 'vue';
 import SaveHistory from './SaveHistory.vue';
 import History from './History.vue';
 import type {
@@ -156,6 +156,7 @@ import { AIcon } from '../../../'
 import {useLocaleReceiver} from "../../LocaleReciver/index";
 import {SearchConfig} from "../../utils/constants";
 import {isObject} from "lodash-es";
+import useSearchStyle from '../style'
 
 defineOptions({
   name: 'JAdvancedSearch',
@@ -220,6 +221,9 @@ const compatible = ref(false);
 const screenSize = ref(true);
 
 const context = inject(SearchConfig)
+
+const prefixCls = computed(() => 'JSearch')
+const [wrapSSR, hashId] = useSearchStyle(prefixCls)
 
 const [contextLocale] = useLocaleReceiver('Search')
 const attrs = useAttrs()
