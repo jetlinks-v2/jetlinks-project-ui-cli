@@ -16,25 +16,21 @@
     </template>
     <template v-else>
       <Table v-bind="props" :row-selection="rowSelection || _rowSelection" :dataSource="dataSource" :columns="_columns" :pagination="false" :scroll="_scroll" :class="{'j-table-scroll': !props.scroll?.y}">
-        <template #headerCell="{ column, title }">
-          <slot name="headerCell" v-bind="{column, title}"></slot>
+        <template v-for="(_, slotKey) in _slots" :key="slotKey" v-slot:[slotKey]="slotProps">
+          <template v-if="!((column?.key || column?.dataIndex) && column?.scopedSlots && (_slots?.[column?.dataIndex] || _slots?.[column?.key]))">
+            <slot :name="slotKey" v-bind="slotProps"></slot>
+          </template>
         </template>
         <template #bodyCell="{ column, record, index }">
-          <template
-              v-if="(column?.key || column?.dataIndex) && column?.scopedSlots && (slots?.[column?.dataIndex] || slots?.[column?.key])">
+          <template v-if="(column?.key || column?.dataIndex) && column?.scopedSlots && (_slots?.[column?.dataIndex] || _slots?.[column?.key])">
             <slot :name="column?.key || column?.dataIndex" v-bind="record" :index="index" :column="column"></slot>
           </template>
           <template v-else>{{ get(record, column?.dataIndex || column?.key) || '--' }}</template>
         </template>
         <template #emptyText>
           <slot name="emptyText">
-            <Empty/>
+            <Empty />
           </slot>
-        </template>
-        <template v-for="(_, slotKey) in slots" :key="slotKey" v-slot:[slotKey]="slotProps">
-          <template v-if="!['headerCell', 'bodyCell', 'emptyText'].includes(slotKey)">
-            <slot :name="slotKey" v-bind="slotProps"></slot>
-          </template>
         </template>
       </Table>
     </template>
@@ -45,7 +41,7 @@
 import {useSlots, computed} from 'vue';
 import {_contentProps} from "./setting";
 import {Table} from 'ant-design-vue';
-import {get} from 'lodash-es';
+import {get, omit} from 'lodash-es';
 import Empty from '../Empty';
 import {useTableInject} from './hooks'
 
@@ -65,6 +61,10 @@ const slots = useSlots()
 const _rowSelection = useTableInject()
 
 const _columns = computed(() => props.columns.filter((i) => !i?.hideInTable))
+
+const _slots = computed(() => {
+  return omit(slots, ['emptyText', 'bodyCell'])
+})
 
 const _scroll = computed(() => {
   if(props.scroll === false) {
