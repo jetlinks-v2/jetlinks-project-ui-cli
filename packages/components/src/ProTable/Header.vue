@@ -1,5 +1,5 @@
 <template>
-  <div class="jtable-body-header">
+  <div :class="['jtable-body-header', hashId]">
     <div class="jtable-body-header-left">
       <slot name="headerLeftRender"></slot>
     </div>
@@ -16,9 +16,11 @@
 </template>
 
 <script setup lang="ts">
+import { computed } from 'vue'
 import { RadioGroup, RadioButton } from 'ant-design-vue'
 import AIcon from '../Icon';
 import { _headerProps } from './setting';
+import useProTableStyle from './style'
 
 defineOptions({
   name: 'Header'
@@ -32,4 +34,7 @@ const props = defineProps({
   }
 })
 const emits = defineEmits(['change'])
+
+const prefixCls = computed(() => 'pro-table')
+const [wrapSSR, hashId] = useProTableStyle(prefixCls)
 </script>

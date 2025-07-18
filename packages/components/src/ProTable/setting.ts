@@ -1,7 +1,7 @@
-import {tableProps} from "ant-design-vue/lib/table/Table";
+import {tableProps} from "ant-design-vue/es/table/Table";
 import {PropType} from "vue";
-import {TableProps} from "ant-design-vue/lib/table";
-import {paginationProps} from 'ant-design-vue/lib/pagination/Pagination'
+import {TableProps} from "ant-design-vue/es/table";
+import {paginationProps} from 'ant-design-vue/es/pagination/Pagination'
 import { omit } from 'lodash-es'
 
 export const _headerProps = {

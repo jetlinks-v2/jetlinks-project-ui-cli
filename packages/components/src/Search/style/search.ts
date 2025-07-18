@@ -2,7 +2,6 @@ import type { CSSObject } from "ant-design-vue";
 
 export const genSearchStyle = (config: any): CSSObject => {
   const { componentCls, token } = config
-  console.log(config)
   return {
     [`${componentCls}-warp`]: {
       padding: '24px',

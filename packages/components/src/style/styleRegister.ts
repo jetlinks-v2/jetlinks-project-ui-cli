@@ -5,7 +5,6 @@ import variableToken from './variable'
 const genCompoentStyle = (styleFn:  any[]) => {
   return genComponentStyleHook('jetlinks-components', _token => {
     const { token, hashId } = theme.useToken()
-    console.log('======>token.value', token.value)
     const componentToken = {
       token: {
         ..._token,
@@ -14,7 +13,6 @@ const genCompoentStyle = (styleFn:  any[]) => {
       hashId: hashId.value,
       componentCls: `.${_token.prefixCls}`,
     };
-    console.log('======>componentToken', componentToken)
     return [
       ...styleFn.map(item => item(componentToken))
     ]

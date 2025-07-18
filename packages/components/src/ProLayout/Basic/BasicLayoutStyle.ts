@@ -2,7 +2,6 @@ import type { CSSObject } from "ant-design-vue";
 
 export const genBasicLayoutStyle = (config: any): CSSObject => {
   const { componentCls, token } = config;
-  console.log(token, '123123123123')
   const basicLayoutPrefixCls = `${token.antCls}-pro-basicLayout`;
   const proLayoutHeaderHeight = '48px';
   return {

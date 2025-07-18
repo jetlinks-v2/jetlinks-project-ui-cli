@@ -1,4 +1,3 @@
-import './style.less';
 import genCompoentStyle from '../../style/styleRegister';
 import { genBasicLayoutStyle } from '../Basic/BasicLayoutStyle'
 import { genHeaderStyle } from '../Basic/HeaderStyle'

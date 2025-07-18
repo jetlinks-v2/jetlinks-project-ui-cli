@@ -1,5 +1,5 @@
 <template>
-  <div class="jtable-alert">
+  <div :class="['jtable-alert', hashId]">
     <slot>
       <Alert type="info" :message="_message">
         <template #closeText>
@@ -15,6 +15,7 @@ import { Alert, Button } from 'ant-design-vue';
 import { computed } from "vue";
 import {_alertProps} from "./setting";
 import {useLocaleReceiver} from "../LocaleReciver/index";
+import useProTableStyle from './style'
 
 defineOptions({
   name: 'Alert'
@@ -24,6 +25,8 @@ const [contextLocale] = useLocaleReceiver('ProTable');
 const props = defineProps({ ..._alertProps })
 const emits = defineEmits(['close'])
 
+const prefixCls = computed(() => 'pro-table')
+const [wrapSSR, hashId] = useProTableStyle(prefixCls)
 const _message = computed(() => {
   let locale = contextLocale.value?.alert?.selectItem || '';
   [props.rowSelection?.selectedRowKeys?.length || 0].forEach((item, index) => {

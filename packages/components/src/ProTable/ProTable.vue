@@ -1,5 +1,5 @@
 <template>
-  <div class="jtable-body-spin" :style="bodyStyle" id="jtable-body-spin">
+  <div :class="['jtable-body-spin', hashId]" :style="bodyStyle" id="jtable-body-spin">
     <Spin :spinning="loading">
       <div class="jtable-body">
         <Header :initMode="mode" :mode="_mode" :modeValue="modeValue" @change="onCheck">
@@ -45,6 +45,7 @@ import {useSlots, watch, onMounted, onUnmounted, computed, ref, reactive, inject
 import {debounce} from 'lodash-es';
 import {TableConfig} from "../utils/constants";
 import {useTableInject} from "./hooks";
+import useProTableStyle from "./style";
 
 defineOptions({
   name: 'JProTable'
@@ -82,6 +83,9 @@ const page = reactive({
   pageSize: 12,
   total: 0
 })
+
+const prefixCls = computed(() => 'pro-table')
+const [wrapSSR, hashId] = useProTableStyle(prefixCls)
 
 const extraSlots = ['headerRightRender', 'headerLeftRender', 'paginationRender', 'alertRender']
 

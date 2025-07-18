@@ -1,5 +1,5 @@
 <template>
-  <div class="jtable-box">
+  <div :class="['jtable-box', hashId]">
     <template v-if="mode === 'CARD'">
       <div class="jtable-card">
         <div class="jtable-card-items" :style="{ gridTemplateColumns }" v-if="dataSource.length">
@@ -48,6 +48,7 @@ import {Table} from 'ant-design-vue';
 import {get} from 'lodash-es';
 import Empty from '../Empty';
 import {useTableInject} from './hooks'
+import useProTableStyle from './style'
 
 defineOptions({
   name: 'Content'
@@ -61,6 +62,9 @@ const props = defineProps({
   }
 })
 const slots = useSlots()
+
+const prefixCls = computed(() => 'pro-table')
+const [wrapSSR, hashId] = useProTableStyle(prefixCls)
 
 const _rowSelection = useTableInject()
 
