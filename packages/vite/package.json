@@ -1,0 +1,44 @@
+{
+  "name": "@jetlinks-web/vite",
+  "version": "1.0.0",
+  "description": "",
+  "main": "dist/index.mjs",
+  "module": "dist/index.mjs",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "clean": "pnpm rimraf .turbo"
+  },
+  "keywords": [
+    "jetlinks",
+    "jetlinks-web",
+    "vite",
+    "jetlinks-web/vite",
+    "@jetlinks-web",
+    "@jetlinks-web/vite"
+  ],
+  "files": [
+    "dist"
+  ],
+  "author": "",
+  "private": false,
+  "license": "ISC",
+  "devDependencies": {
+    "@types/node": "^18.6.4",
+    "chalk": "^5.0.1",
+    "execa": "^6.1.0",
+    "fs-extra": "^10.0.0",
+    "kill-port": "^2.0.1",
+    "lint-staged": "^13.0.3",
+    "typescript": "^4.9.4",
+    "vite": "^4.0.5",
+    "esbuild": "^0.25.5"
+  },
+  "publishConfig": {
+    "registry": "https://registry.npmjs.org/",
+    "access": "public"
+  },
+  "engines": {
+    "node": ">=14.0.0",
+    "pnpm": ">=7.0.1"
+  }
+}
