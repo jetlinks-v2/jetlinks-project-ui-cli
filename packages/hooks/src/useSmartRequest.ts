@@ -2,6 +2,8 @@ import { useRequest, defaultOptions } from './useRequest'
 import type { RequestOptions } from './useRequest'
 import type {AxiosResponseRewrite} from "@jetlinks-web/types";
 import { isArray, get } from 'lodash-es'
+import type { Ref } from 'vue'
+import { ref } from 'vue'
 
 interface RequestStep<T, S, P = any> {
   request: (...args: P[]) => Promise<AxiosResponseRewrite<T>>;
@@ -69,7 +71,7 @@ export const useChainedRequests = (
           ...step.options,
           immediate: false,
           onSuccess: (resp) => {
-            const result = step.options?.onSuccess?.(resp, collectedResults) ?? get(resp, step.options?.formatName ?? defaultOptions.formatName);
+            const result = step.options?.onSuccess?.(resp) ?? get(resp, step.options?.formatName ?? defaultOptions.formatName);
             stepData[currentIndex].value = result;
             return result;
           },
@@ -114,7 +116,7 @@ export const useChainedRequests = (
             if (jumpToStepIndex <= currentIndex) { // 跳转下标小于或者等于当前下标时，会导致死循环
               console.warn(`跳转的指定下标和当前下标一致，避免死循环，将继续迭代`);
             } else {
-              currentIndex = jumpIndex;
+              currentIndex = jumpToStepIndex;
             }
             continue; // 继续迭代
           } else {
@@ -155,34 +157,3 @@ export const useChainedRequests = (
     data: finalResult,
   };
 };
-
-const { stepData, loading, run, finalResult } = useChainedRequests([
-      {
-        request: apiA, // No name provided, will be auto-generated
-        collector: (res) => ({ resultA: res.id})
-      },
-      {
-        request: apiB,
-        paramsResolver: (prevResult) => {
-            return prevResult;
-        },
-        collector: (res) => ({ resultB: res.id}),
-        jumpTo: (resultB) => {
-          if (resultB.includes('BRANCH')) {
-            return 4;
-          }
-          return undefined;
-        },
-      },
-      {
-        request: apiC, // No name provided, will be auto-generated
-        paramsResolver: (prevResult) => prevResult,
-        collector: (res) => ({ resultC: res.id})
-      },
-      {
-        request: apiD,
-        paramsResolver: (prevResult) => prevResult,
-        options: { defaultValue: null },
-        collector: (res) => ({ resultD: res.id})
-      },
-    ]);

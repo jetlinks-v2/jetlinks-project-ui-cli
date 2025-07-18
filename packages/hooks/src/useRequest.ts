@@ -26,7 +26,7 @@ export interface RequestOptions<T, S> {
 }
 
 export interface UseRequestResult<S> {
-  data: Ref<UnwrapRef<S>>,
+  data: Ref<S>,
   loading: Ref<boolean>,
   run: (...args: any[]) => Promise<S>,
   reload: Reload,
@@ -49,7 +49,7 @@ export const useRequest = <T = any, S = any>(
   }
 
   const loading = ref(false)
-  const data = ref<S>(_options.defaultValue as S)
+  const data = ref<S>(_options.defaultValue)
 
   function run(...arg: any[]): Promise<S> {
     return new Promise(async ( resolve, reject) => {
@@ -103,7 +103,7 @@ export const useRequest = <T = any, S = any>(
   })
 
   return {
-    data,
+    data: data as Ref<S>,
     loading,
     run,
     reload,
