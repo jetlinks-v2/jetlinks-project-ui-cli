@@ -17,7 +17,9 @@
     "@jetlinks-web/vite"
   ],
   "files": [
-    "dist"
+    "dist",
+    "federation",
+    "monaco-editor"
   ],
   "author": "",
   "private": false,
