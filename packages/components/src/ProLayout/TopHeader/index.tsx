@@ -22,6 +22,7 @@ import type { PropType, FunctionalComponent, ExtractPropTypes } from 'vue';
 import { defaultPrefixCls, useRouteContext } from '../RouteContext';
 import BaseMenu from '../SiderMenu/BaseMenu';
 import { clearMenuItem } from '../util';
+import useProLayoutStyle from '../style';
 
 export const baseHeaderProps = {
     ...defaultSettingProps,
@@ -134,6 +135,8 @@ export const TopNavHeader: FunctionalComponent<TopNavHeaderProps> = (props) => {
     } = props;
     const context = useRouteContext();
     const prefixCls = `${propPrefixCls || defaultPrefixCls}-top-nav-header`;
+    const stylePrefixCls = computed(() => 'pro-layout')
+    const [wrapSSR, hashId] = useProLayoutStyle(stylePrefixCls);
     const headerDom = defaultRenderLogoAndTitle(
         { ...props, collapsed: false } as SiderMenuProps,
         // REMARK:: Any time render header title
@@ -159,6 +162,7 @@ export const TopNavHeader: FunctionalComponent<TopNavHeaderProps> = (props) => {
     const className = computed(() => {
         return {
             [prefixCls]: true,
+            [hashId.value]: true,
             light: props.theme === 'light',
             dark: props.theme === 'dark',
         };

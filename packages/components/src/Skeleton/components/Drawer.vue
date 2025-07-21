@@ -2,7 +2,7 @@
   <template v-if="!loading">
     <slot></slot>
   </template>
-  <div class="j-skeleton">
+  <div :class="['j-skeleton', hashId]">
     <Item :active="active" width="70%"/>
     <div class="j-skeleton-box">
       <Item :active="active" size="small" width="35%"/>
@@ -23,7 +23,8 @@
 
 <script setup>
 import Item from "./Item.vue";
-import {defineOptions} from "vue";
+import {defineOptions, computed} from "vue";
+import useSkeletonStyle from '../style';
 
 defineOptions({
   name: 'JSkeletonDrawer'
@@ -39,4 +40,7 @@ const props = defineProps({
     default: true,
   }
 })
+
+const prefixCls = computed(() => 'j-skeleton')
+const [wrapSSR, hashId] = useSkeletonStyle(prefixCls)
 </script>

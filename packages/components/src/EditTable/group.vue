@@ -1,5 +1,5 @@
 <template>
-  <div class="jetlinks-table-group-warp">
+  <div :class="['jetlinks-table-group-warp', hashId]">
     <a-tabs type="editable-card" v-model:activeKey="myActiveKey" @edit="onAdd" :hideAdd="readonly" @change="change">
       <a-tab-pane v-for="item in options" :key="item.value" :closable="false">
         <template #tab>
@@ -78,6 +78,7 @@ import {isFullScreen} from "./utils";
 import {useTableGroupError, useTableWrapper} from './context'
 import { ref, defineProps, defineEmits, defineOptions} from 'vue'
 import {useLocaleReceiver} from "../LocaleReciver";
+import genEditTableStyle from './style'
 
 defineOptions({
   name: 'JEditTableGroup'
@@ -112,6 +113,8 @@ const formData = reactive({
   label: undefined
 })
 
+const prefixCls = computed(() => 'jetlinks-edit-table')
+const [wrapSSR, hashId] = genEditTableStyle(prefixCls);
 const onAdd = (targetKey, action) => {
   // if(props.readonly) return
   if (action === 'add') {

@@ -1,5 +1,5 @@
 <template>
-  <div class="jtable-pagination">
+  <div :class="['jtable-pagination', hashId]">
     <slot>
       <Pagination
           v-bind="props"
@@ -19,6 +19,7 @@ import { Pagination } from 'ant-design-vue';
 import { _paginationProps } from "./setting";
 import {computed} from 'vue';
 import {useLocaleReceiver} from "../LocaleReciver";
+import useProTableStyle from './style'
 
 defineOptions({
   name: 'JPagination'
@@ -28,6 +29,9 @@ const props = defineProps({ ..._paginationProps })
 const emits = defineEmits(['change'])
 
 const [contextLocale] = useLocaleReceiver('ProTable');
+
+const prefixCls = computed(() => 'pro-table')
+const [wrapSSR, hashId] = useProTableStyle(prefixCls)
 
 const className = computed(() => {
   return {

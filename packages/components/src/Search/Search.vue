@@ -8,6 +8,7 @@ import {SearchConfig} from "../utils/constants";
 import Item from './Item.vue'
 import {useHandleColumns, useOptionMapContent} from "./hooks";
 import {termsParamsFormat} from "./util";
+import useSearchStyle from './style'
 
 defineOptions({
   name: 'JSearch',
@@ -28,6 +29,9 @@ const terms = reactive<Terms>({terms: []});// 当前查询条件
 
 const context = inject(SearchConfig, { align: props.align})
 const { initValues, columnsMap } = useHandleColumns(props, terms)
+
+const prefixCls = computed(() => 'JSearch')
+const [wrapSSR, hashId] = useSearchStyle(prefixCls);
 
 useOptionMapContent(columnsOptionMap)
 
@@ -70,7 +74,7 @@ defineExpose({
 
 <template>
   <Form :model="terms" @finish="searchSubmit">
-    <div class="JSearch-warp" :class="attrs.class" :style="attrs.style">
+    <div class="JSearch-warp" :class="[attrs.class, hashId]" :style="attrs.style">
       <div class="JSearch-content simple">
         <div class="JSearch-items">
           <Row :gutter="[16, 16]">
