@@ -2,8 +2,8 @@ import { Connect, ResolvedConfig } from 'vite';
 import { getWorks, IMonacoEditorOpts, isCDN, resolveMonacoPath } from './index';
 import { IWorkerDefinition } from './languageWork';
 import { buildSync } from 'esbuild'
-import { type RmDirOptions, existsSync, readFileSync, rmSync } from 'node:fs';
-import {  basename } from 'node:path';
+import { type RmDirOptions, existsSync, readFileSync, rmSync } from 'fs';
+import {  basename } from 'path';
 
 export function getFilenameByEntry(entry: string) {
   entry = basename(entry, 'js');

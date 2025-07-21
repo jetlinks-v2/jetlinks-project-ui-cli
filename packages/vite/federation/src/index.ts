@@ -9,7 +9,7 @@ import virtual from '@rollup/plugin-virtual'
 import { dirname } from 'path'
 import { prodRemotePlugin } from './prod/remote-production'
 import type { VitePluginFederationOptions } from '../types'
-import { builderInfo, DEFAULT_ENTRY_FILENAME, parsedOptions } from './public'
+import {builderInfo, DEFAULT_ENTRY_FILENAME, DEFAULT_ORIGIN_NAME, parsedOptions} from './public'
 import type { PluginHooks } from '../types/pluginHooks'
 import type { ModuleInfo } from 'rollup'
 import { prodSharedPlugin } from './prod/shared-production'
@@ -24,6 +24,30 @@ export default function federation(
   options.filename = options.filename
     ? options.filename
     : DEFAULT_ENTRY_FILENAME
+
+  options.name = options.isHost ? DEFAULT_ORIGIN_NAME : undefined
+
+  options.shared = options.shared ? options.shared : [
+    'vue',
+    'pinia',
+    'axios',
+    'vue-router',
+    'vue-i18n',
+    '@jetlinks-web/constants',
+    '@jetlinks-web/core',
+    '@jetlinks-web/hooks',
+    '@jetlinks-web/types',
+    '@jetlinks-web/utils',
+    'ant-design-vue',
+  ].reduce((prev, key) => {
+    prev[key] = {
+      singleton: true, // 确保只有一个实例，这对 UI 库至关重要
+      eager: true,     // 宿主应用启动时就加载并共享，避免按需加载时的延迟
+    }
+    return prev
+  }, {})
+
+  options.remotes = options.remotes ? options.remotes : options.isHost ? {} : undefined
 
   let pluginList: PluginHooks[] = []
   let virtualMod

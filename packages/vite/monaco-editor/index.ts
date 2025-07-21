@@ -1,6 +1,6 @@
 import { HtmlTagDescriptor, Plugin, ResolvedConfig } from 'vite';
-import { resolve, join } from 'node:path';
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { resolve, join } from 'path';
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'fs';
 import { buildSync } from 'esbuild'
 
 import { EditorLanguageWorks, IWorkerDefinition, languageWorksByLabel } from './languageWork';
