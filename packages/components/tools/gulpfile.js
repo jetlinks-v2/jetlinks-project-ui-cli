@@ -4,12 +4,10 @@ const runCmd = require('./runCmd');
 const getBabelCommonConfig = require('./getBabelCommonConfig');
 const merge2 = require('merge2');
 const through2 = require('through2');
-const transformLess = require('./transformLess');
 const webpack = require('webpack');
 const babel = require('gulp-babel');
 const argv = require('minimist')(process.argv.slice(2));
 
-const getNpmArgs = require('./utils/get-npm-args');
 const path = require('path');
 const ts = require('gulp-typescript');
 const gulp = require('gulp');
@@ -18,16 +16,24 @@ const stripCode = require('gulp-strip-code');
 const getTSCommonConfig = require('./getTSCommonConfig');
 const replaceLib = require('./replaceLib');
 
-const packageJson = require(getProjectPath('package.json'));
+const { glob } = require('glob');
+const fs = require("fs");
 const tsDefaultReporter = ts.reporter.defaultReporter();
 const cwd = process.cwd();
 const libDir = getProjectPath('lib');
 const esDir = getProjectPath('es');
+const localeDir = getProjectPath('src/locale');
+
+const localeDts = `import type { Locale } from '../lib/locale-provider';
+declare const localeValues: Locale;
+export default localeValues;`;
 
 const tsConfig = getTSCommonConfig();
 
 function dist(done) {
     rimraf.sync(path.join(cwd, 'dist'));
+
+    console.log('build dist ...');
     process.env.RUN_ENV = 'PRODUCTION';
     const webpackConfig = require(getProjectPath('webpack.build.conf.js'));
     webpack(webpackConfig, (err, stats) => {
@@ -88,7 +94,6 @@ function compileTs(stream) {
             through2.obj(function (file, encoding, next) {
                 // console.log(file.path, file.base);
                 file.path = file.path.replace(/\.[jt]sx$/, '.js');
-                console.log(file.path)
                 this.push(file);
                 next();
             }),
@@ -114,20 +119,7 @@ function babelify(js, modules) {
     const stream = js.pipe(babel(babelConfig)).pipe(
         through2.obj(function z(file, encoding, next) {
             this.push(file.clone());
-            if (file.path.match(/\/style\/index\.(js|jsx|ts|tsx)$/)) {
-                const content = file.contents.toString(encoding);
-                file.contents = Buffer.from(
-                    content
-                        .replace(/\/style\/?'/g, "/style/css'")
-                        .replace(/\/style\/?"/g, '/style/css"')
-                        .replace(/\.less/g, '.css'),
-                );
-                file.path = file.path.replace(
-                    /index\.(js|jsx|ts|tsx)$/,
-                    'css.js',
-                );
-                this.push(file);
-            } else if (modules !== false) {
+            if (modules !== false) {
                 const content = file.contents.toString(encoding);
                 file.contents = Buffer.from(
                     content
@@ -151,70 +143,14 @@ function compile(modules) {
             transformTSFile,
             transformFile,
             transformVue,
-            includeLessFile = [],
         } = {},
     } = getConfig();
     rimraf.sync(modules !== false ? libDir : esDir);
 
-    // =============================== LESS ===============================
-    const less = gulp
-        .src(['src/**/*.less'])
-        .pipe(
-            through2.obj(function (file, encoding, next) {
-                // Replace content
-                const cloneFile = file.clone();
-
-                const content = file.contents
-                    .toString()
-                    .replace(/^\uFEFF/, '')
-                    .replace(/\/lib\//g, modules === false ? '/es/' : '/lib/');
-
-                cloneFile.contents = Buffer.from(content);
-
-                // Clone for css here since `this.push` will modify file.path
-                const cloneCssFile = cloneFile.clone();
-                this.push(cloneFile);
-
-                // Transform less file
-                if (
-                    file.path.match(/(\/|\\)style(\/|\\)index\.less$/) ||
-                    file.path.match(
-                        /(\/|\\)style(\/|\\)v2-compatible-reset\.less$/,
-                    ) ||
-                    includeLessFile.some((regex) => file.path.match(regex))
-                ) {
-                    transformLess(
-                        cloneCssFile.contents.toString(),
-                        cloneCssFile.path,
-                    )
-                        .then((css) => {
-                            cloneCssFile.contents = Buffer.from(css);
-                            cloneCssFile.path = cloneCssFile.path.replace(
-                                /\.less$/,
-                                '.css',
-                            );
-                            this.push(cloneCssFile);
-                            next();
-                        })
-                        .catch((e) => {
-                            console.error(
-                                cloneCssFile.path,
-                                e,
-                                cloneCssFile.contents.toString(),
-                            );
-                        });
-                } else {
-                    next();
-                }
-            }),
-        )
-        .pipe(gulp.dest(modules === false ? esDir : libDir));
-
-    const assets = gulp
-        .src(['src/**/*.@(png|svg)'])
-        .pipe(gulp.dest(modules === false ? esDir : libDir));
-
-    let error = 0;
+  const assets = gulp
+    .src(['src/**/*.@(png|svg)'])
+    .pipe(gulp.dest(modules === false ? esDir : libDir));
+  let error = 0;
 
     // =============================== FILE ===============================
     let transformFileStream;
@@ -314,7 +250,6 @@ function compile(modules) {
     );
     return merge2(
         [
-            less,
             tsFilesStream,
             tsd,
             assets,
@@ -324,22 +259,25 @@ function compile(modules) {
     );
 }
 
-gulp.task(
-    'check-git',
-    gulp.series((done) => {
-        runCmd('git', ['status', '--porcelain'], (code, result) => {
-            if (/^\?\?/m.test(result)) {
-                return done(`There are untracked files in the working tree.\n${result}
-      `);
-            }
-            if (/^([ADRM]| [ADRM])/m.test(result)) {
-                return done(`There are uncommitted changes in the working tree.\n${result}
-      `);
-            }
-            return done();
-        });
-    }),
-);
+function generateLocale() {
+  if (!fs.existsSync(localeDir)) {
+    fs.mkdirSync(localeDir);
+  }
+
+  const localeFiles = glob.sync('src/locale/*.ts?(x)');
+  localeFiles.forEach(item => {
+    const match = item.match(/src\/locale\/(.*)\.tsx?/);
+    if (match) {
+      const locale = match[1];
+      fs.writeFileSync(
+        path.join(localeDir, `${locale}.js`),
+        `module.exports = require('../lib/locale/${locale}');`,
+      );
+      fs.writeFileSync(path.join(localeDir, `${locale}.d.ts`), localeDts);
+    }
+  });
+}
+
 
 function publish(tagString, done) {
     let args = ['publish', '--with-antd-tools'];
@@ -352,28 +290,6 @@ function publish(tagString, done) {
     });
 }
 
-function pub(done) {
-    const notOk = !packageJson.version.match(/^\d+\.\d+\.\d+$/);
-    let tagString;
-    if (argv['npm-tag']) {
-        tagString = argv['npm-tag'];
-    }
-    if (!tagString && notOk) {
-        tagString = 'next';
-    }
-    if (packageJson.scripts['pre-publish']) {
-        runCmd('npm', ['run', 'pre-publish'], (code2) => {
-            if (code2) {
-                done(code2);
-                return;
-            }
-            publish(tagString, done);
-        });
-    } else {
-        publish(tagString, done);
-    }
-}
-
 let startTime = new Date();
 gulp.task('compile-with-es', (done) => {
     console.log('start compile at ', startTime);
@@ -383,7 +299,10 @@ gulp.task('compile-with-es', (done) => {
 
 gulp.task('compile-with-lib', (done) => {
     console.log('[Parallel] Compile to js...');
-    compile().on('finish', done);
+    compile().on('finish', () => {
+      generateLocale();
+      done();
+    });
 });
 
 gulp.task('compile-finalize', (done) => {
@@ -415,63 +334,3 @@ gulp.task(
         dist(done);
     }),
 );
-
-gulp.task(
-    'pub',
-    gulp.series('check-git', 'compile', 'dist', (done) => {
-        // if (!process.env.GITHUB_TOKEN) {
-        //   console.log('no GitHub token found, skip');
-        // } else {
-        //   pub(done);
-        // }
-        pub(done);
-    }),
-);
-
-gulp.task(
-    'guard',
-    gulp.series((done) => {
-        function reportError() {
-            // console.log(
-            //     chalk.bgRed(
-            //         '!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!',
-            //     ),
-            // );
-            // console.log(
-            //     chalk.bgRed(
-            //         '!! `npm publish` is forbidden for this package. !!',
-            //     ),
-            // );
-            // console.log(chalk.bgRed('!! Use `npm run pub` instead.        !!'));
-            // console.log(
-            //     chalk.bgRed(
-            //         '!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!',
-            //     ),
-            // );
-        }
-
-        const npmArgs = getNpmArgs();
-        if (npmArgs) {
-            for (let arg = npmArgs.shift(); arg; arg = npmArgs.shift()) {
-                if (
-                    /^pu(b(l(i(sh?)?)?)?)?$/.test(arg) &&
-                    npmArgs.indexOf('--with-antd-tools') < 0 &&
-                    !process.env.npm_config_with_antd_tools
-                ) {
-                    reportError();
-                    done(1);
-                    return;
-                }
-            }
-        }
-        done();
-    }),
-);
-
-// gulp.task(
-//   'sort-api-table',
-//   gulp.series(done => {
-//     sortApiTable();
-//     done();
-//   }),
-// );

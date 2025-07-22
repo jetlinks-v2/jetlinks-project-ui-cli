@@ -1,16 +1,23 @@
 import {onUnmounted, ref} from 'vue'
-import type { Ref, UnwrapRef } from 'vue'
+import type { Ref } from 'vue'
 import {isFunction, get, isArray} from 'lodash-es'
 import type { AxiosResponseRewrite } from '@jetlinks-web/types'
 
-export interface RequestOptions<T, S> {
+export interface UseRequestResult<S> {
+  data: Ref<S>,
+  loading: Ref<boolean>,
+  run: (...args: any[]) => Promise<S>,
+  reload: Reload,
+}
+
+export interface RequestOptions<T, S, U = any> {
   immediate: boolean
   /**
    * 成功回调
    * @param data
    * @returns
    */
-  onSuccess: (data: AxiosResponseRewrite<S>) => S | void
+  onSuccess: (data: AxiosResponseRewrite<S>) => U | void
   /**
    * 返回参数处理
    * @returns
@@ -23,13 +30,6 @@ export interface RequestOptions<T, S> {
   defaultParams: S | any | any[]
 
   defaultValue?: S
-}
-
-export interface UseRequestResult<S> {
-  data: Ref<S>,
-  loading: Ref<boolean>,
-  run: (...args: any[]) => Promise<S>,
-  reload: Reload,
 }
 
 export const defaultOptions: any = {
