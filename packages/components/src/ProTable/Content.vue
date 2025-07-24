@@ -3,7 +3,7 @@
     <template v-if="mode === 'CARD'">
       <div class="jtable-card">
         <div class="jtable-card-items" :style="{ gridTemplateColumns }" v-if="dataSource.length">
-          <div :class="['jtable-card-item', props.cardBodyClass]" v-for="item in dataSource" :key="item[props.rowKey]" @click="onClick(item)">
+          <div :class="['jtable-card-item', props.cardBodyClass]" v-for="item in dataSource" :key="item[props.rowKey]" >
             <slot name="card" v-bind="item"></slot>
           </div>
         </div>
@@ -15,7 +15,7 @@
       </div>
     </template>
     <template v-else>
-      <Table v-bind="props" :row-selection="rowSelection || _rowSelection" :dataSource="dataSource" :columns="_columns" :pagination="false" :scroll="_scroll" :class="{'j-table-scroll': !props.scroll?.y}">
+      <Table v-bind="props" :row-selection="rowSelection" :dataSource="dataSource" :columns="_columns" :pagination="false" :scroll="_scroll" :class="{'j-table-scroll': !props.scroll?.y}">
         <template v-for="(_, slotKey) in _slots" :key="slotKey" v-slot:[slotKey]="slotProps">
           <template v-if="!((column?.key || column?.dataIndex) && column?.scopedSlots && (_slots?.[column?.dataIndex] || _slots?.[column?.key]))">
             <slot :name="slotKey" v-bind="slotProps"></slot>
@@ -43,7 +43,6 @@ import {_contentProps} from "./setting";
 import {Table} from 'ant-design-vue';
 import {get, omit} from 'lodash-es';
 import Empty from '../Empty';
-import {useTableInject} from './hooks'
 
 defineOptions({
   name: 'Content'
@@ -58,7 +57,6 @@ const props = defineProps({
 })
 const slots = useSlots()
 
-const _rowSelection = useTableInject()
 
 const _columns = computed(() => props.columns.filter((i) => !i?.hideInTable))
 
@@ -84,11 +82,4 @@ const gridTemplateColumns = computed(() => {
   return `repeat(${props.column}, 1fr)`
 })
 
-
-const onClick = (item) => {
-  if(_rowSelection && _rowSelection.value) {
-    const _selected = _rowSelection.value.selectedRowKeys?.includes(item[props.rowKey])
-    _rowSelection.value.onSelect?.(item, !_selected)
-  }
-}
 </script>
