@@ -24,9 +24,9 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@jetlinks-web/constants": "workspace:^",
-    "@jetlinks-web/types": "workspace:^",
-    "@jetlinks-web/utils": "workspace:^",
+    "@jetlinks-web/constants": "workspace:*",
+    "@jetlinks-web/types": "workspace:*",
+    "@jetlinks-web/utils": "workspace:*",
     "echarts": "^5.4.3",
     "lodash-es": "^4.17.21"
   },

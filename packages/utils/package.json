@@ -31,7 +31,7 @@
     "pubsub-js": "^1.9.4"
   },
   "devDependencies": {
-    "@jetlinks-web/constants": "workspace:^",
+    "@jetlinks-web/constants": "workspace:*",
     "@types/lodash-es": "^4.17.7",
     "@vueuse/core": "^10.9.0",
     "vue": "^3.3.4"

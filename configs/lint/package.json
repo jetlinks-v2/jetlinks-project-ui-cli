@@ -22,7 +22,7 @@
     "vue": "^3.3.4"
   },
   "dependencies": {
-    "@jetlinks-web/utils": "workspace:^",
+    "@jetlinks-web/utils": "workspace:*",
     "@jetlinks-web/tsconfig": "workspace:*",
     "@vitejs/plugin-vue": "^4.2.3",
     "@vitejs/plugin-vue-jsx": "^3.0.1",

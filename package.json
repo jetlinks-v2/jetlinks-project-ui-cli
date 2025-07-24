@@ -18,13 +18,13 @@
   },
   "devDependencies": {
     "@chromatic-com/storybook": "3",
-    "@jetlinks-web/constants": "workspace:^",
-    "@jetlinks-web/core": "workspace:^",
-    "@jetlinks-web/hooks": "workspace:^",
-    "@jetlinks-web/lint": "workspace:^",
+    "@jetlinks-web/constants": "workspace:*",
+    "@jetlinks-web/core": "workspace:*",
+    "@jetlinks-web/hooks": "workspace:*",
+    "@jetlinks-web/lint": "workspace:*",
     "@jetlinks-web/tsconfig": "workspace:*",
-    "@jetlinks-web/types": "workspace:^",
-    "@jetlinks-web/utils": "workspace:^",
+    "@jetlinks-web/types": "workspace:*",
+    "@jetlinks-web/utils": "workspace:*",
     "@storybook/addon-docs": "^8.6.10",
     "@storybook/addon-essentials": "8.6.9",
     "@storybook/addon-onboarding": "8.6.9",
@@ -62,7 +62,7 @@
   "dependencies": {
     "@ant-design/icons-vue": "^7.0.1",
     "@changesets/cli": "^2.26.2",
-    "@jetlinks-web/components": "workspace:^",
+    "@jetlinks-web/components": "workspace:*",
     "ant-design-vue": "^3.2.20",
     "vite": "^6.2.3",
     "vue": "^3.3.4"
