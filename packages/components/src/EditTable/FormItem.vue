@@ -58,21 +58,14 @@ const errorMap = reactive({
 
 const filedId = computed(() => {
   const names = isArray(props.name) ? props.name : [props.name]
-  return names.join('_')
+  const [index, ...extra] = names
+  return `${index}-${extra.join('.')}`
 })
 
 const filedName = computed(() => {
   const names = isArray(props.name) ? props.name : [props.name]
-  const _rules = context.rules.value
-  let tempKey = undefined
 
-  for (const key of names) {
-    if (key in _rules) {
-      tempKey = key
-    }
-  }
-
-  return tempKey
+  return [...names].pop()
 })
 
 const filedValue = computed(() => {
