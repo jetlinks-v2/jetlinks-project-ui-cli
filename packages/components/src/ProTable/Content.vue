@@ -50,6 +50,7 @@ import {get, omit} from 'lodash-es';
 import Empty from '../Empty';
 import {useTableInject} from './hooks'
 import useProTableStyle from './style'
+import {useLocaleReceiver} from "../LocaleReciver";
 
 defineOptions({
   name: 'Content'
