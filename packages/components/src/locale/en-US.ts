@@ -52,6 +52,9 @@ export default {
       cancelChoose: 'Cancel selection',
       selectItem: 'Select {0} items'
     },
+    select: {
+      all: 'Select all'
+    }
   },
   ProLayout: {
     pageContainer: {
