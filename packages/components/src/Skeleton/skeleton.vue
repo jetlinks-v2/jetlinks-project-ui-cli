@@ -1,5 +1,5 @@
 <template>
-  <div class="j-skeleton">
+  <div :class="['j-skeleton', hashId]">
     <template v-if="!loading">
       <slot></slot>
     </template>
@@ -15,8 +15,8 @@
 
 <script setup>
 import Item from "./components/Item.vue";
-import {defineOptions} from "vue";
-
+import {defineOptions, computed} from "vue";
+import useSkeletonStyle from './style'
 defineOptions({
   name: 'JSkeleton'
 })
@@ -31,4 +31,7 @@ const props = defineProps({
     default: true,
   }
 })
+
+const prefixCls = computed(() => 'j-skeleton');
+const [wrapSSR, hashId] = useSkeletonStyle(prefixCls);
 </script>

@@ -1,5 +1,5 @@
 <template>
-  <div :class="['j-check-button', props.class]" :style="style">
+  <div :class="['j-check-button', props.class, hashId]" :style="style">
     <div
         v-for="item in _options"
         :key="item.value"
@@ -7,6 +7,7 @@
                 'j-check-button-item',
                 myValue.includes(item.value) ? 'selected' : '',
                 item.disabled ? 'disabled' : '',
+                hashId
             ]"
         @click="
                 () => {
@@ -23,6 +24,7 @@
 import type { CSSProperties, PropType } from 'vue';
 import { computed, ref, watch, defineEmits, defineOptions, defineProps } from 'vue';
 import { isArray } from '@jetlinks-web/utils';
+import useCheckButtonStyle from './style';
 
 defineOptions({
   name: 'JCheckButton'
@@ -55,6 +57,10 @@ const props = defineProps({
   },
 });
 const emit = defineEmits(['update:value', 'change', 'select']);
+
+// 使用样式
+const prefixCls = computed(() => 'j-check-button')
+const [wrapSSR, hashId] = useCheckButtonStyle(prefixCls)
 
 const myValue = ref();
 const optionsMap = ref(new Map());

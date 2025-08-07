@@ -1,0 +1,48 @@
+{
+  "name": "@jetlinks-web/vite",
+  "version": "2.0.8",
+  "description": "",
+  "main": "dist/index.js",
+  "module": "dist/index.js",
+  "scripts": {
+    "compile-es": "vite build"
+  },
+  "keywords": [
+    "jetlinks",
+    "jetlinks-web",
+    "vite",
+    "jetlinks-web/vite",
+    "@jetlinks-web",
+    "@jetlinks-web/vite"
+  ],
+  "files": [
+    "dist"
+  ],
+  "author": "",
+  "private": false,
+  "license": "ISC",
+  "devDependencies": {
+    "@rollup/plugin-virtual": "^3.0.2",
+    "@types/estree": "^1.0.8",
+    "@types/node": "^18.6.4",
+    "chalk": "^5.0.1",
+    "child_process": "^1.0.2",
+    "esbuild": "^0.25.5",
+    "estree-walker": "^3.0.3",
+    "execa": "^6.1.0",
+    "fs-extra": "^10.0.0",
+    "kill-port": "^2.0.1",
+    "lint-staged": "^13.0.3",
+    "magic-string": "^0.30.17",
+    "typescript": "^4.9.4",
+    "vite": "^4.0.5"
+  },
+  "publishConfig": {
+    "registry": "https://registry.npmjs.org/",
+    "access": "public"
+  },
+  "engines": {
+    "node": ">=14.0.0",
+    "pnpm": ">=7.0.1"
+  }
+}

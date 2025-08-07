@@ -2,7 +2,7 @@
   <div
     v-if="dataSource.length"
     ref="viewScrollRef"
-    class="jetlinks-edit-table-body-viewport"
+    :class="['jetlinks-edit-table-body-viewport', hashId]"
     :style="{ ...style, height: height + 'px'}"
     @scroll="onScroll"
   >
@@ -76,6 +76,7 @@ import {bodyProps} from "./props";
 import { ref, reactive, computed, watch, onMounted, onBeforeUnmount, defineExpose, nextTick} from 'vue'
 import Empty from '../Empty/Empty.vue'
 import CellRender from './CellRender.vue'
+import genEditTableStyle from './style'
 
 defineOptions({
   name: 'JEditTableBody'
@@ -83,7 +84,7 @@ defineOptions({
 
 const props = defineProps({
   ...bodyProps(),
-  groupKey: {
+  groupKey: {     
     type: [String, Number],
     default: undefined
   },
@@ -98,6 +99,8 @@ const props = defineProps({
 
 const emit = defineEmits(['update:dataSource', 'scrollDown'])
 
+const prefixCls = computed(() => 'jetlinks-edit-table')
+const [wrapSSR, hashId] = genEditTableStyle(prefixCls);
 const viewScrollRef = ref()
 const tableCenterRef = ref()
 const virtualRang = reactive({

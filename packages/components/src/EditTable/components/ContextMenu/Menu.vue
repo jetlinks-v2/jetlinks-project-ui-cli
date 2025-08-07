@@ -1,6 +1,6 @@
 <template>
   <div
-    class="jetlinks-edit-table-context-menu"
+    :class="['jetlinks-edit-table-context-menu', hashId]"
     ref="contextMenu"
     tabindex="-1"
     @blur="close"
@@ -45,6 +45,7 @@ import { onMounted, ref, nextTick, defineOptions, defineProps } from "vue";
 import { AIcon } from '../../../components'
 import { Menu } from 'ant-design-vue'
 import {useLocaleReceiver} from "../../../LocaleReciver";
+import useEditTableStyle from '../../style'
 
 defineOptions({
   name: 'JEditTableContextMenu'
@@ -61,6 +62,8 @@ const props = defineProps({
 });
 
 const contextMenu = ref(null);
+const prefixCls = computed(() => 'jetlinks-edit-table')
+const [wrapSSR, hashId] = useEditTableStyle(prefixCls)
 const [contextLocale] = useLocaleReceiver('EditTable');
 const showDetail = computed(() => {
   return !props.data.id

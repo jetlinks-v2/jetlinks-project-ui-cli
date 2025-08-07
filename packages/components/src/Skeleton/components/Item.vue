@@ -4,6 +4,7 @@
 
 <script setup name="Item">
 import { computed } from 'vue'
+import useSkeletonStyle from '../style';
 
 const props = defineProps({
   active: {
@@ -27,6 +28,7 @@ const _className = computed(() => {
     'j-skeleton-item-active': active,
     'j-skeleton-item-lg': size === 'large',
     'j-skeleton-item-sm': size === 'small',
+    [hashId.value]: true
   }
 })
 
@@ -43,4 +45,7 @@ const sizeStyle = computed(() => {
     }
   }
 })
+
+const prefixCls = computed(() => 'j-skeleton')
+const [wrapSSR, hashId] = useSkeletonStyle(prefixCls)
 </script>

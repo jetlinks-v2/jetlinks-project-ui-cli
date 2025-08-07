@@ -1,5 +1,5 @@
 <template>
-  <div class="jetlinks-edit-table-header-container" :style="style">
+  <div :class="['jetlinks-edit-table-header-container', hashId]" :style="style">
     <div class="jetlinks-edit-table-header-cell" v-for="(item, index) in columns" :id="item.dataIndex" :style="{width: `${item.width}px`, left: `${item.left || (200 * index)}px`}">
       <div :class="{ 'jetlinks-edit-table-header-cell-box': true, 'header-cell-box-tool': !!(item.sort || item.filter) }">
         <div class="table-header-cell-title">
@@ -39,9 +39,10 @@
 
 <script setup>
 import { SearchModal, Sort } from './components/Search'
-import {reactive, defineProps, defineOptions} from 'vue'
+import {reactive, defineProps, defineOptions, computed} from 'vue'
 import {useHScroll, useTableTool} from "./hooks";
-import HeaderItemRender from './HeaderRender.vue'
+import HeaderItemRender from './HeaderRender.vue';
+import useEditTableStyle from './style'
 
 defineOptions({
   name: 'JEditTableHeader'
@@ -66,6 +67,8 @@ const props = defineProps({
   }
 })
 
+const prefixCls = computed(() => 'jetlinks-edit-table')
+const [wrapSSR, hashId] = useEditTableStyle(prefixCls)
 const tableTool = useTableTool()
 const hScroll = useHScroll()
 const searchData = reactive({

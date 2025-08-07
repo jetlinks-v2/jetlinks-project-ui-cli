@@ -1,5 +1,5 @@
 <template>
-  <div class="j-radio-button" :style="styles">
+  <div :class="['j-radio-button', hashId]" :style="styles">
     <div v-for="item in options" @click="onClick(item)"  class="j-radio-button-item" :class="{'active': myValue === item.value }">
       {{ item.label }}
     </div>
@@ -8,6 +8,7 @@
 
 <script setup>
 import { defineOptions, defineProps, defineEmits, ref, computed, watch } from 'vue'
+import useRadioButtonStyle from './style'
 defineOptions({
   name: 'JRadioButton',
 })
@@ -29,6 +30,8 @@ const props = defineProps({
 
 const emit = defineEmits(['update:value'])
 
+const prefixCls = computed(() => 'j-radio-button')
+const [wrapSSR, hashId] = useRadioButtonStyle(prefixCls)
 const myValue = ref(props.value)
 
 const styles = computed(() => {
