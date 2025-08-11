@@ -52,6 +52,9 @@ export default {
       cancelChoose: '取消选择',
       selectItem: '已选择 {0} 项'
     },
+    select: {
+      all: '全选'
+    }
   },
   ProLayout: {
     pageContainer: {
