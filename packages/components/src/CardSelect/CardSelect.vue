@@ -26,6 +26,7 @@
 <script setup>
 import { has } from 'lodash-es'
 import { computed, ref, watch, defineEmits, defineOptions, defineProps } from 'vue'
+import { Form } from 'ant-design-vue'
 
 defineOptions({
   name: 'JCardSelect'
@@ -66,6 +67,8 @@ const emit = defineEmits(['select', 'change', 'update:value'])
 
 const selectKeys = ref([])
 
+const formItemContext = Form.useInjectFormItemContext();
+
 const CardSelectStyle = computed(() => {
   const _column = props.column > 0 && props.layout === 'horizontal' ? props.column : 1
 
@@ -104,6 +107,8 @@ const handleSelect = (key, node) => {
     emit('change', key, node)
     emit('update:value', key)
   }
+
+  formItemContext.onFieldChange();
 }
 
 watch(() => props.value, () => {
