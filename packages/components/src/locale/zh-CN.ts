@@ -61,9 +61,6 @@ export default {
       back: '返回'
     }
   },
-  AMap: {
-    description: '请配置高德地图key'
-  },
   EditTable: {
     serial: '序号',
     columns: {

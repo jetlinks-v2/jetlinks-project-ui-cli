@@ -61,9 +61,6 @@ export default {
       back: 'Back'
     }
   },
-  AMap: {
-    description: 'Please configure the Amap key for Gaode'
-  },
   EditTable: {
     serial: 'Serial',
     columns: {
