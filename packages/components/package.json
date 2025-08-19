@@ -1,6 +1,6 @@
 {
   "name": "@jetlinks-web/components",
-  "version": "3.0.0-rc",
+  "version": "3.0.0",
   "description": "",
   "main": "lib/index.js",
   "module": "es/index.js",
@@ -25,8 +25,6 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@ant-design/icons-vue": "^7.0.1",
-    "@vuemap/vue-amap": "^2.0.17",
     "@vueuse/core": "^10.2.1",
     "@vueuse/router": "^12.1.0",
     "async-validator": "^4.2.5",
@@ -43,10 +41,10 @@
     "markdown-it-sup": "^2.0.0",
     "markdown-it-task-lists": "^2.1.1",
     "markdown-it-toc-done-right": "^4.2.0",
-    "resize-observer-polyfill": "^1.5.1",
-    "vue-loader": "^17.4.2"
+    "resize-observer-polyfill": "^1.5.1"
   },
   "devDependencies": {
+    "@ant-design/icons-vue": "^7.0.1",
     "@babel/cli": "^7.8.4",
     "@babel/core": "^7.10.5",
     "@babel/plugin-proposal-class-properties": "^7.8.3",
@@ -154,6 +152,7 @@
     "vite": "^4.0.0",
     "vite-plugin-vue-setup-extend": "^0.4.0",
     "vue": "^3.2.45",
+    "vue-loader": "^17.4.2",
     "vue-eslint-parser": "^9.1.0",
     "vue-router": "4",
     "vue-tsc": "^1.0.11",
