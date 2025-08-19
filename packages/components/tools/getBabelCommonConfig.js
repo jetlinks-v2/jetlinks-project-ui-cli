@@ -58,7 +58,5 @@ module.exports = function (modules) {
                 plugins: [resolve('babel-plugin-istanbul')],
             },
         },
-      loader: 'ts',
-      target: 'esnext'
     };
 };
