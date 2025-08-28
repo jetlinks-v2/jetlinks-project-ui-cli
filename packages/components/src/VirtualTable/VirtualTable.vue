@@ -97,10 +97,10 @@ const props = defineProps({
 const emits = defineEmits(['update:expandedRowKeys'])
 
 defineOptions({
-  name: 'JProTable'
+  name: 'JVirtualTable'
 })
 
-const prefixCls = computed(() => 'pro-table')
+const prefixCls = computed(() => 'virtual-table')
 const [wrapSSR, hashId] = useVirtualTableStyle(prefixCls)
 
 const container = ref(null)
