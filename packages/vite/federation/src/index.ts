@@ -11,12 +11,33 @@ import { prodRemotePlugin } from './prod/remote-production'
 import type { VitePluginFederationOptions } from '../types'
 import {builderInfo, DEFAULT_ENTRY_FILENAME, DEFAULT_ORIGIN_NAME, parsedOptions} from './public'
 import type { PluginHooks } from '../types/pluginHooks'
-import type { ModuleInfo } from 'rollup'
+import type {
+  ModuleInfo,
+  NormalizedOutputOptions,
+  PluginContext,
+  RenderedChunk,
+  TransformPluginContext
+} from 'rollup'
 import { prodSharedPlugin } from './prod/shared-production'
 import { prodExposePlugin } from './prod/expose-production'
 import { devSharedPlugin } from './dev/shared-development'
 import { devRemotePlugin } from './dev/remote-development'
 import { devExposePlugin } from './dev/expose-development'
+
+async function runHook<T extends (...args: any[]) => any>(
+  hook: T | { handler: T } | undefined,
+  ctx: any,
+  ...args: any[]
+): Promise<any> {
+  if (!hook) return
+  if (typeof hook === 'function') {
+    const result = hook.call(ctx, ...args)
+    return result instanceof Promise ? await result : result
+  }
+  if (typeof (hook as any).handler === 'function') {
+    return (hook as any).handler.call(ctx, ...args)
+  }
+}
 
 export default function federation(
   options: VitePluginFederationOptions
@@ -47,6 +68,7 @@ export default function federation(
     return prev
   }, {})
 
+  // 支持动态remotes，默认为空对象
   options.remotes = options.remotes ? options.remotes : options.isHost ? {} : undefined
 
   let pluginList: PluginHooks[] = []
@@ -109,7 +131,7 @@ export default function federation(
         _options.external = [_options.external as string]
       }
       for (const pluginHook of pluginList) {
-        pluginHook.options?.call(this, _options)
+        runHook(pluginHook.options, this, _options)
       }
       return _options
     },
@@ -118,7 +140,7 @@ export default function federation(
       registerPlugins(options.mode, env.command)
       registerCount++
       for (const pluginHook of pluginList) {
-        pluginHook.config?.call(this, config, env)
+        runHook(pluginHook.config, this, config, env)
       }
 
       // only run when builder is vite,rollup doesnt has hook named `config`
@@ -127,17 +149,17 @@ export default function federation(
     },
     configureServer(server: ViteDevServer) {
       for (const pluginHook of pluginList) {
-        pluginHook.configureServer?.call(this, server)
+        runHook(pluginHook.configureServer, this, server)
       }
     },
     configResolved(config: ResolvedConfig) {
       for (const pluginHook of pluginList) {
-        pluginHook.configResolved?.call(this, config)
+        runHook(pluginHook.configResolved, this, config)
       }
     },
     buildStart(inputOptions) {
       for (const pluginHook of pluginList) {
-        pluginHook.buildStart?.call(this, inputOptions)
+        runHook(pluginHook.buildStart, this, inputOptions)
       }
     },
 
@@ -164,6 +186,12 @@ export default function federation(
           moduleSideEffects: true
         }
       }
+      if (args[0] === '__federation_dynamic__') {
+        return {
+          id: '\0virtual:__federation_dynamic__',
+          moduleSideEffects: true
+        }
+      }
       return null
     },
 
@@ -175,9 +203,11 @@ export default function federation(
       return null
     },
 
-    transform(code: string, id: string) {
+    transform(this: TransformPluginContext, ...args: [string, string, { ssr?: boolean }?]) {
+      const [code, id, options] = args
       for (const pluginHook of pluginList) {
-        const result = pluginHook.transform?.call(this, code, id)
+
+        const result = runHook(pluginHook.transform, this, code, id, options)
         if (result) {
           return result
         }
@@ -186,25 +216,20 @@ export default function federation(
     },
     moduleParsed(moduleInfo: ModuleInfo): void {
       for (const pluginHook of pluginList) {
-        pluginHook.moduleParsed?.call(this, moduleInfo)
+        runHook(pluginHook.moduleParsed, this, moduleInfo)
       }
     },
 
     outputOptions(outputOptions) {
       for (const pluginHook of pluginList) {
-        pluginHook.outputOptions?.call(this, outputOptions)
+        runHook(pluginHook.outputOptions, this, outputOptions)
       }
       return outputOptions
     },
 
-    renderChunk(code, chunkInfo, _options) {
+    renderChunk(this: PluginContext, code: string, chunkInfo: RenderedChunk, options: NormalizedOutputOptions, meta: { chunks: Record<string, RenderedChunk> }) {
       for (const pluginHook of pluginList) {
-        const result = pluginHook.renderChunk?.call(
-          this,
-          code,
-          chunkInfo,
-          _options
-        )
+        const result = runHook(pluginHook.renderChunk, this, code, chunkInfo, options, meta)
         if (result) {
           return result
         }
@@ -214,7 +239,7 @@ export default function federation(
 
     generateBundle: function (_options, bundle, isWrite) {
       for (const pluginHook of pluginList) {
-        pluginHook.generateBundle?.call(this, _options, bundle, isWrite)
+        runHook(pluginHook.generateBundle, this, _options, bundle, isWrite)
       }
     }
   }

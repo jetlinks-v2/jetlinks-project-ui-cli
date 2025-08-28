@@ -235,8 +235,20 @@ export function prodRemotePlugin(
                     __federation_method_setRemote(remoteName, {
                         url: remoteUrl,
                         format: _item.format,
-                        from: _item.from
+                        from: _item.from,
+                        inited: false
                     })
+                }
+                
+                // 动态加载远程组件的新方法
+                async function __federation_method_loadRemoteComponent(remoteName, componentName, remoteUrl, options) {
+                  // 如果remote不存在，先添加它
+                  if (!remotesMap[remoteName]) {
+                    await __federation_method_add_origin_setRemote(remoteName, remoteUrl, options)
+                  }
+                  
+                  // 确保remote已初始化并获取组件
+                  return await __federation_method_getRemote(remoteName, componentName)
                 }
 
                 export {
@@ -245,7 +257,8 @@ export function prodRemotePlugin(
                     __federation_method_setRemote,
                     __federation_method_unwrapDefault,
                     __federation_method_wrapDefault,
-                    __federation_method_add_origin_setRemote
+                    __federation_method_add_origin_setRemote,
+                    __federation_method_loadRemoteComponent
                 }
             `
         }
@@ -540,10 +553,10 @@ export function prodRemotePlugin(
         })
 
         if (requiresRuntime) {
-          let requiresCode = `import {__federation_method_ensure, __federation_method_getRemote , __federation_method_wrapDefault , __federation_method_unwrapDefault, __federation_method_add_origin_setRemote} from '__federation__';\n\n`
+          let requiresCode = `import {__federation_method_ensure, __federation_method_getRemote , __federation_method_wrapDefault , __federation_method_unwrapDefault, __federation_method_add_origin_setRemote, __federation_method_loadRemoteComponent} from '__federation__';\n\n`
           // clear static required
           if (manualRequired) {
-            requiresCode = `import {__federation_method_setRemote, __federation_method_ensure, __federation_method_getRemote , __federation_method_wrapDefault , __federation_method_unwrapDefault, __federation_method_add_origin_setRemote} from '__federation__';\n\n`
+            requiresCode = `import {__federation_method_setRemote, __federation_method_ensure, __federation_method_getRemote , __federation_method_wrapDefault , __federation_method_unwrapDefault, __federation_method_add_origin_setRemote, __federation_method_loadRemoteComponent} from '__federation__';\n\n`
             magicString.overwrite(manualRequired.start, manualRequired.end, ``)
           }
           magicString.prepend(requiresCode)

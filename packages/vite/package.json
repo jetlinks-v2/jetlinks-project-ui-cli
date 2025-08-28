@@ -1,9 +1,8 @@
 {
   "name": "@jetlinks-web/vite",
-  "version": "2.0.8",
+  "version": "2.1.1",
   "description": "",
   "main": "dist/index.js",
-  "module": "dist/index.js",
   "scripts": {
     "compile-es": "vite build"
   },
@@ -34,8 +33,9 @@
     "kill-port": "^2.0.1",
     "lint-staged": "^13.0.3",
     "magic-string": "^0.30.17",
+    "rollup": "^4.48.1",
     "typescript": "^4.9.4",
-    "vite": "^4.0.5"
+    "vite": "^7.0.0"
   },
   "publishConfig": {
     "registry": "https://registry.npmjs.org/",
@@ -44,5 +44,8 @@
   "engines": {
     "node": ">=14.0.0",
     "pnpm": ">=7.0.1"
+  },
+  "dependencies": {
+    "sharp": "^0.34.3"
   }
 }

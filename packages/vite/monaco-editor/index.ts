@@ -1,6 +1,5 @@
 import { HtmlTagDescriptor, Plugin, ResolvedConfig } from 'vite';
 import { resolve, join } from 'path';
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'fs';
 import { buildSync } from 'esbuild'
 
 import { EditorLanguageWorks, IWorkerDefinition, languageWorksByLabel } from './languageWork';
@@ -56,6 +55,19 @@ export interface IMonacoEditorOpts {
    */
   globalAPI?: boolean;
 }
+
+const getFS = async () => {
+  if (typeof process !== 'undefined' && process.versions?.node) {
+    const fs = await import('fs');
+    return {
+      existsSync: fs.existsSync,
+      mkdirSync: fs.mkdirSync,
+      readFileSync: fs.readFileSync,
+      writeFileSync: fs.writeFileSync
+    };
+  }
+  return null;
+};
 
 export default function monacoEditorPlugin(options: IMonacoEditorOpts): Plugin {
   const languageWorkers =
@@ -132,9 +144,15 @@ export default function monacoEditorPlugin(options: IMonacoEditorOpts): Plugin {
       return descriptor;
     },
 
-    writeBundle() {
+    async writeBundle() {
       // 是cdn地址并且没有强制构建worker cdn则返回
       if (isCDN(publicPath) && !forceBuildCDN) {
+        return;
+      }
+
+      const fs = await getFS();
+      if (!fs) {
+        this.warn('File system operations not available in this environment');
         return;
       }
 
@@ -156,23 +174,23 @@ export default function monacoEditorPlugin(options: IMonacoEditorOpts): Plugin {
       //  console.log("distPath", distPath)
 
       // write publicPath
-      if (!existsSync(distPath)) {
-        mkdirSync(distPath, {
+      if (!fs.existsSync(distPath)) {
+        fs.mkdirSync(distPath, {
           recursive: true,
         });
       }
 
       for (const work of works) {
-        if (!existsSync(cacheDir + getFilenameByEntry(work.entry))) {
+        if (!fs.existsSync(cacheDir + getFilenameByEntry(work.entry))) {
           buildSync({
             entryPoints: [resolveMonacoPath(work.entry)],
             bundle: true,
             outfile: cacheDir + getFilenameByEntry(work.entry),
           });
         }
-        const contentBuffer = readFileSync(cacheDir + getFilenameByEntry(work.entry));
+        const contentBuffer = fs.readFileSync(cacheDir + getFilenameByEntry(work.entry));
         const workDistPath = resolve(distPath, getFilenameByEntry(work.entry));
-        writeFileSync(workDistPath, contentBuffer);
+        fs.writeFileSync(workDistPath, contentBuffer);
       }
     },
   };

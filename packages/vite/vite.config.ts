@@ -5,21 +5,19 @@ import path from "node:path";
 export default defineConfig({
   build: {
     lib: {
-      // entry: ['./federation/src/index.ts', './federation/src/utils/semver/satisfy.ts'],
-      entry: {
-        index: path.resolve(__dirname, 'index.ts'),
-        federation: path.resolve(__dirname, 'federation/src/index.ts'),
-        monacoEditor: path.resolve(__dirname, 'monaco-editor/index.ts'),
-      },
-      formats: ['es', 'cjs']
+      entry: path.resolve(__dirname, 'index.ts'),
+      name: 'JetlinksVite',
+      formats: ['cjs']
     },
     target: 'node14',
     minify: false,
     rollupOptions: {
-      external: ['fs', 'path', 'crypto', 'magic-string', 'child_process'],
+      external: ['fs', 'path', 'crypto', 'magic-string', 'child_process', 'sharp', 'node:fs', 'node:path', 'node:crypto', 'virtual:__federation__'],
       output: {
         minifyInternalExports: false,
-        entryFileNames: '[name].js'
+        entryFileNames: '[name].js',
+        format: 'cjs',
+        exports: 'named'
       }
     }
   }
