@@ -58,7 +58,6 @@
     "unbuild": "^1.2.1",
     "vitest": "^3.0.9"
   },
-  "packageManager": "pnpm@7.15.0",
   "dependencies": {
     "@ant-design/icons-vue": "^7.0.1",
     "@changesets/cli": "^2.26.2",
