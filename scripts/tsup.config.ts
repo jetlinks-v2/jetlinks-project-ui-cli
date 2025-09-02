@@ -1,8 +1,11 @@
 // tsup.config.ts
 import { defineConfig } from 'tsup'
+import path from 'path'
+import fs from 'fs/promises'
 import corePkg from '../packages/core/package.json'
 import hooksPkg from '../packages/hooks/package.json'
 import utilsPkg from '../packages/utils/package.json'
+import vitePkg from '../packages/vite/package.json'
 
 const external = [
   'vue',
@@ -15,6 +18,28 @@ const external = [
   "ant-design-vue"
 ]
 
+
+// esbuild 插件：把 `?raw` 资源当作纯文本加载，避免解析内部 import
+const rawQueryPlugin = {
+  name: 'raw-query-loader',
+  setup(build) {
+    // 匹配以 ?raw 结尾的导入
+    build.onResolve({ filter: /\?raw$/ }, (args) => {
+      const withoutQuery = args.path.replace(/\?raw$/, '')
+      const resolved = path.isAbsolute(withoutQuery)
+        ? withoutQuery
+        : path.join(args.resolveDir, withoutQuery)
+      return { path: resolved, namespace: 'raw-file' }
+    })
+
+    build.onLoad({ filter: /.*/, namespace: 'raw-file' }, async (args) => {
+      const contents = await fs.readFile(args.path, 'utf8')
+      return { contents, loader: 'text' }
+    })
+  }
+}
+
+
 const config: any = {
     format: ['esm'],
     dts: true,
@@ -25,6 +50,7 @@ const config: any = {
       return { js: '.mjs' }
     },
     minify: true,
+    esbuildPlugins: [rawQueryPlugin],
 }
 
 export default defineConfig([
@@ -44,6 +70,12 @@ export default defineConfig([
     entry: ['../packages/utils/index.ts'],
     outDir: '../packages/utils/dist',
     external: [...(Object.keys(utilsPkg.dependencies || {})), ...external],
+    ...config,
+  },
+  {
+    entry: ['../packages/vite/index.ts'],
+    outDir: '../packages/vite/dist',
+    external: [...(Object.keys(vitePkg.dependencies || {})), ...external],
     ...config,
   }
 ])
