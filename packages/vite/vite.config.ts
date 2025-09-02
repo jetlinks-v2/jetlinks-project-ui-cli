@@ -5,19 +5,16 @@ import path from "node:path";
 export default defineConfig({
   build: {
     lib: {
-      entry: path.resolve(__dirname, 'index.ts'),
+      entry: [path.resolve(__dirname, 'index.ts'), 'src/federation/src/utils/semver/satisfy.ts'] ,
       name: 'JetlinksVite',
-      formats: ['cjs']
+      formats: ['es', 'cjs']
     },
     target: 'node14',
     minify: false,
     rollupOptions: {
       external: ['fs', 'path', 'crypto', 'magic-string', 'child_process', 'sharp', 'node:fs', 'node:path', 'node:crypto', 'virtual:__federation__'],
       output: {
-        minifyInternalExports: false,
-        entryFileNames: '[name].js',
-        format: 'cjs',
-        exports: 'named'
+        minifyInternalExports: false
       }
     }
   }

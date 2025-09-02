@@ -176,7 +176,7 @@ export default function federation(
       }
       if (args[0] === '__federation_fn_satisfy') {
         const federationId = (
-          await this.resolve('@originjs/vite-plugin-federation')
+          await this.resolve('@jetlinks-web/vite')
         )?.id
         return await this.resolve(`${dirname(federationId!)}/satisfy.mjs`)
       }

@@ -33,7 +33,7 @@ import {
   viteConfigResolved
 } from '../public'
 import type { AcornNode, OutputAsset, OutputChunk } from 'rollup'
-import type { VitePluginFederationOptions } from 'types'
+import type { VitePluginFederationOptions } from '../../types'
 import type { PluginHooks } from '../../types/pluginHooks'
 import MagicString from 'magic-string'
 import { walk } from 'estree-walker'
