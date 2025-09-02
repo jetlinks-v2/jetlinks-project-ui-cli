@@ -176,7 +176,7 @@ class MenuUtil {
             return (
                 <Menu.SubMenu
                     title={defaultTitle}
-                    key={item.path}
+                    key={item.key || item.path}
                     popupClassName={`${prefixCls}-menu-popup`}
                     icon={
                         <LazyIcon
@@ -202,7 +202,7 @@ class MenuUtil {
                 <Menu.Item
                     disabled={item.meta?.disabled}
                     danger={item.meta?.danger}
-                    key={item.path}
+                    key={item.key || item.path}
                 >
                     {title}
                 </Menu.Item>
