@@ -1,6 +1,6 @@
 {
   "name": "@jetlinks-web/vite",
-  "version": "2.1.1",
+  "version": "2.1.2",
   "description": "",
   "main": "dist/index.js",
   "scripts": {
@@ -15,7 +15,8 @@
     "@jetlinks-web/vite"
   ],
   "files": [
-    "dist"
+    "dist",
+    "src"
   ],
   "author": "",
   "private": false,
