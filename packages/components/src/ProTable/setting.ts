@@ -73,6 +73,17 @@ export const _paginationProps = {
   isShowContent: {
     type: Boolean,
   },
+  /**
+   * 总数loading状态
+   */
+  totalLoading: {
+    type: Boolean,
+    default: false
+  },
+  totalRequest: {
+    type: Function,
+    default: undefined,
+  },
 }
 
 export const proTableProps = {
@@ -85,6 +96,10 @@ export const proTableProps = {
     })
   },
   request: {
+    type: Function,
+    default: undefined,
+  },
+  totalRequest: {
     type: Function,
     default: undefined,
   },
