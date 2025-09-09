@@ -30,13 +30,14 @@ import {
 import { defaultSettingProps, LayoutType } from '../defaultSettings';
 import { baseHeaderProps } from '../TopHeader';
 import Header, { headerViewProps } from './Header';
-import type { VueNode } from 'ant-design-vue/es/_util/type';
-import useConfigInject from 'ant-design-vue/es/config-provider/hooks/useConfigInject';
+import type { VueNode } from 'ant-design-vue/lib/_util/type';
+import useConfigInject from 'ant-design-vue/lib/config-provider/hooks/useConfigInject';
 import type { BreadcrumbProps, RouteContextProps } from '../RouteContext';
 import { pick } from 'lodash-es';
 import { defaultRouteContext, routeContextInjectKey } from '../RouteContext';
 import { getMenuFirstChildren, getSlot } from '../util';
 import { Layout, LayoutContent, Breadcrumb, Tabs } from 'ant-design-vue';
+import useProLayoutStyle from '../style'
 
 export const basicLayoutProps = {
     ...defaultSettingProps,
@@ -148,6 +149,8 @@ export default defineComponent({
           return props.collapsed ? props.collapsedWidth : props.siderWidth
         });
 
+        const stylePrefixCls = computed(() => 'pro-layout');
+        const [wrapSSR, hashId] = useProLayoutStyle(stylePrefixCls);
         const onCollapse = (collapsed: boolean) => {
             emit('update:collapsed', collapsed);
             emit('collapse', collapsed);
@@ -196,6 +199,7 @@ export default defineComponent({
                 [`${baseClassName.value}-fix-siderbar`]: props.fixSiderbar,
                 [`${baseClassName.value}-${props.layout}`]: props.layout,
                 [`${baseClassName.value}-${props.layoutType}`]: props.layoutType,
+                [hashId.value]: true
             };
         });
 

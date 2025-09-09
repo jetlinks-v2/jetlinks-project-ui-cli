@@ -55,14 +55,6 @@
       @change="onChange"
     />
     <Input
-      v-else-if="typeMap.get(itemType) === 'object'"
-      v-model:value="myValue"
-      allowClear
-      v-bind="bindProps"
-      @change="onChange"
-    >
-    </Input>
-    <Input
       v-else-if="typeMap.get(itemType) === 'file'"
       v-model:value="myValue"
       allowClear
@@ -98,13 +90,13 @@
       v-bind="bindProps"
       @change="onChange"
     />
-
   </div>
 </template>
 
 <script lang="ts" setup>
 import { CSSProperties, PropType, ref, watch, computed } from 'vue'
 import { componentsType } from './util'
+import { MonacoEditor } from '../index'
 import {
   Select,
   DatePicker,
@@ -113,6 +105,7 @@ import {
   InputNumber,
   InputPassword,
   Upload,
+  Modal,
 } from 'ant-design-vue'
 import {omit} from "lodash-es";
 
@@ -175,11 +168,20 @@ const bindProps = computed(() => {
   return Object.assign(omit(props, ['extraProps']), props.extraProps)
 })
 
+const handleItemModalSubmit = () => {
+  myValue.value = objectValue.value.replace(/[\r\n]\s*/g, '')
+  emit('update:modelValue', objectValue.value)
+  emit('change', objectValue.value)
+}
+
 const onChange = (e) => {
   emit('update:modelValue', myValue.value)
   emit('change', e && e.target ? e.target.value : e)
 }
 
+const monacoCancel = () => {
+  objectValue.value = props.modelValue as string
+}
 const handleFileChange = async (info: any) => {
   if (info.file.status === 'done') {
     let url = info.file.response?.result?.accessUrl

@@ -1,7 +1,7 @@
-import { cloneDeep, isArray, isFunction, isString } from 'lodash-es';
+import {cloneDeep, isArray, isFunction, isString, omit} from 'lodash-es';
 import type { SearchItemData } from './typing';
-import { termType } from './setting';
-import { SearchProps } from './typing';
+import {termType} from './setting';
+import type { SearchProps, JColumnsProps } from './typing';
 
 /**
  * 处理like，nlike特殊值
@@ -22,10 +22,10 @@ export const handleLikeValue = (v: string) => {
     return v;
 };
 
-const handleItemValue = (item, columnOptionMap) => {
-    const _item = columnOptionMap.get(item.column);
+const handleItemValue = (item: any, columnOptionMap: any) => {
+    const _item = columnOptionMap[item.column].search;
 
-    if (!_item) return item;
+    if (_item === null || _item === '' || _item === undefined) return item;
     if (_item.rename) {
         item.column = _item.rename;
     }
@@ -38,7 +38,11 @@ const handleItemValue = (item, columnOptionMap) => {
         item.value = `%${handleLikeValue(item.value)}%`;
     }
 
-    return item;
+    if (_item.handleTerms && isFunction(_item.handleTerms)) {
+      return _item.handleTerms(item);
+    }
+
+    return  item;
 };
 
 const isEmpty = (v) => {
@@ -50,26 +54,9 @@ const isEmpty = (v) => {
     );
 };
 
-const handleArrayToTerms = (terms: any[], columnOptionMap) => {
-    return terms
-        .map((item) => {
-            if (item.terms) {
-                const filterTerms = item.terms.filter((filterItem) => {
-                    return (
-                        filterItem &&
-                        !isEmpty(filterItem.value) &&
-                        filterItem.termType !== undefined &&
-                        filterItem.column !== undefined
-                    );
-                });
-                item.terms = filterTerms.map((result) =>
-                    handleItemValue(result, columnOptionMap),
-                );
-            }
-            return item;
-        })
-        .filter((item) => item.terms?.length);
-};
+const isFilterItem = (item: any) => {
+  return !isEmpty(item.value) && item.column !== undefined
+}
 
 /**
  * 处理为外部使用
@@ -80,32 +67,41 @@ export const termsParamsFormat = (
     terms,
     columnOptionMap,
     type: string = 'adv',
-    searchType: string = 'terms',
+    dataFormat: string = 'terms',
 ) => {
     // 过滤掉terms中value无效的item
-    const cloneParams = cloneDeep(terms);
-    if (searchType === 'terms') {
-        return type === 'adv'
-            ? { terms: handleArrayToTerms(cloneParams.terms, columnOptionMap) }
-            : cloneParams
-                  .filter(
-                      (item) =>
-                          item &&
-                          !isEmpty(item.value) &&
-                          item.column !== undefined,
-                  )
-                  .map((item) => handleItemValue(item, columnOptionMap));
-    } else if (searchType == 'object') {
-        const result = {};
-        cloneParams
-            .filter(
-                (item) => item && item.value !== undefined && item.value !== '',
-            )
-            .forEach((item) => {
-                Object.assign(result, { [item.column]: item.value });
-            });
-        return result;
+    const cloneParams = cloneDeep(terms.terms);
+    const handleParamsValue = cloneParams.map((item) => omit(handleItemValue(item, columnOptionMap), ['_span']))
+    const filterParams = handleParamsValue.filter(isFilterItem)
+    if (dataFormat === 'terms') { // terms格式
+      // 过滤，并处理值
+      if (type === 'adv') {
+        if (cloneParams.length > 1) { // 拓展开
+          const array_A = handleParamsValue.slice(0, 3).filter(isFilterItem)
+          const array_B = handleParamsValue.slice(3, 6).filter(isFilterItem)
+          const _terms = []
+
+          if (array_A.length > 0) {
+            _terms.push({ terms: array_A });
+          }
+
+          if (array_B.length > 0) {
+            _terms.push({ terms: array_B, type: handleParamsValue[3].type });
+          }
+
+          return { terms: _terms }
+        }
+
+        return {  terms: [{ terms: filterParams}] }
+      }
+      return filterParams
     }
+
+    // dataFormat === 'object'
+    return filterParams.reduce((pre, item) => {
+      pre[item.column] = item;
+      return pre
+    }, {})
 };
 
 /**
@@ -136,23 +132,6 @@ export const filterSelectNode = (
     return option[key]?.includes(value);
 };
 
-export const handleQData = (terms: any): any => {
-    // 排序, null 往后放
-    terms.terms.forEach((a) => {
-        for (let i = 0; i < a.terms.length; i++) {
-            for (let j = 0; j < a.terms.length - i - 1; j++) {
-                if (!a.terms[j] && a.terms[j + 1]) {
-                    const temp = a.terms[j];
-                    a.terms[j] = a.terms[j + 1];
-                    a.terms[j + 1] = temp;
-                }
-            }
-        }
-    });
-
-    return terms;
-};
-
 export const hasExpand = (terms): boolean => {
     let itemCount = 0;
     terms.forEach((a) => {
@@ -165,56 +144,53 @@ export const hasExpand = (terms): boolean => {
     return itemCount >= 2;
 };
 
-export const compatibleOldTerms = (q: string) => {
-    const _terms = [
-        { terms: [null, null, null] },
-        { terms: [null, null, null], type: 'and' },
-    ];
+function shouldExpand(a, b) {
+  const isAFirstHasValue = a[0] !== null && a[0] !== undefined;
+  const isARestNull = a.slice(1).every(item => item === null || item === undefined);
+  const isBAllNull = b.every(item => item === null || item === undefined);
 
+  return !(isAFirstHasValue && isARestNull && isBAllNull);
+}
+
+export const compatibleOldTerms = (q: string, columnsMap, defaultCacheValues) => {
     try {
         const terms = JSON.parse(q || '{}');
-        terms.terms?.forEach((a, aIndex) => {
-            a?.terms?.forEach((b, bIndex) => {
-                _terms[aIndex].terms[bIndex] = b;
-            });
-            if (a.type) {
-                _terms[aIndex].type = a.type;
+
+        if (terms.terms.length === 2) {
+          const expand = shouldExpand(terms.terms[0].terms, terms.terms[1].terms)
+          let _terms = []
+
+          if (!expand) {
+            _terms = [terms.terms[0].terms[0]]
+          } else {
+            _terms = [...terms.terms[0].terms, ...terms.terms[1].terms]
+            // 重新
+            let arr = Object.values(columnsMap)
+            for (let i = 0; i < _terms.length; i++) {
+              if (_terms[i] === null) {
+                const indexIn = i % arr.length;
+                const obj = getItemDefaultValue(arr[indexIn], defaultCacheValues)
+                if (i === 3) {
+                  obj.type = terms.terms[1].type
+                }
+                _terms[i] = obj
+              }
             }
-        });
-        return { terms: _terms };
+          }
+          return { terms: _terms, expand}
+        } else {
+          const hasTermsKey = Reflect.has(terms.terms[0], 'terms') // 兼容历史数据
+
+          return { terms: hasTermsKey ? terms.terms[0].terms : terms.terms, expand: terms.terms.length > 1};
+        }
+
     } catch (e) {
       console.warn('[Pro Search Error] > ', e)
-        return { terms: _terms };
+        return { terms: [], expand: false};
     }
 };
 
-export const handleParamsToString = (
-    terms: SearchItemData[] = [],
-    type: string = 'and',
-) => {
-    const _terms = [
-        { terms: [null, null, null] },
-        { terms: [null, null, null], type: type },
-    ];
-    let termsIndex = 0;
-    let termsStar = 0;
-    terms.forEach((item, index) => {
-        if (index > 2) {
-            termsIndex = 1;
-            termsStar = 4;
-        }
-        _terms[termsIndex].terms[index - termsStar] = item;
-    });
-
-    return JSON.stringify({ terms: _terms });
-};
-
 export const getTermTypeFn = (type?: SearchProps['type']) => {
-    // if (column?.includes('id') && type === 'string') {
-    //     // 默认id为 eq
-    //     return 'eq';
-    // }
-
     switch (type) {
         case 'select':
         case 'treeSelect':
@@ -232,10 +208,13 @@ export const getTermTypeFn = (type?: SearchProps['type']) => {
 };
 
 export const getTermTypes = (types: string[], locale: any) => {
-    return termType(locale).filter((item) => types.includes(item.value));
+    const termTypes = termType(locale)
+    return types.map(code => {
+      return termTypes.find(item => item.value === code)
+    })
 };
 
-export const getTermOptions = (type?: SearchProps['type'], column?: string, locale: any) => {
+export const getTermOptions = (type: string, locale: any) => {
     let keys: string[] = [];
     switch (type) {
         case 'select':
@@ -254,7 +233,7 @@ export const getTermOptions = (type?: SearchProps['type'], column?: string, loca
             keys = ['eq', 'not', 'gt', 'lt', 'gte', 'lte'];
             break;
         default:
-            keys = ['like', 'nlike'];
+            keys = ['like', 'nlike', 'eq', 'not'];
             // column?.includes('id') && type === 'string'
             //     ? ['eq']
             //     : ['like', 'nlike'];
@@ -263,26 +242,19 @@ export const getTermOptions = (type?: SearchProps['type'], column?: string, loca
     return keys.length ? getTermTypes(keys, locale) : termType(locale);
 };
 
+/**
+ * 获取单项默认值，仅初始化使用
+ * @param record
+ * @param defaultCacheValues
+ */
+export const getItemDefaultValue = (record: JColumnsProps, defaultCacheValues: Record<string|number, any>): SearchItemData & { _span: number} => {
+  const defaultValue = {...defaultCacheValues[record.dataIndex as string]};
 
-export const termsToValue = (targetItem: SearchItemData, searchItems: any[]) => {
-  if (['like', 'nlike'].includes(targetItem.termType) && !!targetItem.value) {
-    if (targetItem.value.startsWith('%') && targetItem.value.endsWith('%')) {
-      targetItem.value = targetItem.value.slice(1, -1)
-    }
+  return {
+    column: record.dataIndex,
+    termType: defaultValue.defaultTermType || getTermTypeFn(record.search.type),
+    value: defaultValue.defaultValue,
+    type: 'or',
+    _span: record.search.span
   }
-
-  // 处理重命名
-  const searchItem = searchItems.filter(item => item.rename).find(item => {
-    if (item.rename === targetItem.column) {
-      targetItem.column = item.column
-      return true
-    }
-
-    return item.column === targetItem.column
-  })
-
-  if (!targetItem.termType) {
-    targetItem.termType = getTermTypeFn(searchItem.type)
-  }
-  return targetItem
 }

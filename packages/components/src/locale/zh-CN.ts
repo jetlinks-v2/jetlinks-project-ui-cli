@@ -52,14 +52,14 @@ export default {
       cancelChoose: '取消选择',
       selectItem: '已选择 {0} 项'
     },
+    select: {
+      all: '全选'
+    }
   },
   ProLayout: {
     pageContainer: {
       back: '返回'
     }
-  },
-  AMap: {
-    description: '请配置高德地图key'
   },
   EditTable: {
     serial: '序号',

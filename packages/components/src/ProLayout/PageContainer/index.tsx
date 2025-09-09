@@ -1,4 +1,4 @@
-import { withInstall } from 'ant-design-vue/es/_util/type';
+import { withInstall } from 'ant-design-vue/lib/_util/type';
 import {
     TabPaneProps,
     Affix,
@@ -15,15 +15,16 @@ import type {
     CSSProperties,
 } from 'vue';
 import { defineComponent, unref, toRefs, computed } from 'vue';
-import { pageHeaderProps } from 'ant-design-vue/es/page-header';
+import { pageHeaderProps } from 'ant-design-vue/lib/page-header';
 import type { DefaultPropRender, PageHeaderRender } from '../typings';
 import type { AffixProps, TabBarExtraContent } from './typings';
 import { useRouteContext, defaultPrefixCls } from '../RouteContext';
 import { getSlotVNode } from '../util';
-import { VueNode } from 'ant-design-vue/es/_util/type';
+import { VueNode } from 'ant-design-vue/lib/_util/type';
 import PropTypes from 'ant-design-vue/es/_util/vue-types';
 import {LayoutType} from "../defaultSettings";
 import { useLocaleReceiver } from "../../LocaleReciver";
+import useProLayoutStyle from '../style'
 
 export const pageHeaderTabConfig = {
     /**
@@ -325,9 +326,12 @@ const PageContainer = defineComponent({
         const { getPrefixCls } = value;
         const prefixCls = props.prefixCls || getPrefixCls();
 
+        const stylePrefixCls = computed(() => 'pro-layout')
+        const [wrapSSR, hashId] = useProLayoutStyle(stylePrefixCls)
         const prefixedClassName = computed(() => `${prefixCls}-page-container`);
         const classNames = computed(() => {
             return {
+                [hashId.value]: true,
                 [prefixedClassName.value]: true,
                 [`${prefixCls}-page-container-ghost`]: ghost.value,
             };
@@ -419,7 +423,7 @@ const PageContainer = defineComponent({
                                                 childrenFullHeight.value
                                                     ? 'children-full-height'
                                                     : ''
-                                            }`}
+                                            } ${hashId.value}`}
                                             style={{
                                                 ...((props.contentStyle as CSSProperties) ||
                                                     {}),

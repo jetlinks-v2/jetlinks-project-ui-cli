@@ -1,18 +1,54 @@
-import { PropType } from 'vue';
-import { JColumnsProps } from './typing';
+import type { PropType } from 'vue';
+import type { JColumnsProps, SearchType } from './typing';
+import {
+  TreeSelect,
+  Select,
+  Input,
+  InputNumber,
+  DatePicker,
+  TimePicker,
+  InputPassword,
+  RangePicker,
+  TimeRangePicker,
+} from 'ant-design-vue'
+import {filterSelectNode, filterTreeSelectNode} from "./util";
 
 export const optionsMapKey = Symbol('searchOptionsMap');
-export const basicSearch = {
+
+export const searchProps = () => ({
     columns: {
         type: Array as PropType<JColumnsProps[]>,
         default: () => [],
         required: true,
     },
     type: {
-        type: String,
-        default: 'advanced',
+      type: String as PropType<SearchType>,
+      default: 'terms',
+      required: true,
     },
-};
+    mode: {
+      type: String,
+      default: 'default',
+    },
+    column: {
+      type: Number,
+      default: 4,
+    },
+    labelWidth: {
+      type: Number,
+      default: 40,
+    },
+    resetText: {
+      type: String,
+    },
+    submitText: {
+      type: String,
+    },
+    align: {
+      type: String,
+      default: 'value'
+    }
+})
 
 export const typeOptions = (locale) => {
   return [
@@ -57,3 +93,94 @@ export const componentType = {
     select: 'select',
     component: 'component',
 };
+
+export const componentProps = (record: Record<string, any>) => {
+  const type = record.type
+
+  switch (type) {
+    case 'string':
+    case componentType.input:
+      return {
+        type,
+        name: Input
+      };
+    case componentType.inputNumber:
+      return {
+        type,
+        name: InputNumber
+      };
+    case componentType.password:
+      return {
+        type,
+        name: InputPassword
+      };
+    case componentType.time:
+      return {
+        type,
+        name: TimePicker,
+        props: {
+          valueFormat: 'HH:mm:ss'
+        }
+      };
+    case componentType.date:
+      return {
+        type,
+        name: DatePicker,
+        props: {
+          valueFormat: 'YYYY-MM-DD HH:mm:ss'
+        }
+      };
+    case componentType.timeRange:
+      return {
+        type,
+        name: TimeRangePicker,
+        props: {
+          valueFormat: 'HH:mm:ss'
+        }
+      };
+    case componentType.rangePicker:
+      return {
+        type,
+        name: RangePicker,
+        props: {
+          valueFormat: 'YYYY-MM-DD HH:mm:ss',
+          showTime: true
+        }
+      };
+    case componentType.treeSelect:
+      return {
+        type,
+        name: TreeSelect,
+        props: {
+          showSearch: true,
+          height: 350,
+          fieldNames: {
+            label: 'name',
+            value: 'id'
+          },
+          filterTreeNode: (v, option) => filterTreeSelectNode(v, option),
+        }
+      };
+    case componentType.select:
+      return {
+        type,
+        name: Select,
+        props: {
+          showSearch: true,
+          // mode: isBtw ? 'multiple' : 'combobox',
+          filterOption: (v, option) => filterSelectNode(v, option, 'label'),
+          style: {
+            width: '100%',
+            minWidth: '80px',
+          },
+        }
+      };
+    case componentType.component:
+      return {
+        type,
+        name: record.components
+      };
+      default:
+        return {}
+  }
+}

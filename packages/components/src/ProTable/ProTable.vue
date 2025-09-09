@@ -1,6 +1,6 @@
 <template>
-  <div class="jtable-body-spin" :style="bodyStyle" id="jtable-body-spin">
-    <JSkeletonList :loading="loading" :active="true" :mode="_mode">
+  <div :class="['jtable-body-spin', hashId]" :style="bodyStyle" id="jtable-body-spin">
+    <Spin :spinning="loading">
       <div class="jtable-body">
         <Header :initMode="mode" :mode="_mode" :modeValue="modeValue" @change="onCheck">
           <template #headerLeftRender>
@@ -10,8 +10,8 @@
             <slot name="headerRightRender"></slot>
           </template>
         </Header>
-        <Alert v-if="showAlert" :rowSelection="rowSelection" @close="onClose">
-          <slot name="alertRender" :rowSelection="rowSelection" :onClose="onClose"></slot>
+        <Alert v-if="showAlert" :rowSelection="rowSelection || _rowSelection" @close="onClose">
+          <slot name="alertRender" :rowSelection="rowSelection || _rowSelection" :onClose="onClose"></slot>
         </Alert>
         <Content v-bind="props" :mode="_mode" :dataSource="_dataSource" :column="column">
           <template v-for="(_, key) in slots" :key="key" v-slot:[key]="slotProps">
@@ -30,12 +30,13 @@
           ></slot>
         </Pagination>
       </div>
-    </JSkeletonList>
+    </Spin>
   </div>
 </template>
 
 <script setup lang="ts">
 import {proTableProps} from "./setting";
+import {Spin} from 'ant-design-vue';
 import Header from './Header.vue';
 import Alert from './Alert.vue';
 import Content from './Content.vue';
@@ -43,7 +44,8 @@ import Pagination from './Pagination.vue';
 import {useSlots, watch, onMounted, onUnmounted, computed, ref, reactive, inject} from "vue";
 import {debounce} from 'lodash-es';
 import {TableConfig} from "../utils/constants";
-import {JSkeletonList} from "../Skeleton";
+import {useTableInject} from "./hooks";
+import useProTableStyle from "./style";
 
 defineOptions({
   name: 'JProTable'
@@ -74,7 +76,7 @@ const myPagination = computed(() => {
 
 const loading = ref<boolean>(false)
 const _dataSource = ref<any[]>([])
-const _mode = ref<'TABLE' | 'CARD' | undefined>(!props.mode ? (props.modeValue || 'CARD') : props.mode)
+const _mode = ref<'TABLE' | 'CARD'>(props.mode || props.modeValue || 'CARD')
 const column = ref<number>(4)
 const page = reactive({
   pageIndex: 0,
@@ -82,10 +84,15 @@ const page = reactive({
   total: 0
 })
 
+const prefixCls = computed(() => 'pro-table')
+const [wrapSSR, hashId] = useProTableStyle(prefixCls)
+
 const extraSlots = ['headerRightRender', 'headerLeftRender', 'paginationRender', 'alertRender']
 
+const _rowSelection = useTableInject()
+
 const showAlert = computed(() => {
-  return props.alertShow && props?.rowSelection?.selectedRowKeys?.length
+  return props.alertShow && (props.rowSelection?.selectedRowKeys?.length || _rowSelection?.value?.selectedRowKeys?.length)
 })
 
 const showPagination = computed(() => {
@@ -162,8 +169,12 @@ const onPageChange = (_page, size) => {
   })
 }
 const onClose = () => {
-  props.rowSelection?.onChange?.([], []);
-  props.rowSelection?.onSelectNone?.();
+  if(props.rowSelection){
+    props.rowSelection.onChange?.([], []);
+    props.rowSelection.onSelectNone?.();
+  } else if(_rowSelection?.value){
+    _rowSelection.value?.onSelectNone?.()
+  }
 }
 /**
  * 刷新数据

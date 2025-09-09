@@ -1,19 +1,21 @@
 <template>
-  <transition name="j-scrollbar-fade">
-    <div
-      v-show="always || visible"
-      ref="instance"
-      :class="['j-scrollbar__bar', props.vertical ? 'is-vertical' : 'is-horizontal']"
-      @mousedown="clickTrackHandler"
-    >
+  <div :class="[hashId]">
+    <transition name="j-scrollbar-fade">
       <div
-        ref="thumb"
-        class="j-scrollbar__thumb"
-        :style="thumbStyle"
-        @mousedown="clickThumbHandler"
-      />
-    </div>
-  </transition>
+        v-show="always || visible"
+        ref="instance"
+        :class="['j-scrollbar__bar', props.vertical ? 'is-vertical' : 'is-horizontal']"
+        @mousedown="clickTrackHandler"
+      >
+        <div
+          ref="thumb"
+          class="j-scrollbar__thumb"
+          :style="thumbStyle"
+          @mousedown="clickThumbHandler"
+        />
+      </div>
+    </transition>
+  </div>
 </template>
 
 <script lang="ts" setup>
@@ -23,6 +25,7 @@ import { isClient } from '@jetlinks-web/utils'
 import { scrollbarContextKey } from './constants'
 import { BAR_MAP, renderThumbStyle } from './util'
 import { thumbProps } from './thumbProps'
+import useScrollbarStyle from './style'
 
 const props = defineProps(thumbProps)
 
@@ -35,6 +38,8 @@ const thumb = ref<HTMLDivElement>()
 
 const thumbState = ref<Partial<Record<'X' | 'Y', number>>>({})
 const visible = ref(false)
+const prefixCls = computed(() => 'j-scrollbar')
+const [wrapSSR, hashId] = useScrollbarStyle(prefixCls)
 
 let cursorDown = false
 let cursorLeave = false

@@ -22,6 +22,7 @@ import IconFont from '../../Icon';
 import { useRouteContext } from '../RouteContext';
 import { computed, unref } from 'vue';
 import {LinksRender} from "../typings";
+import useProLayoutStyle from '../style'
 
 export type PrivateSiderMenuProps = {
     matchMenuKeys?: string[];
@@ -204,6 +205,8 @@ const SiderMenu: FunctionalComponent<SiderMenuProps> = (
         theme,
     } = props;
 
+    const prefixCls = computed(() => 'pro-layout')
+    const [wrapSSR, hashId] = useProLayoutStyle(prefixCls);
     const context = useRouteContext();
     const {getPrefixCls} = context;
     const baseClassName = getPrefixCls('sider');
@@ -220,6 +223,7 @@ const SiderMenu: FunctionalComponent<SiderMenuProps> = (
             [`${baseClassName}-fixed`]: context.fixSiderbar,
             [`${baseClassName}-${theme}`]: true, // theme !== 'dark'
             [`${baseClassName}-layout-${props.layout}`]: props.layout,
+            [hashId.value]: true
         };
     });
     const logCls = computed(() => {
@@ -271,7 +275,7 @@ const SiderMenu: FunctionalComponent<SiderMenuProps> = (
             }}
         />
     );
-  console.log('context', context.fixSiderbar)
+
     return (
         <>
             {context.fixSiderbar && (

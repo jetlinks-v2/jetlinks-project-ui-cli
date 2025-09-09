@@ -2,7 +2,7 @@
   <template v-if="!loading">
     <slot></slot>
   </template>
-  <div class="j-skeleton" v-else>
+  <div :class="['j-skeleton', hashId]" v-else>
     <div class="j-skeleton-dashboard-card">
       <Item :active="active" width="50%" />
       <div style="min-height: 0; flex: 1">
@@ -15,12 +15,15 @@
 
 <script setup>
 import Item from './Item.vue'
-import {defineOptions} from "vue";
+import {computed, defineOptions} from "vue";
+import useSkeletonStyle from '../style'
 
 defineOptions({
   name: 'JSkeletonDashboardCard'
 })
 
+const prefixCls = computed(() => 'j-skeleton')
+const [wrapSSR, hashId] = useSkeletonStyle(prefixCls)
 const props = defineProps({
   active: {
     type: Boolean,

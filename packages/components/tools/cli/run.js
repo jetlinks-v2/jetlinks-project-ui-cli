@@ -6,6 +6,12 @@
 require('colorful').colorful();
 const gulp = require('gulp');
 
+const program = require('commander');
+
+program.option('-c --npm-tag <type>', 'add --npm-tag=xxx');
+
+program.parse(process.argv);
+
 function runTask(toRun) {
     const metadata = { task: toRun };
     // Gulp >= 4.0.0 (doesn't support events)
@@ -28,6 +34,15 @@ function runTask(toRun) {
     }
 }
 
-require('../gulpfile');
 
-runTask('compile');
+const task = program.args[0];
+
+if (!task) {
+  program.help();
+} else {
+  console.log('antd-tools run', task);
+
+  require('../gulpfile');
+
+  runTask(task);
+}

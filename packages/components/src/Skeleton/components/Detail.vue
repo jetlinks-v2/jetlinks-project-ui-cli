@@ -2,7 +2,7 @@
   <template v-if="!loading">
     <slot></slot>
   </template>
-  <div class="j-skeleton" v-else>
+  <div :class="['j-skeleton', hashId]" v-else>
     <div class="j-skeleton-flex">
       <Item :active="active" width="40%"/>
     </div>
@@ -30,8 +30,8 @@
 
 <script setup>
 import Item from "./Item.vue";
-import {defineOptions} from "vue";
-
+import {defineOptions, computed} from "vue";
+import useSkeletonStyle from '../style';
 defineOptions({
   name: 'JSkeletonDetail'
 })
@@ -46,4 +46,7 @@ const props = defineProps({
     default: true,
   }
 })
+
+const prefixCls = computed(() => 'j-skeleton')
+const [wrapSSR, hashId] = useSkeletonStyle(prefixCls)
 </script>

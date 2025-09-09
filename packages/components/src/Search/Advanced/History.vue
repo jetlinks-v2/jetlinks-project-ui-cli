@@ -1,5 +1,5 @@
 <template>
-  <div class="search-history-warp">
+  <div :class="['search-history-warp', hashId]">
     <FormItemRest>
       <Button
           class="search-history-button"
@@ -17,7 +17,7 @@
         @visibleChange="visibleChange"
     >
       <template #content>
-        <div v-if="!showEmpty" class="search-history-items">
+        <div v-if="!showEmpty" :class="['search-history-items', hashId]">
           <div
               v-for="item in historyList"
               :key="item.id"
@@ -65,6 +65,7 @@ import { isFunction } from 'lodash-es';
 import { AIcon, Empty, Ellipsis } from '../../../';
 import { Popconfirm, Button, FormItemRest, Popover, message } from 'ant-design-vue'
 import { useLocaleReceiver } from "../../LocaleReciver";
+import useSearchStyle from '../style'
 
 type Emit = {
   (event: 'click'): void;
@@ -92,6 +93,8 @@ const props = defineProps({
   },
 });
 
+const prefixCls = computed(() => 'JSearch')
+const [wrapSSR, hashId] = useSearchStyle(prefixCls)
 const [contextLocale] = useLocaleReceiver('Search');
 const historyList = ref<SearchHistoryList[]>([]);
 const historyVisible = ref(false);

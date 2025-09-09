@@ -1,5 +1,5 @@
 import { createVNode, render as vueRender, h } from 'vue';
-import type { ModalFuncProps } from 'ant-design-vue/es/modal/Modal'
+import type { ModalFuncProps } from 'ant-design-vue/lib/modal/Modal'
 import { destroyFns } from './index'
 import { omit } from 'lodash-es'
 

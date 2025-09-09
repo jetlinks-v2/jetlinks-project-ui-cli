@@ -52,14 +52,14 @@ export default {
       cancelChoose: 'Cancel selection',
       selectItem: 'Select {0} items'
     },
+    select: {
+      all: 'Select all'
+    }
   },
   ProLayout: {
     pageContainer: {
       back: 'Back'
     }
-  },
-  AMap: {
-    description: 'Please configure the Amap key for Gaode'
   },
   EditTable: {
     serial: 'Serial',

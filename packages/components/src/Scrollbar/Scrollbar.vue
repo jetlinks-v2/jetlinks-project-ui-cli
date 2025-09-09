@@ -1,5 +1,5 @@
 <template>
-  <div ref="scrollbarRef" class="j-scrollbar">
+  <div ref="scrollbarRef" :class="['j-scrollbar', hashId]">
     <div
       ref="wrapRef"
       :class="wrapKls"
@@ -40,6 +40,7 @@ import Bar from './Bar.vue'
 import { scrollbarContextKey } from './constants'
 import { scrollbarEmits, scrollbarProps, BarInstance } from './scrollbarProps'
 import type { CSSProperties, StyleValue } from 'vue'
+import useScrollbarStyle from './style'
 
 const COMPONENT_NAME = 'JScrollbar'
 
@@ -50,6 +51,8 @@ defineOptions({
 const props = defineProps(scrollbarProps)
 const emit = defineEmits(scrollbarEmits)
 
+const prefixCls = computed(() => 'j-scrollbar')
+const [wrapSSR, hashId] = useScrollbarStyle(prefixCls)
 let stopResizeObserver: (() => void) | undefined = undefined
 let stopResizeListener: (() => void) | undefined = undefined
 

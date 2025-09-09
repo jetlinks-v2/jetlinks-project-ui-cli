@@ -1,20 +1,21 @@
 <template>
-  <div class="j-card-select" :style="CardSelectStyle">
+  <div :class="['j-card-select', hashId]" :style="CardSelectStyle">
     <div
       v-for="item in options"
       :class="{
         'j-card-select-item': true,
         'disabled': disabled || item.disabled,
-        'active': selectKeys.includes(item.value)
+        'active': selectKeys.includes(item.value),
+        [hashId]: true
       }"
       @click="() => handleSelect(item.value, item)"
     >
       <slot name="itemRender" :node="item" >
-        <div class="j-card-select-item-content">
-          <div class="j-card-select-title">
+        <div :class="['j-card-select-item-content', hashId]">
+          <div :class="['j-card-select-title', hashId]">
             {{ item.label }}
           </div>
-          <div class="j-card-select-describe">
+          <div :class="['j-card-select-describe', hashId]">
             {{ item.describe }}
           </div>
         </div>
@@ -26,6 +27,7 @@
 <script setup>
 import { has } from 'lodash-es'
 import { computed, ref, watch, defineEmits, defineOptions, defineProps } from 'vue'
+import genCompoentStyle from './style'
 
 defineOptions({
   name: 'JCardSelect'
@@ -65,6 +67,8 @@ const props = defineProps({
 const emit = defineEmits(['select', 'change', 'update:value'])
 
 const selectKeys = ref([])
+const prefixCls = computed(() => 'j-card-select')
+const [wrapSSR, hashId] = genCompoentStyle(prefixCls)
 
 const CardSelectStyle = computed(() => {
   const _column = props.column > 0 && props.layout === 'horizontal' ? props.column : 1

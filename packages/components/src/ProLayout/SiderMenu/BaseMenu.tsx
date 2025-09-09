@@ -37,7 +37,6 @@ import IconFont from '../../Icon';
 import { regular } from '@jetlinks-web/utils';
 import { Menu } from 'ant-design-vue';
 import { createFromIconfontCN } from '@ant-design/icons-vue';
-import PropTypes from 'ant-design-vue/es/_util/vue-types';
 
 export const baseMenuProps = {
     ...defaultSettingProps,
@@ -177,7 +176,7 @@ class MenuUtil {
             return (
                 <Menu.SubMenu
                     title={defaultTitle}
-                    key={item.path}
+                    key={item.key || item.path}
                     popupClassName={`${prefixCls}-menu-popup`}
                     icon={
                         <LazyIcon
@@ -203,7 +202,7 @@ class MenuUtil {
                 <Menu.Item
                     disabled={item.meta?.disabled}
                     danger={item.meta?.danger}
-                    key={item.path}
+                    key={item.key || item.path}
                 >
                     {title}
                 </Menu.Item>

@@ -1,7 +1,7 @@
 <template>
   <Tooltip ref="tooltipRef" placement="top" v-bind="tooltip" :visible="visible">
     <template v-if="tooltip" #title>
-      <div :class="[jEllipsisLineClampClass, jEllipsis, 'j-ellipsis-deep']">
+      <div :class="[jEllipsisLineClampClass, jEllipsis, 'j-ellipsis-deep', hashId]">
         <slot></slot>
         <slot name="tooltip"></slot>
       </div>
@@ -25,6 +25,7 @@
 <script setup>
 import { Tooltip } from 'ant-design-vue'
 import { computed, mergeProps, ref, useAttrs } from 'vue'
+import useEllipsisStyle from './style'
 
 defineOptions({
   name: 'JEllipsis',
@@ -46,6 +47,8 @@ const props = defineProps({
   },
 })
 
+const prefixCls = computed(() => 'j-ellipsis')
+const [wrapSSR, hashId] = useEllipsisStyle(prefixCls)
 // define class name
 const jEllipsis = 'j-ellipsis'
 const jEllipsisCursorClass = 'j-ellipsis-cursor'
@@ -74,6 +77,7 @@ function triggerAttrs() {
         jEllipsis,
         props.lineClamp !== undefined ? jEllipsisLineClampClass : undefined,
         props.expandTrigger === 'click' ? jEllipsisCursorClass : undefined,
+        hashId.value
       ],
       style: ellipsisStyleRef.value,
     }),

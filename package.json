@@ -25,7 +25,7 @@
     "@jetlinks-web/tsconfig": "workspace:*",
     "@jetlinks-web/types": "workspace:^",
     "@jetlinks-web/utils": "workspace:^",
-    "@storybook/addon-docs": "^8.6.10",
+    "@storybook/addon-docs": "8.6.9",
     "@storybook/addon-essentials": "8.6.9",
     "@storybook/addon-onboarding": "8.6.9",
     "@storybook/blocks": "8.6.9",
@@ -58,7 +58,6 @@
     "unbuild": "^1.2.1",
     "vitest": "^3.0.9"
   },
-  "packageManager": "pnpm@7.15.0",
   "dependencies": {
     "@ant-design/icons-vue": "^7.0.1",
     "@changesets/cli": "^2.26.2",

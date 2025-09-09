@@ -44,7 +44,7 @@ export const _contentProps = {
     default: () => [1, 2, 3, 4],
   },
   scroll: {
-    type: Object,
+    type: [Object, Boolean],
     default: () => ({}) //  x: 1366
   },
   rowKey: {

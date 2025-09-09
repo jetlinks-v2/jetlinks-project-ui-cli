@@ -1,7 +1,8 @@
 <template>
   <div :class="{
     'jetlinks-edit-table-wrapper': true,
-    'table-full-screen': isFullscreen
+    'table-full-screen': isFullscreen,
+    [hashId]: true
   }" ref="tableWrapper">
     <div class="jetlinks-edit-table-extra">
       <slot name="extra" :isFullscreen="isFullscreen" :fullScreenToggle="toggle"/>
@@ -80,7 +81,7 @@ import {
 } from './consts'
 import {handleColumnsWidth} from './utils'
 import {useGroup, useResizeObserver, useValidate} from './hooks'
-import {tableProps} from 'ant-design-vue/es/table'
+import {tableProps} from 'ant-design-vue/lib/table'
 import {useFormContext} from './context'
 import {useFullscreen} from '@vueuse/core';
 import {provide, useSlots, ref, reactive, defineOptions, defineEmits, defineProps, computed, watch} from 'vue'
@@ -90,6 +91,7 @@ import Header from './Header.vue'
 import Body from './Body.vue'
 import Group from './group.vue'
 import {useLocaleReceiver} from "../LocaleReciver";
+import useEditTableStyle from './style'
 
 defineOptions({
   name: 'JEditTable'
@@ -122,6 +124,8 @@ const props = defineProps({
   }
 })
 
+const prefixCls = computed(() => 'jetlinks-edit-table')
+const [wrapSSR, hashId] = useEditTableStyle(prefixCls);
 const slots = useSlots()
 const myColumns = ref([])
 const tableWrapper = ref()
