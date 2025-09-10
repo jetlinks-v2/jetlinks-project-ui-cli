@@ -46,7 +46,9 @@ export default {
   },
   ProTable: {
     pagination: {
-      total: `第 {0} - {1} 条/总共 {2} 条`
+      page: `第 {0} - {1} 条/总共`,
+      total: '条',
+      lastPage: '已是最后一页'
     },
     alert: {
       cancelChoose: '取消选择',

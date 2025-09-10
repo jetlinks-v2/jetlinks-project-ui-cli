@@ -20,7 +20,7 @@
             </template>
           </template>
         </Content>
-        <Pagination @change="onPageChange" v-if="showPagination" v-bind="myPagination" :total="page.total" :pageIndex="page.pageIndex" :pageSize="page.pageSize">
+        <Pagination @change="onPageChange" v-if="showPagination" v-bind="myPagination" :total="page.total" :pageIndex="page.pageIndex" :pageSize="page.pageSize" :totalLoading="page.loading" :totalRequest="totalRequest">
           <slot
               name="paginationRender"
               :total="page.total"
@@ -46,6 +46,8 @@ import {debounce} from 'lodash-es';
 import {TableConfig} from "../utils/constants";
 import {useTableInject} from "./hooks";
 import useProTableStyle from "./style";
+import {onlyMessage} from "@jetlinks-web/utils";
+import {useLocaleReceiver} from "../LocaleReciver";
 
 defineOptions({
   name: 'JProTable'
@@ -81,12 +83,14 @@ const column = ref<number>(4)
 const page = reactive({
   pageIndex: 0,
   pageSize: 12,
-  total: 0
+  total: 0,
+  loading: false
 })
 
 const prefixCls = computed(() => 'pro-table')
 const [wrapSSR, hashId] = useProTableStyle(prefixCls)
-
+const [contextLocale] = useLocaleReceiver('ProTable');
+let currentRequestId = 0;
 const extraSlots = ['headerRightRender', 'headerLeftRender', 'paginationRender', 'alertRender']
 
 const _rowSelection = useTableInject()
@@ -102,21 +106,33 @@ const onCheck = (e) => {
   _mode.value = e.target.value;
 }
 
-const handleData = (result: any) => {
+const handleData = (result: any, _params: any) => {
   if (props.type === 'PAGE') {
     // 判断如果是最后一页且最后一页为空，就跳转到前一页
-    if (
-        result?.total &&
-        result?.pageSize &&
-        result?.pageIndex &&
-        result?.data?.length === 0
-    ) {
-      return true
+    // 判断条件：如果是total分开查询，判断result的长度；如果不分开查询就判断result.data的长度
+    if(props.totalRequest){
+      if(result.length === 0){
+        return true
+      } else {
+        _dataSource.value = result || [];
+        page.pageIndex = _params?.pageIndex || 0;
+        page.pageSize = _params?.pageSize || 12;
+        page.total = page.pageSize * (page.pageIndex + 1) + 1
+      }
     } else {
-      _dataSource.value = result?.data || [];
-      page.pageIndex = result?.pageIndex || 0;
-      page.pageSize = result?.pageSize || 12;
-      page.total = result?.total || 0;
+      if (
+          result?.total &&
+          result?.pageSize &&
+          result?.pageIndex &&
+          result?.data?.length === 0
+      ) {
+        return true
+      } else {
+        _dataSource.value = result?.data || [];
+        page.pageIndex = result?.pageIndex || 0;
+        page.pageSize = result?.pageSize || 12;
+        page.total = result?.total || 0;
+      }
     }
   } else {
     _dataSource.value = result || [];
@@ -138,21 +154,41 @@ const handleSearch = async (_params?: Record<string, any>) => {
       ],
     }
     loading.value = true
-    const resp: any = await props.request(__params).finally(() => {
+    const resp = await props.request(__params).finally(() => {
       loading.value = false;
     });
     if (resp.success) {
-      const flag = handleData(resp.result || {})
+      const flag = handleData(resp.result || {}, _params)
       if (flag) { // 判断如果是最后一页且最后一页为空，就跳转到前一页
-        page.pageIndex = page.pageIndex > 0 ? page.pageIndex - 1 : 0;
-        handleSearch({
-          ..._params,
-          pageSize: page.pageSize,
-          pageIndex: page.pageIndex,
-        });
+        if(props.totalRequest){
+          onlyMessage(contextLocale.value.pagination?.lastPage || '', 'error')
+          // 置灰下一页
+          page.total = page.pageSize * (page.pageIndex > 0 ? page.pageIndex : 1)
+        } else {
+          page.pageIndex = page.pageIndex > 0 ? page.pageIndex - 1 : 0;
+          handleSearch({
+            ..._params,
+            pageSize: page.pageSize,
+            pageIndex: page.pageIndex,
+          });
+        }
       }
     } else {
       _dataSource.value = [];
+    }
+    if(props.totalRequest){
+      currentRequestId++;
+      const requestId = currentRequestId;
+      page.loading = true
+      props.totalRequest(__params).then((res) => {
+        if(res.success){
+          page.total = res.result || 0;
+        }
+      }).finally(() => {
+        if (requestId === currentRequestId) {
+          page.loading = false
+        }
+      })
     }
   } else {
     _dataSource.value = []
