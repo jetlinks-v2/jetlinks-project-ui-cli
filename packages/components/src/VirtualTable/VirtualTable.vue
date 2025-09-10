@@ -63,7 +63,7 @@
 <script setup>
 import {findAllChildren, flattenTree} from "./data";
 import {isNumber, map, omit} from "lodash-es";
-import {defineOptions, h, computed, ref, watch, onMounted, defineEmits, defineProps} from 'vue'
+import {defineOptions, h, computed, ref, watch, onMounted, defineEmits, defineProps, nextTick} from 'vue'
 import {Table, Checkbox} from 'ant-design-vue';
 import AIcon from '../Icon';
 import useVirtualTableStyle from './style'
@@ -258,23 +258,30 @@ const updateVisibleNodes = () => {
   nextTick(() => onScroll({target: container.value}))
 }
 
-watch(() => JSON.stringify(props.dataSource), () => {
+watch(() => [JSON.stringify(props.dataSource), JSON.stringify(props.expandedRowKeys)], () => {
   flattenData.value = flattenTree(props.dataSource, 0, null)
-  updateVisibleNodes()
-}, {
-  immediate: true
-})
-
-watch(() => props.expandedRowKeys, () => {
   flattenData.value.forEach(i => {
     if (props.expandedRowKeys.includes(i[props.rowKey])) {
-      i.expanded = true
+      toggleExpand(i)
+      // i.expanded = true
     }
   })
   updateVisibleNodes()
 }, {
   immediate: true
 })
+
+// watch(() => props.expandedRowKeys, () => {
+//   flattenData.value.forEach(i => {
+//     if (props.expandedRowKeys.includes(i[props.rowKey])) {
+//       toggleExpand(i)
+//       // i.expanded = true
+//     }
+//   })
+//   updateVisibleNodes()
+// }, {
+//   immediate: true
+// })
 
 watch(() => props.rowSelection?.selectedRowKeys, (val) => {
   if (val) {
