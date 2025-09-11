@@ -67,6 +67,7 @@ import {defineOptions, h, computed, ref, watch, onMounted, defineEmits, definePr
 import {Table, Checkbox} from 'ant-design-vue';
 import AIcon from '../Icon';
 import useVirtualTableStyle from './style'
+import {useLocaleReceiver} from "../LocaleReciver";
 
 const props = defineProps({
   dataSource: {
@@ -102,6 +103,7 @@ defineOptions({
 
 const prefixCls = computed(() => 'virtual-table')
 const [wrapSSR, hashId] = useVirtualTableStyle(prefixCls)
+const [contextLocale] = useLocaleReceiver('ProTable');
 
 const container = ref(null)
 const rowHeights = ref([])
@@ -131,7 +133,7 @@ const _columns = computed(() => {
     const _width = props.rowSelection.columnWidth || 32
     arr.push({
       key: '__selection__',
-      title: '全选',
+      title: contextLocale.value.select.all,
       dataIndex: '__selection__',
       width: isNumber(_width) ? `${_width}px` : _width,
       customHeaderCell: (props) => {
