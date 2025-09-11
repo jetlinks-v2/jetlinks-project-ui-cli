@@ -46,7 +46,9 @@ export default {
   },
   ProTable: {
     pagination: {
-      total: 'Articles {0} - {1}/Total of {2}'
+      page: 'Articles {0} - {1}/Total of',
+      total: '',
+      lastPage: 'It is already the last page'
     },
     alert: {
       cancelChoose: 'Cancel selection',
