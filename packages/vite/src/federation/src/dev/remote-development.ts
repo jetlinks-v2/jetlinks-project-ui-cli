@@ -14,7 +14,7 @@
 // *****************************************************************************
 
 import type { UserConfig } from 'vite'
-import type { ConfigTypeSet, VitePluginFederationOptions } from 'types'
+import type { ConfigTypeSet, VitePluginFederationOptions } from '../../types'
 import { walk } from 'estree-walker'
 import MagicString from 'magic-string'
 import { readFileSync } from 'fs'
@@ -62,7 +62,7 @@ export function devRemotePlugin(
   let viteDevServer: ViteDevServer
   return {
     name: 'originjs:remote-development',
-    virtualFile: options.remotes
+    virtualFile: options.remotes || options.enableDynamicRemotes
       ? {
           __federation__: `
 ${createRemotesMap(devRemotes)}
@@ -152,34 +152,22 @@ function __federation_method_setRemote(remoteName, remoteConfig) {
 
 async function __federation_method_add_origin_setRemote(remoteName, remoteUrl, options) {
   const _options = options || {}
-  const _item = {
-    external: Array.isArray(_options.external) ? _options.external : [_options.external],
-    shareScope: _options.shareScope || 'default',
-    format: _options.format || 'esm',
-    from: _options.from ?? 'vite',
-    externalType: _options.externalType || 'url'
-  }
+                    const _item = {
+                        external: Array.isArray(_options.external) ? _options.external : [_options.external],
+                        shareScope: _options.shareScope || 'default',
+                        format: _options.format || 'esm',
+                        from: _options.from ?? 'vite',
+                        externalType: _options.externalType || 'url'
+                    }
 
-  __federation_method_setRemote(remoteName, {
-    url: remoteUrl,
-    format: _item.format,
-    from: _item.from,
-    inited: false
-  })
+                    __federation_method_setRemote(remoteName, {
+                        url: remoteUrl,
+                        format: _item.format,
+                        from: _item.from
+                    })
 }
 
-// 动态加载远程组件的新方法
-async function __federation_method_loadRemoteComponent(remoteName, componentName, remoteUrl, options) {
-  // 如果remote不存在，先添加它
-  if (!remotesMap[remoteName]) {
-    await __federation_method_add_origin_setRemote(remoteName, remoteUrl, options)
-  }
-  
-  // 确保remote已初始化并获取组件
-  return await __federation_method_getRemote(remoteName, componentName)
-}
-
-export {__federation_method_ensure, __federation_method_getRemote , __federation_method_setRemote , __federation_method_unwrapDefault , __federation_method_wrapDefault, __federation_method_add_origin_setRemote, __federation_method_loadRemoteComponent}
+export {__federation_method_ensure, __federation_method_getRemote , __federation_method_setRemote , __federation_method_unwrapDefault , __federation_method_wrapDefault, __federation_method_add_origin_setRemote}
 ;`
         }
       : { __federation__: '' },
@@ -393,10 +381,10 @@ export {__federation_method_ensure, __federation_method_getRemote , __federation
       })
 
       if (requiresRuntime) {
-        let requiresCode = `import {__federation_method_ensure, __federation_method_getRemote , __federation_method_wrapDefault , __federation_method_unwrapDefault, __federation_method_add_origin_setRemote, __federation_method_loadRemoteComponent} from '__federation__';\n\n`
+        let requiresCode = `import {__federation_method_ensure, __federation_method_getRemote , __federation_method_wrapDefault , __federation_method_unwrapDefault, __federation_method_add_origin_setRemote} from '__federation__';\n\n`
         // clear static required
         if (manualRequired) {
-          requiresCode = `import {__federation_method_setRemote, __federation_method_ensure, __federation_method_getRemote , __federation_method_wrapDefault , __federation_method_unwrapDefault, __federation_method_add_origin_setRemote, __federation_method_loadRemoteComponent} from '__federation__';\n\n`
+          requiresCode = `import {__federation_method_setRemote, __federation_method_ensure, __federation_method_getRemote , __federation_method_wrapDefault , __federation_method_unwrapDefault, __federation_method_add_origin_setRemote} from '__federation__';\n\n`
           magicString.overwrite(manualRequired.start, manualRequired.end, ``)
         }
         magicString.prepend(requiresCode)

@@ -4,9 +4,11 @@
  */
 import { RenderedChunk } from 'rollup'
 
+export { VitePluginFederationVersion } from '../src/public'
+export * from '../src/runtime/dynamic-remote'
 export default function federation(options: VitePluginFederationOptions): Plugin
 
-export interface VitePluginFederationOptions {
+declare interface VitePluginFederationOptions {
   /**
    * Modules that should be exposed by this container. When provided, property name is used as public name, otherwise public name is automatically inferred from request.
    */
@@ -64,6 +66,11 @@ export interface VitePluginFederationOptions {
   remotes?: Remotes
 
   /**
+   * Enable dynamic remote loading support. When enabled, virtual:__federation__ module will be available even without static remotes configuration.
+   */
+  enableDynamicRemotes?: boolean
+
+  /**
    * The name of the runtime chunk. If set a runtime chunk with this name is created or an existing entrypoint is used as runtime.
    */
   // runtime?: string | false
@@ -92,7 +99,7 @@ type Remotes = (string | RemotesObject)[] | RemotesObject
 
 type Shared = (string | SharedObject)[] | SharedObject
 
-type ConfigTypeSet = ExposesConfig | RemotesConfig | SharedConfig
+export type ConfigTypeSet = ExposesConfig | RemotesConfig | SharedConfig
 
 declare interface SharedRuntimeInfo {
   id: string
@@ -323,11 +330,16 @@ declare interface SharedConfig {
 
 declare module "virtual:__federation__" {
   function __federation_method_getRemote(name: string, url: string): Promise<any>
-  function __federation_method_add_origin_setRemote(name: string, url: string, options?: RemotesConfig): Promise<void>
-  function __federation_method_loadRemoteComponent(remoteName: string, componentName: string, remoteUrl: string, options?: RemotesConfig): Promise<any>
+  function __federation_method_setRemote(name: string, config: any): void
+  function __federation_method_add_origin_setRemote(name: string, url: string, options?: {
+    external?: string | string[];
+    shareScope?: string;
+    format?: 'esm' | 'systemjs' | 'var';
+    from?: 'vite' | 'webpack';
+    externalType?: 'url' | 'promise';
+  }): void
   function __federation_method_unwrapDefault(info: any): any
-  function __federation_method_setRemote(name: string, config: RemotesConfig): void
-  function __federation_method_ensure(remoteId: string): Promise<any>
   function __federation_method_wrapDefault(module: any, need: boolean): any
+  function __federation_method_ensure(remoteName: string): Promise<any>
 }
 
