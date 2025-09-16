@@ -270,9 +270,6 @@ npm test
 ### 构建和发布
 
 ```bash
-# 生成schema
-npm run gen-schema
-
 # 构建项目
 npm run build
 
@@ -322,9 +319,6 @@ cat ~/Library/Application\ Support/Claude/claude_desktop_config.json
 
 **解决方案：**
 ```bash
-# 重新生成schema文件
-npm run gen-schema
-
 # 重新构建项目
 npm run build
 
