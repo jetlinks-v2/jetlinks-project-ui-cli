@@ -1,7 +1,7 @@
 <template>
   <AutoComplete
-    v-bind="props"
     style="width: 100%"
+    v-bind="props"
     :options="_options"
     @search="onSearch"
     @dropdownVisibleChange="dropdownVisibleChange"

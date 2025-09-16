@@ -78,14 +78,17 @@ export class NdJson {
                   observer.next(JSON.parse(line.startsWith('data:') ? line.slice(5) : line));
                 } catch (e) {
                   observer.error(e);
-                  reader.cancel();
                   return;
                 }
               }
             }
             data_buf = lines[lines.length - 1];
             read();
-          }).catch(err => observer.error(err));
+          }).catch(err => {
+            if (err.name !== 'AbortError') {
+              observer.error(err);
+            }
+          });
         };
         that.isRead = true
         read();
@@ -158,14 +161,17 @@ export class NdJson {
                   observer.next(JSON.parse(line.startsWith('data:') ? line.slice(5) : line));
                 } catch (e) {
                   observer.error(e);
-                  reader.cancel();
                   return;
                 }
               }
             }
             data_buf = lines[lines.length - 1];
             read();
-          }).catch(err => observer.error(err));
+          }).catch(err => {
+            if (err.name !== 'AbortError') {
+              observer.error(err);
+            }
+          });
         };
         that.isRead = true
         read();
@@ -225,7 +231,9 @@ export class NdJson {
       this.isRead = false
     }
 
-    this.controller.abort()
+    if (this.controller) {
+      this.controller.abort()
+    }
   }
 }
 

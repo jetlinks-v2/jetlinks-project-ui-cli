@@ -41,7 +41,7 @@ const genSkeletonStyle = (config: any): CSSObject => {
     [`${componentCls}`]: {
       height: '100%',
       [`${componentCls}-item`]: {
-        background: 'linear-gradient(90deg, ${JSkeletonBg} 25%, ${JSkeletonBg1} 50%, ${JSkeletonBg} 75%)',
+        background: `linear-gradient(90deg, ${JSkeletonBg} 25%, ${JSkeletonBg1} 50%, ${JSkeletonBg} 75%)`,
         backgroundSize: '400% 100%',
         borderRadius: JSkeletonBorderRadius,
         height: JSkeletonSize,

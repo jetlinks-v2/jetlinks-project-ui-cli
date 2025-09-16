@@ -1,6 +1,5 @@
 const fs = require('fs');
 const path = require('path');
-const compactVars = require('./scripts/compact-vars');
 const vueCompiler = require('@vue/compiler-sfc');
 const { transform } = require('sucrase');
 
@@ -91,7 +90,6 @@ function finalizeDist() {
         );
         // eslint-disable-next-line no-console
         console.log('Built a entry less file to dist/jetlinks.less');
-        buildThemeFile('compact', compactVars);
         buildThemeFile('variable', {});
         fs.writeFileSync(
             path.join(process.cwd(), 'dist', `theme.js`),
@@ -141,7 +139,6 @@ function needTransformStyle(content) {
 
 module.exports = {
     compile: {
-        includeLessFile: [/(\/|\\)src(\/|\\)style(\/|\\)variable.less$/],
         transformTSFile(file) {
             if (isComponentStyleEntry(file)) {
                 let content = file.contents.toString();

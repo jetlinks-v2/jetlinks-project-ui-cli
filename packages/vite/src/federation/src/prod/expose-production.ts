@@ -109,12 +109,11 @@ export function prodExposePlugin(
              href = [cleanBaseUrl, cleanAssetsDir, cleanCssPath].filter(Boolean).join('/');
            } else {
             // 当remoteEntry.js和CSS都在assets目录下时，使用相对路径
-            const remoteEntryInAssets = curUrl.endsWith('/assets/') || curUrl.endsWith('/assets');
-            const cssInAssets = cleanCssPath.includes('assets/') || cleanAssetsDir === 'assets';
+            const remoteEntryInAssets = cleanCurUrl.endsWith('/assets/') || cleanCurUrl.endsWith('/assets');
             
-            if (remoteEntryInAssets && cssInAssets) {
+            if (remoteEntryInAssets) {
               // 都在assets目录下，直接使用CSS文件名
-              href = cleanCssPath.replace(/^assets\//, '');
+              href = [cleanCurUrl, cleanCssPath].filter(Boolean).join('/');
             } else if (cleanCurUrl.includes(cleanBaseUrl)) {
               href = [cleanCurUrl, cleanAssetsDir, cleanCssPath].filter(Boolean).join('/');
             } else {

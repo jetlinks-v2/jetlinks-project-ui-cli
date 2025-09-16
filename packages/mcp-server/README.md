@@ -47,15 +47,36 @@ npm test
 - **Windows**: `%APPDATA%\Claude\claude_desktop_config.json`
 
 #### 2. 添加配置
-```json
+```javascript
+// 本地测试
 {
   "mcpServers": {
-    "jetlinks-ui": {
+    "@jetlinks-web/mcp-server": {
       "command": "node",
       "args": ["/path/to/your/jetlinks-project-ui-cli/packages/mcp-server/dist/index.js"]
     }
   }
 }
+
+// 生产环境 (使用已发布的npm包)
+{
+  "mcpServers": {
+    "@jetlinks-web/mcp-server": {
+      "command": "npx",
+      "args": ["@jetlinks-web/mcp-server"]
+    }
+  }
+}
+
+// 或者使用全局安装
+{
+  "mcpServers": {
+    "@jetlinks-web/mcp-server": {
+      "command": "@jetlinks-web/mcp-server"
+    }
+  }
+}
+
 ```
 
 #### 3. 重启 Claude Desktop
@@ -270,9 +291,6 @@ npm test
 ### 构建和发布
 
 ```bash
-# 生成schema
-npm run gen-schema
-
 # 构建项目
 npm run build
 
@@ -322,9 +340,6 @@ cat ~/Library/Application\ Support/Claude/claude_desktop_config.json
 
 **解决方案：**
 ```bash
-# 重新生成schema文件
-npm run gen-schema
-
 # 重新构建项目
 npm run build
 

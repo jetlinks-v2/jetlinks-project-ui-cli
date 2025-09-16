@@ -96,7 +96,6 @@
 <script lang="ts" setup>
 import { CSSProperties, PropType, ref, watch, computed } from 'vue'
 import { componentsType } from './util'
-import { MonacoEditor } from '../index'
 import {
   Select,
   DatePicker,
@@ -105,7 +104,6 @@ import {
   InputNumber,
   InputPassword,
   Upload,
-  Modal,
 } from 'ant-design-vue'
 import {omit} from "lodash-es";
 
@@ -134,7 +132,7 @@ const props = defineProps({
   // 组件类型
   itemType: {
     type: String,
-    default: () => 'string',
+    default: 'string',
   },
   // 多选框
   mode: {
