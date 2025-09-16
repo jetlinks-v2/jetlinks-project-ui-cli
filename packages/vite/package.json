@@ -1,6 +1,6 @@
 {
   "name": "@jetlinks-web/vite",
-  "version": "2.1.8",
+  "version": "2.1.10",
   "description": "",
   "main": "dist/index.js",
   "module": "dist/index.mjs",
