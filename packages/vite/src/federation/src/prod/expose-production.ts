@@ -33,7 +33,7 @@ import {
   viteConfigResolved
 } from '../public'
 import type { AcornNode, OutputAsset, OutputChunk } from 'rollup'
-import type { VitePluginFederationOptions } from '../../types'
+import type { VitePluginFederationOptions } from 'types'
 import type { PluginHooks } from '../../types/pluginHooks'
 import MagicString from 'magic-string'
 import { walk } from 'estree-walker'
@@ -108,7 +108,14 @@ export function prodExposePlugin(
            if (isAbsoluteUrl(baseUrl)) {
              href = [cleanBaseUrl, cleanAssetsDir, cleanCssPath].filter(Boolean).join('/');
            } else {
-            if (cleanCurUrl.includes(cleanBaseUrl)) {
+            // 当remoteEntry.js和CSS都在assets目录下时，使用相对路径
+            const remoteEntryInAssets = curUrl.endsWith('/assets/') || curUrl.endsWith('/assets');
+            const cssInAssets = cleanCssPath.includes('assets/') || cleanAssetsDir === 'assets';
+            
+            if (remoteEntryInAssets && cssInAssets) {
+              // 都在assets目录下，直接使用CSS文件名
+              href = cleanCssPath.replace(/^assets\//, '');
+            } else if (cleanCurUrl.includes(cleanBaseUrl)) {
               href = [cleanCurUrl, cleanAssetsDir, cleanCssPath].filter(Boolean).join('/');
             } else {
               href = [cleanCurUrl + cleanBaseUrl, cleanAssetsDir, cleanCssPath].filter(Boolean).join('/');

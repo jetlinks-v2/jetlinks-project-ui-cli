@@ -23,10 +23,10 @@ export const SHARED = 'shared'
 export const DYNAMIC_LOADING_CSS = 'dynamicLoadingCss'
 export const DYNAMIC_LOADING_CSS_PREFIX = '__v__css__'
 export const DEFAULT_ENTRY_FILENAME = 'remoteEntry.js'
-export const DEFAULT_ORIGIN_NAME = 'origin'
 export const EXTERNALS: string[] = []
 export const ROLLUP = 'rollup'
 export const VITE = 'vite'
+export const VitePluginFederationVersion = '1.5.0'
 export const builderInfo = {
   builder: 'rollup',
   version: '',

@@ -20,24 +20,46 @@
       </div>
     </template>
     <template v-else>
-      <Table v-bind="props" :row-selection="__rowSelection" :dataSource="dataSource" :columns="_columns" :pagination="false" :scroll="_scroll" :class="{'j-table-scroll': !props.scroll?.y}">
-        <template v-for="(_, slotKey) in _slots" :key="slotKey" v-slot:[slotKey]="slotProps">
-          <template v-if="!((column?.key || column?.dataIndex) && column?.scopedSlots && (_slots?.[column?.dataIndex] || _slots?.[column?.key]))">
-            <slot :name="slotKey" v-bind="slotProps"></slot>
+      <template v-if="props.type === 'TREE'">
+        <JVirtualTable :rowKey="rowKey" :row-selection="__rowSelection" :dataSource="dataSource" :columns="_columns" :height="height">
+          <template v-for="(_, slotKey) in _slots" :key="slotKey" v-slot:[slotKey]="slotProps">
+            <template v-if="!((column?.key || column?.dataIndex) && column?.scopedSlots && (_slots?.[column?.dataIndex] || _slots?.[column?.key]))">
+              <slot :name="slotKey" v-bind="slotProps"></slot>
+            </template>
           </template>
-        </template>
-        <template #bodyCell="{ column, record, index }">
-          <template v-if="(column?.key || column?.dataIndex) && column?.scopedSlots && (_slots?.[column?.dataIndex] || _slots?.[column?.key])">
-            <slot :name="column?.key || column?.dataIndex" v-bind="record" :index="index" :column="column"></slot>
+          <template #bodyCell="{ column, record, index }">
+            <template v-if="(column?.key || column?.dataIndex) && column?.scopedSlots && (_slots?.[column?.dataIndex] || _slots?.[column?.key])">
+              <slot :name="column?.key || column?.dataIndex" v-bind="record" :index="index" :column="column"></slot>
+            </template>
+            <template v-else>{{ get(record, column?.dataIndex || column?.key) || '--' }}</template>
           </template>
-          <template v-else>{{ get(record, column?.dataIndex || column?.key) || '--' }}</template>
-        </template>
-        <template #emptyText>
-          <slot name="emptyText">
-            <Empty />
-          </slot>
-        </template>
-      </Table>
+          <template #emptyText>
+            <slot name="emptyText">
+              <Empty />
+            </slot>
+          </template>
+        </JVirtualTable>
+      </template>
+      <template v-else>
+        <Table v-bind="props" :row-selection="__rowSelection" :dataSource="dataSource" :columns="_columns" :pagination="false" :scroll="_scroll" :class="{'j-table-scroll': !props.scroll?.y}">
+          <template v-for="(_, slotKey) in _slots" :key="slotKey" v-slot:[slotKey]="slotProps">
+            <template v-if="!((column?.key || column?.dataIndex) && column?.scopedSlots && (_slots?.[column?.dataIndex] || _slots?.[column?.key]))">
+              <slot :name="slotKey" v-bind="slotProps"></slot>
+            </template>
+          </template>
+          <template #bodyCell="{ column, record, index }">
+            <template v-if="(column?.key || column?.dataIndex) && column?.scopedSlots && (_slots?.[column?.dataIndex] || _slots?.[column?.key])">
+              <slot :name="column?.key || column?.dataIndex" v-bind="record" :index="index" :column="column"></slot>
+            </template>
+            <template v-else>{{ get(record, column?.dataIndex || column?.key) || '--' }}</template>
+          </template>
+          <template #emptyText>
+            <slot name="emptyText">
+              <Empty />
+            </slot>
+          </template>
+        </Table>
+      </template>
     </template>
   </div>
 </template>
@@ -51,6 +73,7 @@ import Empty from '../Empty';
 import {useTableInject} from './hooks'
 import useProTableStyle from './style'
 import {useLocaleReceiver} from "../LocaleReciver";
+import JVirtualTable from '../VirtualTable';
 
 defineOptions({
   name: 'Content'

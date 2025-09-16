@@ -15,9 +15,9 @@
 </template>
 
 <script setup lang="ts">
-import { Pagination } from 'ant-design-vue';
+import {Pagination, Spin} from 'ant-design-vue';
 import { _paginationProps } from "./setting";
-import {computed} from 'vue';
+import {computed, h} from 'vue';
 import {useLocaleReceiver} from "../LocaleReciver";
 import useProTableStyle from './style'
 
@@ -38,15 +38,23 @@ const className = computed(() => {
     'hide-content': !props.isShowContent,
   };
 });
+
 const _showTotal = (num: number) => {
   const minSize = props.pageIndex * props.pageSize + 1;
   const MaxSize = (props.pageIndex + 1) * props.pageSize;
-  // return `第 ${minSize} - ${ MaxSize > num ? num : MaxSize } 条/总共 ${num} 条`
-  let locale = contextLocale.value.pagination?.total || '';
-  [minSize, MaxSize > num ? num : MaxSize, num].forEach((item, index) => {
-    locale = locale.replace(`{${index}}`, item)
+  let localePage = contextLocale.value.pagination?.page || '';
+  let localeTotal = contextLocale.value.pagination?.total || '';
+  const _maxSize = props.totalLoading ? MaxSize : (MaxSize > num ? num : MaxSize);
+  [minSize, _maxSize].forEach((item, index) => {
+    localePage = localePage.replace(`{${index}}`, item)
   })
-  return locale
+  return h('span', {}, [
+    localePage,
+    props.totalLoading
+        ? h(Spin, { size: 'small', style: { margin: '0 4px' } })
+        : h('span', {style: { margin: '0 4px' }}, num),
+    localeTotal
+  ])
 }
 
 const onChange = (page: number, size: number) => {
