@@ -3,10 +3,10 @@ import JCheckButton from '../../../packages/components/src/CheckButton/CheckButt
 
 /**
  * CheckButton 多选按钮组件
- * 
+ *
  * 这是一个按钮样式的多选组件，类似于复选框但具有更好的视觉效果。
  * 支持单选和多选模式，适用于选项较少且需要良好视觉效果的场景。
- * 
+ *
  * ## 何时使用
  * - 需要从多个选项中选择一个或多个时
  * - 希望提供比复选框更好的视觉体验时
@@ -278,7 +278,7 @@ export const 实际应用场景: Story = {
   render: () => ({
     components: { JCheckButton },
     template: `
-      <div style="max-width: 600px; display: flex; flex-direction: column; gap: 24px;">
+      <div style="min-width: 600px; display: flex; flex-direction: column; gap: 24px;">
         <!-- 文章筛选 -->
         <div style="padding: 16px; border: 1px solid #e8e8e8; border-radius: 8px;">
           <h3 style="margin: 0 0 16px 0;">文章类型筛选</h3>
@@ -350,7 +350,7 @@ export const 实际应用场景: Story = {
         if (this.selectedTypes.length === 0) return '无'
         const typeMap = {
           tutorial: '教程',
-          news: '资讯', 
+          news: '资讯',
           blog: '博客',
           docs: '文档'
         }
@@ -468,7 +468,7 @@ const getDifficultyText = (difficulty: string) => {
 
 <style scoped>
 .application-demo {
-  max-width: 600px;
+  max-width: 800px;
   display: flex;
   flex-direction: column;
   gap: 24px;

@@ -3,10 +3,10 @@ import JRadioButton from '../../../packages/components/src/RadioButton/RadioButt
 
 /**
  * RadioButton 单选按钮组件
- * 
+ *
  * 这是一个按钮样式的单选组件，类似于单选框但具有更好的视觉效果。
  * 支持网格布局和自定义列数，适用于单选场景且需要良好视觉效果的情况。
- * 
+ *
  * ## 何时使用
  * - 需要从多个选项中选择一个时
  * - 希望提供比单选框更好的视觉体验时
@@ -354,7 +354,7 @@ export const 实际应用场景: Story = {
   render: () => ({
     components: { JRadioButton },
     template: `
-      <div style="max-width: 600px; display: flex; flex-direction: column; gap: 24px;">
+      <div style="min-width: 600px; display: flex; flex-direction: column; gap: 24px;">
         <!-- 主题选择 -->
         <div style="padding: 16px; border: 1px solid #e8e8e8; border-radius: 8px;">
           <h3 style="margin: 0 0 16px 0;">界面主题</h3>

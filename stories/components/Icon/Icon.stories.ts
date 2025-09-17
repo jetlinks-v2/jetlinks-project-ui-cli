@@ -3,10 +3,10 @@ import AIcon from '../../../packages/components/src/Icon';
 
 /**
  * AIcon 图标组件
- * 
+ *
  * 这是一个图标组件，支持Ant Design Vue内置图标和自定义iconfont图标。
  * 自动判断图标类型，优先使用Ant Design图标，不存在时使用自定义图标。
- * 
+ *
  * ## 何时使用
  * - 需要展示图标时
  * - 需要统一图标风格时
@@ -512,7 +512,7 @@ export const 实际应用场景: Story = {
   render: () => ({
     components: { AIcon },
     template: `
-      <div style="max-width: 600px; display: flex; flex-direction: column; gap: 24px;">
+      <div style="min-width: 600px; display: flex; flex-direction: column; gap: 24px;">
         <!-- 导航栏 -->
         <div style="padding: 12px 16px; background: #001529; border-radius: 8px;">
           <div style="display: flex; justify-content: space-between; align-items: center;">
@@ -670,7 +670,7 @@ import AIcon from '@jetlinks/components'
 
 <style scoped>
 .application-demo {
-  max-width: 600px;
+  min-width: 600px;
   display: flex;
   flex-direction: column;
   gap: 24px;

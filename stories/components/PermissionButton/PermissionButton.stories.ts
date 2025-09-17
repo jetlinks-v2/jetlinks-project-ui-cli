@@ -1,20 +1,21 @@
 import type { Meta, StoryObj } from '@storybook/vue3';
+import { PermissionButton as JPermissionButton } from '../../../packages/components/src';
 
 /**
  * PermissionButton 权限按钮组件
- * 
+ *
  * 这是一个带权限控制的按钮组件，可以根据用户权限显示或禁用按钮。
  * 支持工具提示、确认弹窗等功能，适用于需要权限控制的操作场景。
- * 
+ *
  * ## 何时使用
  * - 需要根据用户权限控制按钮状态时
  * - 需要在操作前进行确认提示时
  * - 需要为无权限用户显示友好提示时
  * - 需要统一的权限控制逻辑时
  */
-const meta: Meta = {
+const meta: Meta<typeof JPermissionButton> = {
   title: '组件库/PermissionButton 权限按钮',
-  component: 'JPermissionButton',
+  component: JPermissionButton,
   parameters: {
     layout: 'centered',
     docs: {
@@ -96,9 +97,30 @@ type Story = StoryObj<typeof meta>;
  * 最基本的权限按钮使用方式
  */
 export const 基础用法: Story = {
+  render: (args) => ({
+    components: { JPermissionButton },
+    setup() {
+      const handleClick = () => {
+        console.log('按钮被点击')
+      }
+      return {
+        ...args,
+        handleClick
+      }
+    },
+    template: `
+      <JPermissionButton 
+        :hasPermission="hasPermission"
+        :type="type"
+        @click="handleClick"
+      >
+        有权限按钮
+      </JPermissionButton>
+    `
+  }),
   args: {
     hasPermission: true,
-    children: '有权限按钮'
+    type: 'primary'
   },
   parameters: {
     docs: {
@@ -128,6 +150,7 @@ const handleClick = () => {
  */
 export const 权限控制: Story = {
   render: () => ({
+    components: { JPermissionButton },
     template: `
       <div style="display: flex; gap: 16px; flex-wrap: wrap;">
         <JPermissionButton 
@@ -232,6 +255,7 @@ const handleClick = () => {
  */
 export const 工具提示: Story = {
   render: () => ({
+    components: { JPermissionButton },
     template: `
       <div style="display: flex; gap: 16px; flex-wrap: wrap;">
         <JPermissionButton 
@@ -309,6 +333,7 @@ export const 工具提示: Story = {
  */
 export const 确认弹窗: Story = {
   render: () => ({
+    components: { JPermissionButton },
     template: `
       <div style="display: flex; gap: 16px; flex-wrap: wrap;">
         <JPermissionButton 
@@ -451,6 +476,7 @@ const handleClear = () => {
  */
 export const 自定义无权限提示: Story = {
   render: () => ({
+    components: { JPermissionButton },
     template: `
       <div style="display: flex; gap: 16px; flex-wrap: wrap;">
         <JPermissionButton 
@@ -528,6 +554,7 @@ export const 自定义无权限提示: Story = {
  */
 export const 不同按钮类型: Story = {
   render: () => ({
+    components: { JPermissionButton },
     template: `
       <div style="display: flex; flex-direction: column; gap: 24px;">
         <!-- 按钮类型 -->
@@ -652,8 +679,9 @@ export const 不同按钮类型: Story = {
  */
 export const 实际应用场景: Story = {
   render: () => ({
+    components: { JPermissionButton },
     template: `
-      <div style="max-width: 800px; padding: 16px; border: 1px solid #e8e8e8; border-radius: 8px;">
+      <div style="min-width: 600px; padding: 16px; border: 1px solid #e8e8e8; border-radius: 8px;">
         <h3 style="margin: 0 0 16px 0;">用户管理</h3>
         
         <!-- 操作栏 -->

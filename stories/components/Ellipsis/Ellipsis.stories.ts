@@ -3,10 +3,10 @@ import JEllipsis from '../../../packages/components/src/Ellipsis/Ellipsis.vue';
 
 /**
  * Ellipsis 文本省略组件
- * 
+ *
  * 这是一个用于文本内容过长时进行省略显示的组件，支持单行和多行省略。
  * 当文本被省略时，鼠标悬停可以显示完整内容的提示框。
- * 
+ *
  * ## 何时使用
  * - 文本内容过长需要截断显示时
  * - 需要在有限空间内展示文本时
@@ -252,7 +252,7 @@ export const 不同行数对比: Story = {
   render: () => ({
     components: { JEllipsis },
     template: `
-      <div style="display: flex; flex-direction: column; gap: 16px; width: 400px;">
+      <div style="display: flex; flex-direction: column; gap: 16px; width: 600px;">
         <div>
           <h4 style="margin: 0 0 8px 0;">单行省略 (line-clamp: 1)</h4>
           <div style="border: 1px solid #ddd; padding: 12px;">
@@ -358,7 +358,7 @@ export const 实际应用场景: Story = {
   render: () => ({
     components: { JEllipsis },
     template: `
-      <div style="display: flex; flex-direction: column; gap: 16px; width: 500px;">
+      <div style="display: flex; flex-direction: column; gap: 16px; width: 600px;">
         <div style="border: 1px solid #e8e8e8; border-radius: 8px; padding: 16px; background: #fff;">
           <div style="display: flex; gap: 12px;">
             <img src="https://zos.alipayobjects.com/rmsportal/jkjgkEfvpUPVyRjUImniVslZfWPnJuuZ.png" style="width: 80px; height: 80px; object-fit: cover; border-radius: 4px;" />

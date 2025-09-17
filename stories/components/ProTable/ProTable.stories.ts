@@ -118,7 +118,6 @@ const mockData = [
     position: '前端工程师',
     status: 'active',
     joinDate: '2022-01-15',
-    salary: 15000
   },
   {
     id: 2,
@@ -129,7 +128,6 @@ const mockData = [
     position: '后端工程师',
     status: 'active',
     joinDate: '2022-03-20',
-    salary: 16000
   },
   {
     id: 3,
@@ -140,7 +138,6 @@ const mockData = [
     position: '产品经理',
     status: 'inactive',
     joinDate: '2021-08-10',
-    salary: 18000
   },
   {
     id: 4,
@@ -151,7 +148,6 @@ const mockData = [
     position: 'UI设计师',
     status: 'active',
     joinDate: '2022-05-12',
-    salary: 12000
   },
   {
     id: 5,
@@ -162,7 +158,7 @@ const mockData = [
     position: '全栈工程师',
     status: 'active',
     joinDate: '2021-12-08',
-    salary: 17000
+
   }
 ];
 
@@ -314,12 +310,6 @@ export const 异步请求数据: Story = {
       return {
         columns: [
           ...baseColumns,
-          {
-            title: '薪资',
-            dataIndex: 'salary',
-            key: 'salary',
-            width: 120
-          }
         ],
         searchParams: {}
       }
@@ -596,12 +586,6 @@ export const 表格和卡片模式: Story = {
       return {
         columns: [
           ...baseColumns,
-          // {
-          //   title: '薪资',
-          //   dataIndex: 'salary',
-          //   key: 'salary',
-          //   width: 120
-          // }
         ],
         dataSource: mockData
       }
@@ -635,7 +619,7 @@ export const 表格和卡片模式: Story = {
     :gridColumns="[1, 2, 2, 3]"
     rowKey="id"
   >
-    <template #card="{ record }">
+    <template #card="record">
       <a-card :hoverable="true" style="width: 100%;">
         <template #title>
           <div class="card-title">
@@ -727,12 +711,6 @@ const handleDelete = (record) => {
   color: #666;
   margin-right: 8px;
 }
-
-.salary {
-  color: #ff6b35;
-  font-weight: 600;
-}
-
 .card-email {
   margin-top: 16px;
   font-size: 13px;
@@ -1022,7 +1000,7 @@ export const 完整示例: Story = {
             </div>
           </template>
           
-          <template #action="{ record }">
+          <template #action="record">
             <div style="display: flex; gap: 8px;">
               <a @click="handleEdit(record)" style="color: #1890ff;">编辑</a>
               <a @click="handleView(record)">查看</a>
@@ -1035,16 +1013,10 @@ export const 完整示例: Story = {
             </div>
           </template>
           
-          <template #status="{ record }">
+          <template #status="record">
             <a-tag :color="record.status === 'active' ? 'green' : 'red'">
               {{ record.status === 'active' ? '在职' : '离职' }}
             </a-tag>
-          </template>
-          
-          <template #salary="{ record }">
-            <span style="font-weight: 600; color: #ff6b35;">
-              ¥{{ record.salary?.toLocaleString() }}
-            </span>
           </template>
         </JProTable>
       </div>
@@ -1088,13 +1060,6 @@ export const 完整示例: Story = {
             dataIndex: 'status',
             key: 'status',
             width: 100,
-            scopedSlots: true
-          },
-          {
-            title: '薪资',
-            dataIndex: 'salary',
-            key: 'salary',
-            width: 120,
             scopedSlots: true
           },
           {
@@ -1257,7 +1222,7 @@ export const 完整示例: Story = {
     </template>
     
     <!-- 操作列 -->
-    <template #action="{ record }">
+    <template #action="record">
       <div class="action-buttons">
         <a @click="handleEdit(record)">编辑</a>
         <a @click="handleView(record)">查看</a>
@@ -1271,17 +1236,10 @@ export const 完整示例: Story = {
     </template>
     
     <!-- 状态列 -->
-    <template #status="{ record }">
+    <template #status="record">
       <a-tag :color="record.status === 'active' ? 'green' : 'red'">
-        {{ record.status === 'active' ? '在职' : '离职' }}
+        {{ record?.status === 'active' ? '在职' : '离职' }}
       </a-tag>
-    </template>
-    
-    <!-- 薪资列 -->
-    <template #salary="{ record }">
-      <span class="salary">
-        ¥{{ record.salary?.toLocaleString() }}
-      </span>
     </template>
   </JProTable>
 </template>
@@ -1309,13 +1267,6 @@ const columns = [
     dataIndex: 'status',
     key: 'status',
     width: 100,
-    scopedSlots: true
-  },
-  {
-    title: '薪资',
-    dataIndex: 'salary',
-    key: 'salary',
-    width: 120,
     scopedSlots: true
   },
   {
@@ -1406,10 +1357,6 @@ const handleBatchEdit = () => {
   color: #ff4d4f;
 }
 
-.salary {
-  font-weight: 600;
-  color: #ff6b35;
-}
 </style>`
       }
     }

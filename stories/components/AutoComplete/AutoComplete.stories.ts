@@ -81,24 +81,36 @@ type Story = StoryObj<typeof meta>;
  * 最基本的自动完成功能
  */
 export const 基础使用: Story = {
-  args: {
-    options: [
-      { label: 'JavaScript', value: 'javascript' },
-      { label: 'TypeScript', value: 'typescript' },
-      { label: 'Java', value: 'java' },
-      { label: 'Python', value: 'python' },
-      { label: 'Go', value: 'go' },
-      { label: 'Rust', value: 'rust' },
-      { label: 'C++', value: 'cpp' },
-      { label: 'C#', value: 'csharp' }
-    ],
-    placeholder: '请输入编程语言'
-  },
+  render: () => ({
+    components: { JAutoComplete },
+    template: `
+      <div style="width: 300px">
+        <JAutoComplete 
+          :options="options"
+          placeholder="请输入编程语言"
+        />
+      </div>
+    `,
+    data() {
+      return {
+        options: [
+          { label: 'JavaScript', value: 'javascript' },
+          { label: 'TypeScript', value: 'typescript' },
+          { label: 'Java', value: 'java' },
+          { label: 'Python', value: 'python' },
+          { label: 'Go', value: 'go' },
+          { label: 'Rust', value: 'rust' },
+          { label: 'C++', value: 'cpp' },
+          { label: 'C#', value: 'csharp' }
+        ]
+      }
+    }
+  }),
   parameters: {
     docs: {
       source: {
         code: `<template>
-<div      style="width: 200px">
+<div      style="width: 300px">
     <JAutoComplete 
       :options="options"
       placeholder="请输入编程语言"
@@ -130,21 +142,33 @@ const options = ref([
  * 搜索城市名称的示例
  */
 export const 城市搜索: Story = {
-  args: {
-    options: [
-      { label: '北京市', value: 'beijing' },
-      { label: '上海市', value: 'shanghai' },
-      { label: '广州市', value: 'guangzhou' },
-      { label: '深圳市', value: 'shenzhen' },
-      { label: '杭州市', value: 'hangzhou' },
-      { label: '南京市', value: 'nanjing' },
-      { label: '武汉市', value: 'wuhan' },
-      { label: '成都市', value: 'chengdu' },
-      { label: '西安市', value: 'xian' },
-      { label: '重庆市', value: 'chongqing' }
-    ],
-    placeholder: '请输入城市名称'
-  },
+  render: () => ({
+    components: { JAutoComplete },
+    template: `
+      <div style="width: 200px">
+        <JAutoComplete 
+          :options="cityOptions"
+          placeholder="请输入城市名称"
+        />
+      </div>
+    `,
+    data() {
+      return {
+        cityOptions: [
+          { label: '北京市', value: 'beijing' },
+          { label: '上海市', value: 'shanghai' },
+          { label: '广州市', value: 'guangzhou' },
+          { label: '深圳市', value: 'shenzhen' },
+          { label: '杭州市', value: 'hangzhou' },
+          { label: '南京市', value: 'nanjing' },
+          { label: '武汉市', value: 'wuhan' },
+          { label: '成都市', value: 'chengdu' },
+          { label: '西安市', value: 'xian' },
+          { label: '重庆市', value: 'chongqing' }
+        ]
+      }
+    }
+  }),
   parameters: {
     docs: {
       source: {
@@ -594,7 +618,7 @@ export const 实际应用场景: Story = {
   render: () => ({
     components: { JAutoComplete },
     template: `
-      <div style="max-width: 600px; display: flex; flex-direction: column; gap: 24px;">
+      <div style="min-width: 600px; display: flex; flex-direction: column; gap: 24px;">
         <!-- 搜索框 -->
         <div style="padding: 20px; border: 1px solid #e8e8e8; border-radius: 8px;">
           <h3 style="margin: 0 0 16px 0;">全局搜索</h3>
