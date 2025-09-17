@@ -225,6 +225,7 @@ export const 基础用法: Story = {
           :dataSource="dataSource"
           :noPagination="true"
           rowKey="id"
+          mode="TABLE"
         />
       </div>
     `,
@@ -244,6 +245,7 @@ export const 基础用法: Story = {
     :dataSource="dataSource"
     :noPagination="true"
     rowKey="id"
+    mode="TABLE"
   />
 </template>
 
@@ -301,8 +303,11 @@ export const 异步请求数据: Story = {
           :request="fetchData"
           :params="searchParams"
           rowKey="id"
-          type="PAGE"
-        />
+        >
+          <template #card="record">
+            <a-card style="width:100%">{{record.name}}</a-card>
+          </template>
+        </JProTable>
       </div>
     `,
     data() {
@@ -354,8 +359,11 @@ export const 异步请求数据: Story = {
     :request="fetchData"
     :params="searchParams"
     rowKey="id"
-    type="PAGE"
-  />
+  >
+    <template #card="record">
+      <a-card style="width:100%">{{record.name}}</a-card>
+    </template>
+  </JProTable>
 </template>
 
 <script setup lang="ts">
@@ -427,6 +435,9 @@ export const 行选择功能: Story = {
               <a @click="onClose">取消选择</a>
             </div>
           </template>
+          <template #card="record">
+            <a-card style="width:100%">{{record.name}}</a-card>
+          </template>
         </JProTable>
       </div>
     `,
@@ -437,13 +448,20 @@ export const 行选择功能: Story = {
         rowSelection: {
           selectedRowKeys: [],
           onChange: (selectedRowKeys, selectedRows) => {
+            // 重要：需要更新selectedRowKeys来触发响应式更新
+            this.rowSelection.selectedRowKeys = selectedRowKeys
             console.log('选中的行键:', selectedRowKeys)
             console.log('选中的行数据:', selectedRows)
           },
           onSelect: (record, selected, selectedRows) => {
+            // 重要：需要更新selectedRowKeys来触发响应式更新
+            this.rowSelection.selectedRowKeys = selectedRows.map(row => row.id)
             console.log('单行选择:', record, selected)
+            console.log('当前选中的行:', selectedRows)
           },
           onSelectAll: (selected, selectedRows, changeRows) => {
+            // 重要：需要更新selectedRowKeys来触发响应式更新
+            this.rowSelection.selectedRowKeys = selectedRows.map(row => row.id)
             console.log('全选:', selected, selectedRows, changeRows)
           }
         }
@@ -452,9 +470,17 @@ export const 行选择功能: Story = {
     methods: {
       handleBatchDelete() {
         console.log('批量删除:', this.rowSelection.selectedRowKeys)
+        // 可以添加实际的删除逻辑
+        if (this.rowSelection.selectedRowKeys.length > 0) {
+          alert(`将删除 ${this.rowSelection.selectedRowKeys.length} 条记录`)
+        }
       },
       handleBatchExport() {
         console.log('批量导出:', this.rowSelection.selectedRowKeys)
+        // 可以添加实际的导出逻辑
+        if (this.rowSelection.selectedRowKeys.length > 0) {
+          alert(`将导出 ${this.rowSelection.selectedRowKeys.length} 条记录`)
+        }
       }
     }
   }),
@@ -486,26 +512,35 @@ import { reactive } from 'vue'
 const rowSelection = reactive({
   selectedRowKeys: [],
   onChange: (selectedRowKeys, selectedRows) => {
+    // 重要：需要更新selectedRowKeys来响应变化
     rowSelection.selectedRowKeys = selectedRowKeys
     console.log('选中的行键:', selectedRowKeys)
     console.log('选中的行数据:', selectedRows)
   },
   onSelect: (record, selected, selectedRows) => {
-    rowSelection.selectedRowKeys = selectedRows
+    // 重要：需要更新selectedRowKeys来响应变化
+    rowSelection.selectedRowKeys = selectedRows.map(row => row.id)
     console.log('单行选择:', record, selected)
   },
   onSelectAll: (selected, selectedRows, changeRows) => {
-    rowSelection.selectedRowKeys = selectedRows
+    // 重要：需要更新selectedRowKeys来响应变化
+    rowSelection.selectedRowKeys = selectedRows.map(row => row.id)
     console.log('全选:', selected, selectedRows, changeRows)
   }
 })
 
 const handleBatchDelete = () => {
-  console.log('批量删除:', rowSelection.value.selectedRowKeys)
+  console.log('批量删除:', rowSelection.selectedRowKeys)
+  if (rowSelection.selectedRowKeys.length > 0) {
+    alert(\`将删除 \${rowSelection.selectedRowKeys.length} 条记录\`)
+  }
 }
 
 const handleBatchExport = () => {
-  console.log('批量导出:', rowSelection.value.selectedRowKeys)
+  console.log('批量导出:', rowSelection.selectedRowKeys)
+  if (rowSelection.selectedRowKeys.length > 0) {
+    alert(\`将导出 \${rowSelection.selectedRowKeys.length} 条记录\`)
+  }
 }
 </script>
 
@@ -538,39 +573,21 @@ export const 表格和卡片模式: Story = {
           :gridColumns="[1, 2, 2, 3]"
           rowKey="id"
         >
-          <template #card="{ record }">
-            <div style="border: 1px solid #f0f0f0; border-radius: 8px; padding: 16px; margin-bottom: 16px;">
-              <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px;">
-                <div>
-                  <h4 style="margin: 0 0 4px 0; font-size: 16px; font-weight: 600;">{{ record.name }}</h4>
-                  <p style="margin: 0; color: #666; font-size: 14px;">{{ record.position }}</p>
+          <template #card="record">
+            <a-card style="margin-bottom: 16px;width: 100%" :hoverable="true">
+              <template #title>
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                  <span style="font-size: 16px; font-weight: 600;">{{ record?.name }}</span>
+                  <a-tag :color="record?.status === 'active' ? 'green' : 'red'">
+                    {{ record.status === 'active' ? '在职' : '离职' }}
+                  </a-tag>
                 </div>
-                <span :style="{
-                  padding: '2px 8px',
-                  borderRadius: '4px',
-                  fontSize: '12px',
-                  backgroundColor: record.status === 'active' ? '#f6ffed' : '#fff2f0',
-                  color: record.status === 'active' ? '#52c41a' : '#ff4d4f',
-                  border: record.status === 'active' ? '1px solid #b7eb8f' : '1px solid #ffccc7'
-                }">
-                  {{ record.status === 'active' ? '在职' : '离职' }}
-                </span>
+              </template>
+              <div style="margin-top: 16px;">
+                <span style="color: #666; font-size: 13px;">邮箱:</span>
+                <span style="margin-left: 8px; font-size: 13px;">{{ record.email }}</span>
               </div>
-              
-              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; font-size: 14px;">
-                <div><span style="color: #666;">部门:</span> {{ record.department }}</div>
-                <div><span style="color: #666;">年龄:</span> {{ record.age }}</div>
-                <div style="grid-column: 1 / -1;"><span style="color: #666;">邮箱:</span> {{ record.email }}</div>
-                <div><span style="color: #666;">入职:</span> {{ record.joinDate }}</div>
-                <div><span style="color: #666;">薪资:</span> ¥{{ record.salary?.toLocaleString() }}</div>
-              </div>
-              
-              <div style="margin-top: 12px; display: flex; gap: 8px;">
-                <a style="font-size: 12px;">编辑</a>
-                <a style="font-size: 12px;">查看详情</a>
-                <a style="font-size: 12px; color: #ff4d4f;">删除</a>
-              </div>
-            </div>
+            </a-card>
           </template>
         </JProTable>
       </div>
@@ -579,14 +596,30 @@ export const 表格和卡片模式: Story = {
       return {
         columns: [
           ...baseColumns,
-          {
-            title: '薪资',
-            dataIndex: 'salary',
-            key: 'salary',
-            width: 120
-          }
+          // {
+          //   title: '薪资',
+          //   dataIndex: 'salary',
+          //   key: 'salary',
+          //   width: 120
+          // }
         ],
         dataSource: mockData
+      }
+    },
+    methods: {
+      handleEdit(record) {
+        console.log('编辑员工:', record)
+        alert(`编辑员工: ${record.name}`)
+      },
+      handleView(record) {
+        console.log('查看员工:', record)
+        alert(`查看员工详情: ${record.name}`)
+      },
+      handleDelete(record) {
+        console.log('删除员工:', record)
+        if (confirm(`确定要删除员工 ${record.name} 吗？`)) {
+          alert(`已删除员工: ${record.name}`)
+        }
       }
     }
   }),
@@ -603,31 +636,27 @@ export const 表格和卡片模式: Story = {
     rowKey="id"
   >
     <template #card="{ record }">
-      <div class="user-card">
-        <div class="card-header">
-          <div class="user-info">
-            <h4 class="user-name">{{ record.name }}</h4>
-            <p class="user-position">{{ record.position }}</p>
+      <a-card :hoverable="true" style="width: 100%;">
+        <template #title>
+          <div class="card-title">
+            <span>{{ record.name }}</span>
+            <a-tag :color="record.status === 'active' ? 'green' : 'red'">
+              {{ record.status === 'active' ? '在职' : '离职' }}
+            </a-tag>
           </div>
-          <span class="status-badge" :class="record.status">
-            {{ record.status === 'active' ? '在职' : '离职' }}
-          </span>
+        </template>
+        
+      
+        <!-- 卡片中心区域显示名称 -->
+        <div class="card-center">
+          <div class="user-name">{{ record.name }}</div>
         </div>
         
-        <div class="card-content">
-          <div class="info-item"><span>部门:</span> {{ record.department }}</div>
-          <div class="info-item"><span>年龄:</span> {{ record.age }}</div>
-          <div class="info-item full-width"><span>邮箱:</span> {{ record.email }}</div>
-          <div class="info-item"><span>入职:</span> {{ record.joinDate }}</div>
-          <div class="info-item"><span>薪资:</span> ¥{{ record.salary?.toLocaleString() }}</div>
+        <div class="card-email">
+          <span class="label">邮箱:</span>
+          <span>{{ record.email }}</span>
         </div>
-        
-        <div class="card-actions">
-          <a>编辑</a>
-          <a>查看详情</a>
-          <a class="danger">删除</a>
-        </div>
-      </div>
+      </a-card>
     </template>
   </JProTable>
 </template>
@@ -642,80 +671,76 @@ const columns = [
 const dataSource = [
   // 数据
 ]
+
+const handleEdit = (record) => {
+  console.log('编辑员工:', record)
+  alert(\`编辑员工: \$\{record.name\}\`)
+}
+
+const handleView = (record) => {
+  console.log('查看员工:', record)
+  alert(\`查看员工详情: \$\{record.name\}\`)
+}
+
+const handleDelete = (record) => {
+  console.log('删除员工:', record)
+  if (confirm(\`确定要删除员工 \$\{record.name\} 吗？\`)) {
+    alert(\`已删除员工: \$\{record.name\}\`)
+  }
+}
 </script>
 
 <style scoped>
-.user-card {
-  border: 1px solid #f0f0f0;
-  border-radius: 8px;
-  padding: 16px;
-  margin-bottom: 16px;
-}
-
-.card-header {
+.card-title {
   display: flex;
   justify-content: space-between;
-  align-items: flex-start;
-  margin-bottom: 12px;
-}
-
-.user-name {
-  margin: 0 0 4px 0;
+  align-items: center;
   font-size: 16px;
   font-weight: 600;
 }
 
+.card-center {
+  text-align: center;
+  margin-bottom: 16px;
+}
+
+.user-name {
+  font-size: 18px;
+  font-weight: 600;
+  color: #1890ff;
+  margin-bottom: 8px;
+}
+
 .user-position {
-  margin: 0;
   color: #666;
   font-size: 14px;
 }
 
-.status-badge {
-  padding: 2px 8px;
-  border-radius: 4px;
-  font-size: 12px;
-}
-
-.status-badge.active {
-  background-color: #f6ffed;
-  color: #52c41a;
-  border: 1px solid #b7eb8f;
-}
-
-.status-badge.inactive {
-  background-color: #fff2f0;
-  color: #ff4d4f;
-  border: 1px solid #ffccc7;
-}
-
-.card-content {
+.card-info {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 8px;
+  gap: 12px;
   font-size: 14px;
 }
 
-.info-item span {
+.info-item .label {
   color: #666;
+  margin-right: 8px;
 }
 
-.full-width {
-  grid-column: 1 / -1;
+.salary {
+  color: #ff6b35;
+  font-weight: 600;
 }
 
-.card-actions {
-  margin-top: 12px;
-  display: flex;
-  gap: 8px;
+.card-email {
+  margin-top: 16px;
+  font-size: 13px;
 }
 
-.card-actions a {
-  font-size: 12px;
-}
-
-.card-actions a.danger {
-  color: #ff4d4f;
+.card-email .label {
+  color: #666;
+  margin-right: 8px;
 }
 </style>`
       }
@@ -1091,7 +1116,19 @@ export const 完整示例: Story = {
         rowSelection: {
           selectedRowKeys: [],
           onChange: (selectedRowKeys, selectedRows) => {
+            // 重要：需要更新selectedRowKeys来触发响应式更新
+            this.rowSelection.selectedRowKeys = selectedRowKeys
             console.log('选中变化:', selectedRowKeys, selectedRows)
+          },
+          onSelect: (record, selected, selectedRows) => {
+            // 重要：需要更新selectedRowKeys来触发响应式更新
+            this.rowSelection.selectedRowKeys = selectedRows.map(row => row.id)
+            console.log('单行选择:', record, selected)
+          },
+          onSelectAll: (selected, selectedRows, changeRows) => {
+            // 重要：需要更新selectedRowKeys来触发响应式更新
+            this.rowSelection.selectedRowKeys = selectedRows.map(row => row.id)
+            console.log('全选:', selected, selectedRows, changeRows)
           }
         },
         tableRef: null

@@ -1,7 +1,7 @@
 import type { Preview } from '@storybook/vue3';
 import Antd from 'ant-design-vue';
 import { setup } from '@storybook/vue3';
-import { DocsPage, DocsContainer } from '@storybook/addon-docs/blocks'
+import { DocsPage, DocsContainer } from '@storybook/addon-docs'
 import JComponents from '../packages/components/src'
 import Antdv from "ant-design-vue";
 
