@@ -1,0 +1,11 @@
+{
+  "mcpServers": {
+    "@jetlinks-web/mcp-server": {
+      "command": "node",
+      "args": ["./packages/mcp-server/dist/index.js"],
+      "env": {
+        "NODE_ENV": "development"
+      }
+    }
+  }
+}
