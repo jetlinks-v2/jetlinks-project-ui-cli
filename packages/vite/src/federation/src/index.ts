@@ -42,19 +42,6 @@ export default function federation(
     ? options.filename
     : DEFAULT_ENTRY_FILENAME
 
-  options.shared = options.shared ? options.shared : [
-    'vue',
-    'pinia',
-    'axios',
-    'vue-router',
-    'vue-i18n',
-    '@jetlinks-web/constants',
-    '@jetlinks-web/core',
-    '@jetlinks-web/hooks',
-    '@jetlinks-web/types',
-    '@jetlinks-web/utils',
-  ]
-
   let pluginList: PluginHooks[] = []
   let virtualMod
   let registerCount = 0
