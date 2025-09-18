@@ -121,8 +121,7 @@ export const BasicUsage: Story = {
   parameters: {
     docs: {
       source: {
-        code: `
-import { EventEmitter } from '@jetlinks-web/utils';
+        code: `import { EventEmitter } from '@jetlinks-web/utils';
 import { ref } from 'vue';
 
 // 监听事件
@@ -138,14 +137,7 @@ EventEmitter.subscribe(['message'], messageHandler);
 // 发射事件
 const sendMessage = () => {
   EventEmitter.emit('message', '这是一条测试消息');
-};
-
-// 在模板中使用
-<div>
-  <a-button @click="sendMessage">发送消息</a-button>
-  <p>{{ message }}</p>
-</div>
-        `
+};`
       }
     }
   },
@@ -187,8 +179,7 @@ export const MultipleEvents: Story = {
   parameters: {
     docs: {
       source: {
-        code: `
-import { EventEmitter } from '@jetlinks-web/utils';
+        code: `import { EventEmitter } from '@jetlinks-web/utils';
 import { ref } from 'vue';
 
 // 同时订阅多个事件
@@ -204,20 +195,7 @@ EventEmitter.subscribe(['event1', 'event2', 'event3'], eventHandler);
 // 发射不同事件
 const emitEvent1 = () => EventEmitter.emit('event1', '事件1被触发');
 const emitEvent2 = () => EventEmitter.emit('event2', '事件2被触发');
-const emitEvent3 = () => EventEmitter.emit('event3', '事件3被触发');
-
-// 在模板中使用
-<div>
-  <a-space>
-    <a-button @click="emitEvent1">触发事件1</a-button>
-    <a-button @click="emitEvent2">触发事件2</a-button>
-    <a-button @click="emitEvent3">触发事件3</a-button>
-  </a-space>
-  <div style="margin-top: 16px;">
-    <p v-for="item in log" :key="item">{{ item }}</p>
-  </div>
-</div>
-        `
+const emitEvent3 = () => EventEmitter.emit('event3', '事件3被触发');`
       }
     }
   },
@@ -267,8 +245,7 @@ export const SubscribeUnsubscribe: Story = {
   parameters: {
     docs: {
       source: {
-        code: `
-import { EventEmitter } from '@jetlinks-web/utils';
+        code: `import { EventEmitter } from '@jetlinks-web/utils';
 import { ref } from 'vue';
 
 // 管理订阅状态
@@ -300,18 +277,7 @@ const unsubscribe = () => {
 // 发送消息
 const sendMessage = () => {
   EventEmitter.emit('test', '这是一条测试消息');
-};
-
-// 在模板中使用
-<div>
-  <a-space>
-    <a-button @click="subscribe" :disabled="isSubscribed">订阅</a-button>
-    <a-button @click="unsubscribe" :disabled="!isSubscribed">取消订阅</a-button>
-    <a-button @click="sendMessage">发送消息</a-button>
-  </a-space>
-  <p>状态：{{ message }}</p>
-</div>
-        `
+};`
       }
     }
   },

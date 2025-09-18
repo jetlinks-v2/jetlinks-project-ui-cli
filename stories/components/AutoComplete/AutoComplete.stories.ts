@@ -65,6 +65,9 @@ JAutoComplete 是一个增强版的自动完成输入组件，基于Ant Design V
     disabled: {
       control: 'boolean',
       description: '是否禁用'
+    },
+    onSelect: {
+      action: 'select'
     }
   },
   args: {
@@ -81,41 +84,30 @@ type Story = StoryObj<typeof meta>;
  * 最基本的自动完成功能
  */
 export const 基础使用: Story = {
-  render: () => ({
-    components: { JAutoComplete },
-    template: `
-      <div style="width: 300px">
-        <JAutoComplete 
-          :options="options"
-          placeholder="请输入编程语言"
-        />
-      </div>
-    `,
-    data() {
-      return {
-        options: [
-          { label: 'JavaScript', value: 'javascript' },
-          { label: 'TypeScript', value: 'typescript' },
-          { label: 'Java', value: 'java' },
-          { label: 'Python', value: 'python' },
-          { label: 'Go', value: 'go' },
-          { label: 'Rust', value: 'rust' },
-          { label: 'C++', value: 'cpp' },
-          { label: 'C#', value: 'csharp' }
-        ]
-      }
-    }
-  }),
+  args: {
+    options: [
+      { label: 'JavaScript', value: 'javascript' },
+      { label: 'TypeScript', value: 'typescript' },
+      { label: 'Java', value: 'java' },
+      { label: 'Python', value: 'python' },
+      { label: 'Go', value: 'go' },
+      { label: 'Rust', value: 'rust' },
+      { label: 'C++', value: 'cpp' },
+      { label: 'C#', value: 'csharp' }
+    ],
+    placeholder: '请输入编程语言',
+    style: { width: '300px' }
+  },
   parameters: {
     docs: {
       source: {
         code: `<template>
-<div      style="width: 300px">
+  <div style="width: 300px">
     <JAutoComplete 
       :options="options"
       placeholder="请输入编程语言"
     />
-</div>
+  </div>
 </template>
 
 <script setup lang="ts">

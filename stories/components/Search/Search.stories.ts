@@ -1,4 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/vue3';
+import { ref } from 'vue';
 
 /**
  * Search 高级搜索组件
@@ -75,7 +76,8 @@ Search 是一个高级搜索组件，可以根据列配置动态生成搜索表�
       control: 'select',
       options: ['value', 'label'],
       description: '对齐方式，默认为 value'
-    }
+    },
+    onSearch: { action: 'search' }
   },
   args: {
     type: 'terms',
@@ -284,7 +286,25 @@ const dateTimeColumns = [
  * 展示Search组件的基本用法，包含常见的搜索字段类型
  */
 export const 基础搜索: Story = {
-  render: () => ({
+  render: (args) => ({
+    setup() {
+      const searchResult = ref(null)
+      
+      const handleSearch = (params) => {
+        searchResult.value = params
+        console.log('搜索参数:', params)
+        if (args.onSearch) {
+          args.onSearch(params)
+        }
+      }
+      
+      return {
+        ...args,
+        columns: basicColumns,
+        searchResult,
+        handleSearch
+      }
+    },
     template: `
       <div style="padding: 16px;">
         <div style="margin-bottom: 16px;">
@@ -293,8 +313,8 @@ export const 基础搜索: Story = {
         </div>
         <JSearch
           :columns="columns"
-          type="terms"
-          :column="4"
+          :type="type"
+          :column="column"
           @search="handleSearch"
         />
         
@@ -303,19 +323,7 @@ export const 基础搜索: Story = {
           <pre>{{ JSON.stringify(searchResult, null, 2) }}</pre>
         </div>
       </div>
-    `,
-    data() {
-      return {
-        columns: basicColumns,
-        searchResult: null
-      }
-    },
-    methods: {
-      handleSearch(params) {
-        this.searchResult = params
-        console.log('搜索参数:', params)
-      }
-    }
+    `
   }),
   parameters: {
     docs: {
@@ -381,7 +389,25 @@ const handleSearch = (params) => {
  * 展示Search组件的高级功能，包含更多搜索字段类型和条件过滤
  */
 export const 高级搜索: Story = {
-  render: () => ({
+  render: (args) => ({
+    setup() {
+      const searchResult = ref(null)
+      
+      const handleSearch = (params) => {
+        searchResult.value = params
+        console.log('高级搜索参数:', params)
+        if (args.onSearch) {
+          args.onSearch(params)
+        }
+      }
+      
+      return {
+        ...args,
+        columns: advancedColumns,
+        searchResult,
+        handleSearch
+      }
+    },
     template: `
       <div style="padding: 16px;">
         <div style="margin-bottom: 16px;">
@@ -390,7 +416,7 @@ export const 高级搜索: Story = {
         </div>
         <JSearch
           :columns="columns"
-          type="terms"
+          :type="type"
           :column="3"
           @search="handleSearch"
         />
@@ -400,19 +426,7 @@ export const 高级搜索: Story = {
           <pre>{{ JSON.stringify(searchResult, null, 2) }}</pre>
         </div>
       </div>
-    `,
-    data() {
-      return {
-        columns: advancedColumns,
-        searchResult: null
-      }
-    },
-    methods: {
-      handleSearch(params) {
-        this.searchResult = params
-        console.log('高级搜索参数:', params)
-      }
-    }
+    `
   }),
   parameters: {
     docs: {
@@ -486,7 +500,25 @@ const handleSearch = (params) => {
  * 展示Search组件对日期时间类型字段的搜索支持
  */
 export const 日期时间搜索: Story = {
-  render: () => ({
+  render: (args) => ({
+    setup() {
+      const searchResult = ref(null)
+      
+      const handleSearch = (params) => {
+        searchResult.value = params
+        console.log('日期时间搜索参数:', params)
+        if (args.onSearch) {
+          args.onSearch(params)
+        }
+      }
+      
+      return {
+        ...args,
+        columns: dateTimeColumns,
+        searchResult,
+        handleSearch
+      }
+    },
     template: `
       <div style="padding: 16px;">
         <div style="margin-bottom: 16px;">
@@ -495,7 +527,7 @@ export const 日期时间搜索: Story = {
         </div>
         <JSearch
           :columns="columns"
-          type="terms"
+          :type="type"
           :column="2"
           @search="handleSearch"
         />
@@ -505,19 +537,7 @@ export const 日期时间搜索: Story = {
           <pre>{{ JSON.stringify(searchResult, null, 2) }}</pre>
         </div>
       </div>
-    `,
-    data() {
-      return {
-        columns: dateTimeColumns,
-        searchResult: null
-      }
-    },
-    methods: {
-      handleSearch(params) {
-        this.searchResult = params
-        console.log('日期时间搜索参数:', params)
-      }
-    }
+    `
   }),
   parameters: {
     docs: {
@@ -589,7 +609,36 @@ const handleSearch = (params) => {
  * 展示Search组件的布局和样式自定义能力
  */
 export const 自定义布局和样式: Story = {
-  render: () => ({
+  render: (args) => ({
+    setup() {
+      const searchResult1 = ref(null)
+      const searchResult2 = ref(null)
+      
+      const handleSearch1 = (params) => {
+        searchResult1.value = params
+        console.log('2列布局搜索参数:', params)
+        if (args.onSearch) {
+          args.onSearch(params)
+        }
+      }
+      
+      const handleSearch2 = (params) => {
+        searchResult2.value = params
+        console.log('单列布局搜索参数:', params)
+        if (args.onSearch) {
+          args.onSearch(params)
+        }
+      }
+      
+      return {
+        ...args,
+        columns: basicColumns,
+        searchResult1,
+        searchResult2,
+        handleSearch1,
+        handleSearch2
+      }
+    },
     template: `
       <div style="padding: 16px;">
         <div style="margin-bottom: 16px;">
@@ -634,24 +683,7 @@ export const 自定义布局和样式: Story = {
           </div>
         </div>
       </div>
-    `,
-    data() {
-      return {
-        columns: basicColumns,
-        searchResult1: null,
-        searchResult2: null
-      }
-    },
-    methods: {
-      handleSearch1(params) {
-        this.searchResult1 = params
-        console.log('2列布局搜索参数:', params)
-      },
-      handleSearch2(params) {
-        this.searchResult2 = params
-        console.log('单列布局搜索参数:', params)
-      }
-    }
+    `
   }),
   parameters: {
     docs: {
