@@ -259,7 +259,7 @@ export const 不同类型对比: Story = {
   render: () => ({
     components: { JValueItem },
     template: `
-      <div style="display: flex; flex-direction: column; gap: 16px; width: 300px;">
+      <div style="display: flex; flex-direction: column; gap: 16px; width: 500px;">
         <div>
           <label style="display: block; margin-bottom: 4px; font-weight: 500;">文本类型:</label>
           <JValueItem 
@@ -457,7 +457,7 @@ export const 实际应用场景: Story = {
   render: () => ({
     components: { JValueItem },
     template: `
-      <div style="max-width: 500px;">
+      <div style="min-width: 500px;">
         <h3 style="margin: 0 0 20px 0;">API接口配置</h3>
         
         <div style="display: flex; flex-direction: column; gap: 16px;">
@@ -675,7 +675,7 @@ const getConfigResult = () => {
 
 <style scoped>
 .config-demo {
-  max-width: 500px;
+  min-width: 500px;
 }
 
 .config-demo h3 {

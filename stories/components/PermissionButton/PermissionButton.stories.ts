@@ -1,20 +1,21 @@
 import type { Meta, StoryObj } from '@storybook/vue3';
+import { PermissionButton as JPermissionButton } from '../../../packages/components/src';
 
 /**
  * PermissionButton 权限按钮组件
- * 
+ *
  * 这是一个带权限控制的按钮组件，可以根据用户权限显示或禁用按钮。
  * 支持工具提示、确认弹窗等功能，适用于需要权限控制的操作场景。
- * 
+ *
  * ## 何时使用
  * - 需要根据用户权限控制按钮状态时
  * - 需要在操作前进行确认提示时
  * - 需要为无权限用户显示友好提示时
  * - 需要统一的权限控制逻辑时
  */
-const meta: Meta = {
+const meta: Meta<typeof JPermissionButton> = {
   title: '组件库/PermissionButton 权限按钮',
-  component: 'JPermissionButton',
+  component: JPermissionButton,
   parameters: {
     layout: 'centered',
     docs: {
@@ -41,7 +42,7 @@ PermissionButton 是一个带权限控制的按钮组件，提供完整的权限
 </template>
 \`\`\`
         `
-      }
+      },
     }
   },
   tags: ['autodocs'],
@@ -80,7 +81,8 @@ PermissionButton 是一个带权限控制的按钮组件，提供完整的权限
     disabled: {
       control: 'boolean',
       description: '是否禁用'
-    }
+    },
+    onClick: { action: 'clicked' }
   },
   args: {
     hasPermission: true,
@@ -96,9 +98,26 @@ type Story = StoryObj<typeof meta>;
  * 最基本的权限按钮使用方式
  */
 export const 基础用法: Story = {
+  render: (args) => ({
+    components: { JPermissionButton },
+    setup() {
+      return {
+        ...args
+      }
+    },
+    template: `
+      <JPermissionButton 
+        :hasPermission="hasPermission"
+        :type="type"
+        @click="onClick"
+      >
+        有权限按钮
+      </JPermissionButton>
+    `
+  }),
   args: {
     hasPermission: true,
-    children: '有权限按钮'
+    type: 'primary'
   },
   parameters: {
     docs: {
@@ -116,7 +135,7 @@ export const 基础用法: Story = {
 const handleClick = () => {
   console.log('按钮被点击')
 }
-</script>`
+</script>`,
       }
     }
   }
@@ -127,13 +146,17 @@ const handleClick = () => {
  * 展示有权限和无权限的不同状态
  */
 export const 权限控制: Story = {
-  render: () => ({
+  render: (args) => ({
+    components: { JPermissionButton },
+    setup() {
+      return { ...args }
+    },
     template: `
       <div style="display: flex; gap: 16px; flex-wrap: wrap;">
         <JPermissionButton 
           :hasPermission="true"
           type="primary"
-          @click="handleClick"
+          @click="onClick"
         >
           有权限按钮
         </JPermissionButton>
@@ -141,7 +164,7 @@ export const 权限控制: Story = {
         <JPermissionButton 
           :hasPermission="false"
           type="primary"
-          @click="handleClick"
+          @click="onClick"
         >
           无权限按钮
         </JPermissionButton>
@@ -149,7 +172,7 @@ export const 权限控制: Story = {
         <JPermissionButton 
           :hasPermission="'user:edit'"
           type="primary"
-          @click="handleClick"
+          @click="onClick"
         >
           字符串权限
         </JPermissionButton>
@@ -157,21 +180,18 @@ export const 权限控制: Story = {
         <JPermissionButton 
           :hasPermission="['user:edit', 'user:update']"
           type="primary"
-          @click="handleClick"
+          @click="onClick"
         >
           数组权限
         </JPermissionButton>
       </div>
-    `,
-    methods: {
-      handleClick() {
-        console.log('按钮被点击')
-      }
-    }
+    `
   }),
   parameters: {
     docs: {
       source: {
+        type: 'code',
+        language: 'vue',
         code: `<template>
   <div class="permission-demo">
     <JPermissionButton 
@@ -231,13 +251,18 @@ const handleClick = () => {
  * 为按钮添加工具提示说明
  */
 export const 工具提示: Story = {
-  render: () => ({
+  render: (args) => ({
+    components: { JPermissionButton },
+    setup() {
+      return { ...args }
+    },
     template: `
       <div style="display: flex; gap: 16px; flex-wrap: wrap;">
         <JPermissionButton 
           :hasPermission="true"
           :tooltip="{ title: '点击编辑用户信息' }"
           type="primary"
+          @click="onClick"
         >
           编辑用户
         </JPermissionButton>
@@ -246,6 +271,7 @@ export const 工具提示: Story = {
           :hasPermission="false"
           :tooltip="{ title: '此操作需要管理员权限' }"
           type="danger"
+          @click="onClick"
         >
           删除数据
         </JPermissionButton>
@@ -254,6 +280,7 @@ export const 工具提示: Story = {
           :hasPermission="true"
           :tooltip="{ title: '保存当前修改', placement: 'bottom' }"
           type="primary"
+          @click="onClick"
         >
           保存
         </JPermissionButton>
@@ -308,7 +335,34 @@ export const 工具提示: Story = {
  * 危险操作前显示确认弹窗
  */
 export const 确认弹窗: Story = {
-  render: () => ({
+  render: (args) => ({
+    components: { JPermissionButton },
+    setup() {
+      const handleDelete = () => {
+        console.log('删除用户')
+        return new Promise((resolve) => {
+          setTimeout(() => {
+            console.log('删除成功')
+            resolve(true)
+          }, 1000)
+        })
+      }
+
+      const handleReset = () => {
+        console.log('重置密码')
+      }
+
+      const handleClear = () => {
+        console.log('清空数据')
+      }
+
+      return {
+        ...args,
+        handleDelete,
+        handleReset,
+        handleClear
+      }
+    },
     template: `
       <div style="display: flex; gap: 16px; flex-wrap: wrap;">
         <JPermissionButton 
@@ -349,24 +403,7 @@ export const 确认弹窗: Story = {
           清空数据
         </JPermissionButton>
       </div>
-    `,
-    methods: {
-      handleDelete() {
-        console.log('删除用户')
-        return new Promise((resolve) => {
-          setTimeout(() => {
-            console.log('删除成功')
-            resolve(true)
-          }, 1000)
-        })
-      },
-      handleReset() {
-        console.log('重置密码')
-      },
-      handleClear() {
-        console.log('清空数据')
-      }
-    }
+    `
   }),
   parameters: {
     docs: {
@@ -450,13 +487,18 @@ const handleClear = () => {
  * 自定义无权限时的提示文案
  */
 export const 自定义无权限提示: Story = {
-  render: () => ({
+  render: (args) => ({
+    components: { JPermissionButton },
+    setup() {
+      return { ...args }
+    },
     template: `
       <div style="display: flex; gap: 16px; flex-wrap: wrap;">
         <JPermissionButton 
           :hasPermission="false"
           noPermissionTitle="您没有编辑权限，请联系管理员"
           type="primary"
+          @click="onClick"
         >
           编辑
         </JPermissionButton>
@@ -465,6 +507,7 @@ export const 自定义无权限提示: Story = {
           :hasPermission="false"
           noPermissionTitle="删除操作需要高级权限"
           type="danger"
+          @click="onClick"
         >
           删除
         </JPermissionButton>
@@ -473,6 +516,7 @@ export const 自定义无权限提示: Story = {
           :hasPermission="false"
           noPermissionTitle="此功能仅对VIP用户开放"
           type="primary"
+          @click="onClick"
         >
           高级功能
         </JPermissionButton>
@@ -527,18 +571,22 @@ export const 自定义无权限提示: Story = {
  * 展示不同类型和尺寸的权限按钮
  */
 export const 不同按钮类型: Story = {
-  render: () => ({
+  render: (args) => ({
+    components: { JPermissionButton },
+    setup() {
+      return { ...args }
+    },
     template: `
       <div style="display: flex; flex-direction: column; gap: 24px;">
         <!-- 按钮类型 -->
         <div>
           <h4 style="margin: 0 0 12px 0;">按钮类型</h4>
           <div style="display: flex; gap: 12px; flex-wrap: wrap;">
-            <JPermissionButton :hasPermission="true" type="primary">Primary</JPermissionButton>
-            <JPermissionButton :hasPermission="true" type="default">Default</JPermissionButton>
-            <JPermissionButton :hasPermission="true" type="dashed">Dashed</JPermissionButton>
-            <JPermissionButton :hasPermission="true" type="text">Text</JPermissionButton>
-            <JPermissionButton :hasPermission="true" type="link">Link</JPermissionButton>
+            <JPermissionButton :hasPermission="true" type="primary" @click="onClick">Primary</JPermissionButton>
+            <JPermissionButton :hasPermission="true" type="default" @click="onClick">Default</JPermissionButton>
+            <JPermissionButton :hasPermission="true" type="dashed" @click="onClick">Dashed</JPermissionButton>
+            <JPermissionButton :hasPermission="true" type="text" @click="onClick">Text</JPermissionButton>
+            <JPermissionButton :hasPermission="true" type="link" @click="onClick">Link</JPermissionButton>
           </div>
         </div>
         
@@ -546,9 +594,9 @@ export const 不同按钮类型: Story = {
         <div>
           <h4 style="margin: 0 0 12px 0;">按钮尺寸</h4>
           <div style="display: flex; gap: 12px; flex-wrap: wrap; align-items: center;">
-            <JPermissionButton :hasPermission="true" type="primary" size="large">Large</JPermissionButton>
-            <JPermissionButton :hasPermission="true" type="primary" size="middle">Middle</JPermissionButton>
-            <JPermissionButton :hasPermission="true" type="primary" size="small">Small</JPermissionButton>
+            <JPermissionButton :hasPermission="true" type="primary" size="large" @click="onClick">Large</JPermissionButton>
+            <JPermissionButton :hasPermission="true" type="primary" size="middle" @click="onClick">Middle</JPermissionButton>
+            <JPermissionButton :hasPermission="true" type="primary" size="small" @click="onClick">Small</JPermissionButton>
           </div>
         </div>
         
@@ -556,9 +604,9 @@ export const 不同按钮类型: Story = {
         <div>
           <h4 style="margin: 0 0 12px 0;">危险按钮</h4>
           <div style="display: flex; gap: 12px; flex-wrap: wrap;">
-            <JPermissionButton :hasPermission="true" type="primary" danger>Danger Primary</JPermissionButton>
-            <JPermissionButton :hasPermission="true" type="default" danger>Danger Default</JPermissionButton>
-            <JPermissionButton :hasPermission="true" type="text" danger>Danger Text</JPermissionButton>
+            <JPermissionButton :hasPermission="true" type="primary" danger @click="onClick">Danger Primary</JPermissionButton>
+            <JPermissionButton :hasPermission="true" type="default" danger @click="onClick">Danger Default</JPermissionButton>
+            <JPermissionButton :hasPermission="true" type="text" danger @click="onClick">Danger Text</JPermissionButton>
           </div>
         </div>
         
@@ -566,9 +614,9 @@ export const 不同按钮类型: Story = {
         <div>
           <h4 style="margin: 0 0 12px 0;">禁用状态</h4>
           <div style="display: flex; gap: 12px; flex-wrap: wrap;">
-            <JPermissionButton :hasPermission="true" type="primary" disabled>Disabled Primary</JPermissionButton>
-            <JPermissionButton :hasPermission="true" type="default" disabled>Disabled Default</JPermissionButton>
-            <JPermissionButton :hasPermission="false" type="primary">No Permission</JPermissionButton>
+            <JPermissionButton :hasPermission="true" type="primary" disabled @click="onClick">Disabled Primary</JPermissionButton>
+            <JPermissionButton :hasPermission="true" type="default" disabled @click="onClick">Disabled Default</JPermissionButton>
+            <JPermissionButton :hasPermission="false" type="primary" @click="onClick">No Permission</JPermissionButton>
           </div>
         </div>
       </div>
@@ -651,9 +699,63 @@ export const 不同按钮类型: Story = {
  * 在数据管理界面中的应用示例
  */
 export const 实际应用场景: Story = {
-  render: () => ({
+  render: (args) => ({
+    components: { JPermissionButton },
+    setup() {
+      const selectedCount = 2
+      const permissions = {
+        create: true,
+        edit: true,
+        delete: false,
+        batchDelete: false,
+        resetPassword: true,
+        export: true
+      }
+      const users = [
+        { id: 1, name: '张三', email: 'zhangsan@example.com' },
+        { id: 2, name: '李四', email: 'lisi@example.com' },
+        { id: 3, name: '王五', email: 'wangwu@example.com' }
+      ]
+
+      const handleCreate = () => {
+        console.log('创建用户')
+      }
+
+      const handleEdit = (user) => {
+        console.log('编辑用户:', user.name)
+      }
+
+      const handleDelete = (user) => {
+        console.log('删除用户:', user.name)
+      }
+
+      const handleBatchDelete = () => {
+        console.log('批量删除用户')
+      }
+
+      const handleResetPassword = (user) => {
+        console.log('重置密码:', user.name)
+      }
+
+      const handleExport = () => {
+        console.log('导出数据')
+      }
+
+      return {
+        ...args,
+        selectedCount,
+        permissions,
+        users,
+        handleCreate,
+        handleEdit,
+        handleDelete,
+        handleBatchDelete,
+        handleResetPassword,
+        handleExport
+      }
+    },
     template: `
-      <div style="max-width: 800px; padding: 16px; border: 1px solid #e8e8e8; border-radius: 8px;">
+      <div style="min-width: 600px; padding: 16px; border: 1px solid #e8e8e8; border-radius: 8px;">
         <h3 style="margin: 0 0 16px 0;">用户管理</h3>
         
         <!-- 操作栏 -->
@@ -709,7 +811,7 @@ export const 实际应用场景: Story = {
                 :tooltip="{ title: '编辑用户信息' }"
                 type="link"
                 size="small"
-                @click="handleEdit(user)"
+                @click="() => handleEdit(user)"
               >
                 编辑
               </JPermissionButton>
@@ -757,45 +859,7 @@ export const 实际应用场景: Story = {
           </div>
         </div>
       </div>
-    `,
-    data() {
-      return {
-        selectedCount: 2,
-        permissions: {
-          create: true,
-          edit: true,
-          delete: false,
-          batchDelete: false,
-          resetPassword: true,
-          export: true
-        },
-        users: [
-          { id: 1, name: '张三', email: 'zhangsan@example.com' },
-          { id: 2, name: '李四', email: 'lisi@example.com' },
-          { id: 3, name: '王五', email: 'wangwu@example.com' }
-        ]
-      }
-    },
-    methods: {
-      handleCreate() {
-        console.log('创建用户')
-      },
-      handleEdit(user) {
-        console.log('编辑用户:', user.name)
-      },
-      handleDelete(user) {
-        console.log('删除用户:', user.name)
-      },
-      handleBatchDelete() {
-        console.log('批量删除用户')
-      },
-      handleResetPassword(user) {
-        console.log('重置密码:', user.name)
-      },
-      handleExport() {
-        console.log('导出数据')
-      }
-    }
+    `
   }),
   parameters: {
     docs: {
