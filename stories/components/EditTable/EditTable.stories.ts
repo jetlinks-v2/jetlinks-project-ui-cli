@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/vue3';
-import JEditTable from '../../../packages/components/src/EditTable/EditTable.vue';
+import { EditTable as JEditTable } from '../../../packages/components/src';
 
 /**
  * JEditTable 可编辑表格组件
@@ -75,6 +75,18 @@ JEditTable 是一个功能强大的可编辑表格组件。
     openGroup: {
       control: 'boolean',
       description: '是否开启分组功能'
+    },
+    onScrollDown: {
+      action: 'scrollDown'
+    },
+    onRightMenuClick: {
+      action: 'rightMenuClick'
+    },
+    onEditChange: {
+      action: 'editChange'
+    },
+    onSearchVisibleChange: {
+      action: 'searchVisibleChange'
     }
   },
   args: {
@@ -205,7 +217,15 @@ export const 基础表格: Story = {
             点击单元格进行编辑，支持不同类型的编辑控件
           </p>
         </div>
-        <JEditTable v-bind="$data" />
+        <JEditTable 
+          :columns="columns"
+          :dataSource="dataSource"
+          :rowKey="rowKey"
+          :height="height"
+          :cellHeight="cellHeight"
+          :readonly="readonly"
+          :openGroup="openGroup"
+        />
       </div>
     `
   }),
@@ -433,7 +453,13 @@ export const 只读模式: Story = {
             只读模式下，表格数据仅供查看，无法编辑
           </p>
         </div>
-        <JEditTable v-bind="$data" />
+        <JEditTable 
+          :columns="columns"
+          :dataSource="dataSource"
+          row-key="id"
+          :height="height"
+          :readonly="readonly"
+        />
       </div>
     `
   }),
@@ -625,7 +651,14 @@ export const 自定义高度: Story = {
             表格高度500px，单元格高度80px，适合显示更多内容
           </p>
         </div>
-        <JEditTable v-bind="$data" />
+        <JEditTable 
+          :columns="columns"
+          :dataSource="dataSource"
+          row-key="id"
+          :height="height"
+          :cellHeight="cellHeight"
+          :readonly="readonly"
+        />
       </div>
     `
   }),
@@ -891,7 +924,14 @@ export const 实际应用场景: Story = {
           </button>
         </div>
         
-        <JEditTable v-bind="$data" />
+        <JEditTable 
+          :columns="columns"
+          :dataSource="dataSource"
+          row-key="id"
+          :height="height"
+          :cellHeight="cellHeight"
+          :readonly="readonly"
+        />
         
         <div style="margin-top: 16px; padding: 12px; background: white; border-radius: 4px; font-size: 14px;">
           <strong>使用说明：</strong>

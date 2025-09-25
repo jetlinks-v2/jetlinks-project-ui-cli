@@ -3,10 +3,10 @@ import JTitle from '../../../packages/components/src/Title/title.vue';
 
 /**
  * Title 标题组件
- * 
+ *
  * 这是一个用于显示标题的组件，支持自定义样式和额外内容插槽。
  * 适用于页面标题、模块标题、卡片标题等各种标题显示场景。
- * 
+ *
  * ## 何时使用
  * - 需要显示页面或模块标题时
  * - 需要统一标题样式时
@@ -460,7 +460,7 @@ export const 实际应用场景: Story = {
   render: () => ({
     components: { JTitle },
     template: `
-      <div style="max-width: 800px;">
+      <div style="min-width: 800px;">
         <!-- 页面主标题 -->
         <JTitle 
           data="用户管理系统" 
@@ -673,7 +673,7 @@ const cardTitleStyle = {
 
 <style scoped>
 .page-layout {
-  max-width: 800px;
+  min-width: 800px;
 }
 
 .section {
