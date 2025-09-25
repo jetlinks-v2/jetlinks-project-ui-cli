@@ -61,16 +61,16 @@ export const TermTypeMap = (locale) => {
   return {
     EQ: { label: '=', value: 'eq' },
     NOT: { label: '!=', value: 'not' },
-    LIKE: { label: locale.setting.include, value: 'like' },
-    NLIKE: { label: locale.setting.exclude, value: 'nlike' },
+    LIKE: { label: locale.setting?.include, value: 'like' },
+    NLIKE: { label: locale.setting?.exclude, value: 'nlike' },
     GT: { label: '>', value: 'gt' },
     GTE: { label: '>=', value: 'gte' },
     LT: { label: '<', value: 'lt' },
     LTE: { label: '<=', value: 'lte' },
-    IN: { label: locale.setting.in, value: 'in' },
-    NIN: { label: locale.setting.notIn, value: 'nin' },
-    BTW: { label: locale.setting.between, value: 'btw' },
-    NBTW: { label: locale.setting.notBetween, value: 'nbtw' },
+    IN: { label: locale.setting?.in, value: 'in' },
+    NIN: { label: locale.setting?.notIn, value: 'nin' },
+    BTW: { label: locale.setting?.between, value: 'btw' },
+    NBTW: { label: locale.setting?.notBetween, value: 'nbtw' },
   }
 };
 

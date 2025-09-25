@@ -5,6 +5,7 @@ import {getItemDefaultValue} from "../util";
 
 export * from './useSearchItems';
 export * from './useRouteQuery';
+export * from './useTermOptions';
 
 const optionMapKey = Symbol('optionMapKey');
 const columnsMapKey = Symbol('columnMapKey');

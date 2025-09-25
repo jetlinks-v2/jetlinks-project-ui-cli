@@ -64,7 +64,19 @@ const valueOptions = ref()
 const prefixCls = computed(() => 'JSearch')
 const [wrapSSR, hashId] = useSearchStyle(prefixCls);
 const termTypeOptions = computed(() => {
-  return getTermOptions(targetComponents.value.type, contextLocale.value)
+
+  const columnTarget = findItemByColumn()
+  const columnSearch = columnTarget?.search
+
+  let _termsOptions = getTermOptions(targetComponents.value.type, contextLocale.value)
+
+  if (columnSearch?.termOptions) {
+    _termsOptions = columnSearch.termOptions
+  }else if (columnSearch?.termFilter?.length) {
+    _termsOptions = _termsOptions.filter((item) => !columnSearch.termFilter?.includes(item.value))
+  }
+
+  return _termsOptions
 })
 
 const columnOptions = computed(() => {
