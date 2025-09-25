@@ -7,6 +7,7 @@ export const componentsType = {
     array: 'input',
     password: 'password',
     enum: 'select',
+    select: 'select',
     boolean: 'select',
     date: 'date',
     time: 'time',
