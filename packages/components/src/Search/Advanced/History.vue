@@ -13,7 +13,7 @@
         placement="bottom"
         trigger="click"
         overlay-class-name="search-history-list-pop"
-        :visible="historyVisible"
+        :open="historyVisible"
         @visibleChange="visibleChange"
     >
       <template #content>

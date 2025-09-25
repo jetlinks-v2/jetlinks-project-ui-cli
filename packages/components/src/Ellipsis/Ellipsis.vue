@@ -1,5 +1,5 @@
 <template>
-  <Tooltip ref="tooltipRef" placement="top" v-bind="tooltip" :visible="visible && tooltip !== false">
+  <Tooltip ref="tooltipRef" placement="top" v-bind="tooltip" :open="visible && tooltip !== false">
     <template v-if="tooltip" #title>
       <div :class="[jEllipsisLineClampClass, jEllipsis, 'j-ellipsis-deep', hashId]">
         <slot></slot>
