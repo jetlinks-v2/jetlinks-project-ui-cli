@@ -135,13 +135,13 @@ watch(() => termsModel.termType, () => {
   const isBtw = ['in', 'nin'].includes(termsModel.termType);
   if (targetComponents.value.type === componentType.treeSelect) {
     targetComponents.value.props = {
+      multiple: isBtw,
       ...targetComponents.value.props,
-      multiple: isBtw
     }
   } else if (targetComponents.value.type === componentType.select) {
     targetComponents.value.props = {
+      mode: isBtw ? 'multiple' : 'combobox',
       ...targetComponents.value.props,
-      mode: isBtw ? 'multiple' : 'combobox'
     }
   }
 }, { immediate: true })
@@ -214,7 +214,8 @@ watch(() => [props.value, props.termType, props.column, props.type], () => {
         allow-clear
         style="width: 100%; min-width: 80px"
         v-bind="targetComponents.props"
-        :options="valueOptions"
+        :options="!['treeSelect', 'tree'].includes(targetComponents.type) && valueOptions"
+        :treeData="['treeSelect', 'tree'].includes(targetComponents.type) && valueOptions"
         v-model:value="termsModel.value"
         @change="onValueChange"
       />

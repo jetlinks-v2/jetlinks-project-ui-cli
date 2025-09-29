@@ -96,30 +96,35 @@ export const componentType = {
 
 export const componentProps = (record: Record<string, any>) => {
   const type = record.type
+  const _props = record.componentProps || {}
 
   switch (type) {
     case 'string':
     case componentType.input:
       return {
         type,
-        name: Input
+        name: Input,
+        props: _props
       };
     case componentType.inputNumber:
       return {
         type,
-        name: InputNumber
+        name: InputNumber,
+        props: _props
       };
     case componentType.password:
       return {
         type,
-        name: InputPassword
+        name: InputPassword,
+        props: _props
       };
     case componentType.time:
       return {
         type,
         name: TimePicker,
         props: {
-          valueFormat: 'HH:mm:ss'
+          valueFormat: 'HH:mm:ss',
+          ..._props
         }
       };
     case componentType.date:
@@ -127,7 +132,8 @@ export const componentProps = (record: Record<string, any>) => {
         type,
         name: DatePicker,
         props: {
-          valueFormat: 'YYYY-MM-DD HH:mm:ss'
+          valueFormat: 'YYYY-MM-DD HH:mm:ss',
+          ..._props
         }
       };
     case componentType.timeRange:
@@ -135,7 +141,8 @@ export const componentProps = (record: Record<string, any>) => {
         type,
         name: TimeRangePicker,
         props: {
-          valueFormat: 'HH:mm:ss'
+          valueFormat: 'HH:mm:ss',
+          ..._props
         }
       };
     case componentType.rangePicker:
@@ -144,7 +151,8 @@ export const componentProps = (record: Record<string, any>) => {
         name: RangePicker,
         props: {
           valueFormat: 'YYYY-MM-DD HH:mm:ss',
-          showTime: true
+          showTime: true,
+          ..._props
         }
       };
     case componentType.treeSelect:
@@ -159,6 +167,8 @@ export const componentProps = (record: Record<string, any>) => {
             value: 'id'
           },
           filterTreeNode: (v, option) => filterTreeSelectNode(v, option),
+          filterTreeNode: (v, option) => filterTreeSelectNode(v, option),
+          ..._props
         }
       };
     case componentType.select:
@@ -173,12 +183,14 @@ export const componentProps = (record: Record<string, any>) => {
             width: '100%',
             minWidth: '80px',
           },
+          ..._props
         }
       };
     case componentType.component:
       return {
         type,
-        name: record.components
+        name: record.components,
+        props: _props
       };
       default:
         return {}

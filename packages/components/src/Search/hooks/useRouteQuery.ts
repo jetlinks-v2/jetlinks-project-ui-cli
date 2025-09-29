@@ -11,6 +11,24 @@ export const useRouteQuery = (name: string) => {
   let transformGet = (value: any) => value
   let transformSet = (value: any) => value
 
+  // 在storybook环境中，router可能为undefined或null，需要进行类型检查
+  if (!router || !route) {
+    // 返回一个模拟的ref，避免在storybook中报错
+    return customRef<any>((track, trigger) => {
+      let value: any = undefined
+      return {
+        get() {
+          track()
+          return transformGet(value)
+        },
+        set(v) {
+          value = transformSet(v)
+          trigger()
+        }
+      }
+    })
+  }
+
   if (!_queue.has(router))
     _queue.set(router, new Map())
 
