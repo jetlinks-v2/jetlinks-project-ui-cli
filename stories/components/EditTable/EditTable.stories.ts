@@ -75,6 +75,18 @@ JEditTable 是一个功能强大的可编辑表格组件。
     openGroup: {
       control: 'boolean',
       description: '是否开启分组功能'
+    },
+    onScrollDown: {
+      action: 'scrollDown'
+    },
+    onRightMenuClick: {
+      action: 'rightMenuClick'
+    },
+    onEditChange: {
+      action: 'editChange'
+    },
+    onSearchVisibleChange: {
+      action: 'searchVisibleChange'
     }
   },
   args: {

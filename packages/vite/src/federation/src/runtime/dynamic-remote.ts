@@ -51,7 +51,7 @@ export class DynamicRemoteManager {
       // 直接导入虚拟模块，避免使用Function构造器
       const federationModule = await import('virtual:__federation__');
       const { __federation_method_add_origin_setRemote } = federationModule;
-      
+
       await __federation_method_add_origin_setRemote(name, config.url, {
         format: config.format || 'esm',
         from: config.from || 'vite',
@@ -72,7 +72,7 @@ export class DynamicRemoteManager {
    */
   async loadRemoteComponent(remoteName: string, componentName: string): Promise<any> {
     const cacheKey = `${remoteName}/${componentName}`;
-    
+
     // Check cache first
     if (this.remoteCache.has(cacheKey)) {
       return this.remoteCache.get(cacheKey);
@@ -226,10 +226,15 @@ function isVueAvailable(): boolean {
 let ref: any, onMounted: any, readonly: any;
 if (isVueAvailable()) {
   try {
-    const vue = require('vue');
-    ref = vue.ref;
-    onMounted = vue.onMounted;
-    readonly = vue.readonly;
+    // 使用动态导入而不是 require
+    import('vue').then(vue => {
+      ref = vue.ref;
+      onMounted = vue.onMounted;
+      readonly = vue.readonly;
+    }).catch(() => {
+      // Vue not available, composable won't work
+      console.warn('Vue not available for dynamic import');
+    });
   } catch {
     // Vue not available, composable won't work
   }

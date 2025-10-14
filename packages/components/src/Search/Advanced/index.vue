@@ -139,7 +139,17 @@
 import SearchItem from '../Item.vue';
 import { typeOptions } from '../setting';
 import {useHandleColumns, useOptionMapContent, useRouteQuery} from '../hooks';
-import {PropType, ref, reactive, watch, defineExpose, useAttrs, inject, computed} from 'vue';
+import {
+  PropType,
+  ref,
+  reactive,
+  watch,
+  defineExpose,
+  useAttrs,
+  inject,
+  computed,
+  toRefs
+} from 'vue';
 import SaveHistory from './SaveHistory.vue';
 import History from './History.vue';
 import type {
@@ -152,8 +162,8 @@ import {
   termsParamsFormat,
 } from '../util';
 import { Select, Button, Form, FormItemRest } from 'ant-design-vue'
-import { AIcon } from '../../../'
-import {useLocaleReceiver} from "../../LocaleReciver/index";
+import { AIcon } from '../../components'
+import {useLocaleReceiver} from "../../LocaleReciver";
 import {SearchConfig} from "../../utils/constants";
 import {isObject} from "lodash-es";
 import useSearchStyle from '../style'
@@ -229,7 +239,7 @@ const [contextLocale] = useLocaleReceiver('Search')
 const attrs = useAttrs()
 const q = useRouteQuery('q');
 const target = useRouteQuery('target');
-const { initValues, columnsMap, defaultCacheValues } = useHandleColumns({...props, mode: 'advanced'}, terms)
+const { initValues, columnsMap, defaultCacheValues } = useHandleColumns(props, terms, { mode: 'advanced'})
 
 useOptionMapContent(columnsOptionMap)
 
@@ -311,34 +321,6 @@ const handleUrlParams = () => {
     const params = decodeURI(q.value)
     historyItemClick(params)
   }
-}
-
-/**
- * 递归补全 terms 数组
- * @param data 原始 terms 对象
- * @param callback 补全函数，返回一个 term 对象
- */
-function completeTerms(data: TermsObject, callback: () => Term): TermsObject {
-  const fillTerms = (terms: Term[]) => {
-    const completed = terms.map(term => {
-      if (Array.isArray(term.terms)) {
-        // 递归补全子 terms
-        term.terms = fillTerms(term.terms);
-      }
-      return term;
-    });
-
-    // 补足到长度为 3
-    while (completed.length < 3) {
-      completed.push(callback());
-    }
-
-    return completed;
-  };
-
-  return {
-    terms: fillTerms(data.terms),
-  };
 }
 
 /**

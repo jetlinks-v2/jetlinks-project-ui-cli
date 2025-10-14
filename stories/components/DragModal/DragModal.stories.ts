@@ -72,6 +72,18 @@ JDragModal 是一个支持拖拽和缩放的模态框组件。
     bodyStyle: {
       control: 'object',
       description: '内容区域样式'
+    },
+    onCancel: {
+      action: 'cancel'
+    },
+    onHeightChange: {
+      action: 'heightChange'
+    },
+    onOk: {
+      action: 'ok'
+    },
+    onVisibleChange: {
+      action: 'visibleChange'
     }
   },
   args: {

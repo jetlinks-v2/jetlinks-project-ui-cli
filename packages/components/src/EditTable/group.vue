@@ -52,7 +52,7 @@
       </a-tab-pane>
     </a-tabs>
     <a-modal
-      :visible="visible"
+      :open="visible"
       :title="contextLocale.Group.editGroup"
       :maskClosable="false"
       :getContainer="modalContainer"

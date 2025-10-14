@@ -72,7 +72,10 @@ CardSelect 是一个卡片选择组件，用于选择一个或多个选项。
       control: 'select', 
       options: ['horizontal', 'vertical'],
       description: '卡片内部布局方式'
-    }
+    },
+    onSelect: { action: 'select' },
+    onChange: { action: 'change' },
+    'onUpdate:value': { action: 'update:value' }
   },
   args: {
     options: [
