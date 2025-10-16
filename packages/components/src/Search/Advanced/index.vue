@@ -71,7 +71,7 @@
         >
           <slot name="footerRender" :reset="reset" :submit="searchSubmit" :expandChange="expandChange">
             <div class="JSearch-footer--btns">
-              <Button type="stroke" @click="reset"> {{contextLocale.advanced.reset}}</Button>
+              <Button @click="reset"> {{contextLocale.advanced.reset}}</Button>
               <SaveHistory
                   :terms="terms"
                   :target="target"
