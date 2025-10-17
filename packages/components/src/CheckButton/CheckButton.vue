@@ -25,6 +25,7 @@ import type { CSSProperties, PropType } from 'vue';
 import { computed, ref, watch, defineEmits, defineOptions, defineProps } from 'vue';
 import { isArray } from '@jetlinks-web/utils';
 import useCheckButtonStyle from './style';
+import {Form} from "ant-design-vue";
 
 defineOptions({
   name: 'JCheckButton'
@@ -61,7 +62,7 @@ const emit = defineEmits(['update:value', 'change', 'select']);
 // 使用样式
 const prefixCls = computed(() => 'j-check-button')
 const [wrapSSR, hashId] = useCheckButtonStyle(prefixCls)
-
+const formItemContext = Form.useInjectFormItemContext();
 const myValue = ref();
 const optionsMap = ref(new Map());
 
@@ -112,6 +113,7 @@ const selected = (key: string | number, disabled: boolean) => {
   emit('update:value', _value);
   emit('change', _value, props.multiple ? optionsItems : optionsItems[0]);
   emit('select', _value, props.multiple ? optionsItems : optionsItems[0]);
+  formItemContext.onFieldChange();
 };
 </script>
 
