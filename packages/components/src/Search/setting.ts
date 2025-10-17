@@ -78,7 +78,7 @@ export const termType = (locale) => Object.values(TermTypeMap(locale));
 
 export const componentType = {
     input: 'input',
-    inputNumber: 'inputNumber',
+    inputNumber: 'number',
     password: 'password',
     switch: 'switch',
     radio: 'radio',
@@ -166,7 +166,6 @@ export const componentProps = (record: Record<string, any>) => {
             label: 'name',
             value: 'id'
           },
-          filterTreeNode: (v, option) => filterTreeSelectNode(v, option),
           filterTreeNode: (v, option) => filterTreeSelectNode(v, option),
           ..._props
         }

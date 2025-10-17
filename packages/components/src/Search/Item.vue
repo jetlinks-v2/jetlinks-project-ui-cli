@@ -61,6 +61,8 @@ const columnsValues = useDefaultValue()
 const targetComponents = ref<{ type?:string, label?: string, name?: any, props?: Record<string, any> }>({})
 const valueOptions = ref()
 
+const btwKeys = ['in', 'nin']
+
 const prefixCls = computed(() => 'JSearch')
 const [wrapSSR, hashId] = useSearchStyle(prefixCls);
 const termTypeOptions = computed(() => {
@@ -124,6 +126,16 @@ const onColumnChange = () => {
 }
 
 const onTermTypeChange = () => {
+  const isBtw = btwKeys.includes(termsModel.termType);
+
+  if (!isBtw && Array.isArray(termsModel.value)) {
+    termsModel.value = termsModel.value[0]
+    onValueChange()
+  } else if (isBtw && !Array.isArray(termsModel.value)) {
+    termsModel.value = [termsModel.value]
+    onValueChange()
+  }
+
   emit('update:termType', termsModel.termType)
 }
 
@@ -132,23 +144,25 @@ const onValueChange = () => {
 }
 
 watch(() => termsModel.termType, () => {
-  const isBtw = ['in', 'nin'].includes(termsModel.termType);
+  const isBtw = btwKeys.includes(termsModel.termType);
   if (targetComponents.value.type === componentType.treeSelect) {
     targetComponents.value.props = {
-      multiple: isBtw,
       ...targetComponents.value.props,
+      multiple: isBtw,
     }
   } else if (targetComponents.value.type === componentType.select) {
     targetComponents.value.props = {
-      mode: isBtw ? 'multiple' : 'combobox',
       ...targetComponents.value.props,
+      mode: isBtw ? 'multiple' : 'combobox',
     }
   }
 }, { immediate: true })
 
-watch(() => termsModel.column, async () => {
+watch(() => [termsModel.column, columnsMap.value], async () => {
   // 根据column从map中获取record，再解析search属性
   const record = findItemByColumn();
+  if (!record) return
+
   const options = findOptionsByColumn();
 
   targetComponents.value = componentProps(record.search );
@@ -160,7 +174,7 @@ watch(() => termsModel.column, async () => {
   } else {
     await handleColumnsOptions(record.search.options)
   }
-}, { immediate: true })
+}, { immediate: true, deep: true })
 
 watch(() => [props.value, props.termType, props.column, props.type], () => {
   termsModel.value = props.value;
