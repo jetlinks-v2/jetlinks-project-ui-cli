@@ -5,7 +5,6 @@
       v-model:value="displayText"
       :options="filteredOptions"
       @search="onSearch"
-      @change="onChange"
       @select="onSelect"
   >
     <slot name="default" />
@@ -44,15 +43,22 @@ const props = defineProps({
 const emit = defineEmits<Emit>();
 
 const displayText = ref()
-const selectedValue = ref()
 const keyword = ref('')
 
 const filteredOptions = computed(() => {
   if (!keyword.value) return props.options
-  return props.options.filter(opt =>
-      String(opt[props.searchKey] ?? '')
-          .includes(keyword.value)
-  )
+  const filterArr = props.options.filter(opt =>
+    String(opt[props.searchKey] ?? '')
+      .includes(keyword.value))
+
+  if (filterArr.length === 0) {
+    return [{
+      label: keyword.value,
+      value: keyword.value
+    }]
+  }
+
+  return filterArr
 })
 /**
  * 根据关键词提示
@@ -60,24 +66,13 @@ const filteredOptions = computed(() => {
  */
 const onSearch = (searchText: string) => {
   keyword.value = searchText
-  // _options.value = props.options?.filter(
-  //   (item) => !!item[props.searchKey]?.includes(searchText),
-  // ) || [];
-  // if (!_options.value.length) {
-  //   _options.value.unshift({ label: searchText, value: searchText });
-  // }
 };
 
 const onSelect = (val: string, option: DefaultOptionType) => {
   displayText.value = option.label
+  keyword.value = undefined
   emit('update:value', val)
   emit('select', val, option)
-}
-
-const onChange = (val: string) => {
-  displayText.value = val
-  keyword.value = val
-  emit('update:value', '')
 }
 
 watch(

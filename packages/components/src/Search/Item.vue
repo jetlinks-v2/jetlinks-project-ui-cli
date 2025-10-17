@@ -128,10 +128,10 @@ const onColumnChange = () => {
 const onTermTypeChange = () => {
   const isBtw = btwKeys.includes(termsModel.termType);
 
-  if (!isBtw && Array.isArray(termsModel.value)) {
+  if (!isBtw && termsModel.value && Array.isArray(termsModel.value)) {
     termsModel.value = termsModel.value[0]
     onValueChange()
-  } else if (isBtw && !Array.isArray(termsModel.value)) {
+  } else if (isBtw && termsModel.value && !Array.isArray(termsModel.value)) {
     termsModel.value = [termsModel.value]
     onValueChange()
   }

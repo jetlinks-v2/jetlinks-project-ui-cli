@@ -8,7 +8,7 @@ export const flattenTree = (tree: any[], level = 0, parentId = null) => {
     }))
     const flatNode = {
       ...omit(item, 'children'),
-      children: _children, // 为了需要判断孩子的长度的时候使用
+      _children, // 为了需要判断孩子的长度的时候使用
       level,
       parentId,
       expanded: false,
