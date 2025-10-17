@@ -77,7 +77,7 @@ export const useHandleColumns = (props: any, terms: Reactive<Terms>, options: { 
 
     if (!arr.length) return
 
-    if (options.mode === 'advanced') {
+    if (options?.mode === 'advanced') {
       //  设置第一位
       terms.terms = [getItemDefaultValue(arr[0], defaultCacheValues.value)]
     } else {
