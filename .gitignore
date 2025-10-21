@@ -13,12 +13,12 @@ pnpm-lock.yaml
 apps
 packages/components/lib
 packages/components/es
+.claude
 
 # testing
 coverage
 
 # misc
-.DS_Store
 *.pem
 
 # debug

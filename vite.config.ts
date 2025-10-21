@@ -2,6 +2,13 @@ import type { AliasOptions } from 'vite'
 import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue';
 import vueJsx from '@vitejs/plugin-vue-jsx'
+import {theme} from 'ant-design-vue/lib'
+import convertLegacyToken from 'ant-design-vue/lib/theme/convertLegacyToken'
+
+const {defaultAlgorithm, defaultSeed} = theme;
+
+const mapToken = defaultAlgorithm(defaultSeed);
+const v3Token = convertLegacyToken(mapToken);
 
 const alias: AliasOptions = {
 }
@@ -19,7 +26,7 @@ export default defineConfig({
             less: {
                 modifyVars: {
                     'root-entry-name': 'variable',
-                    hack: `true; @import (reference) "ant-design-vue/es/style/themes/index.less";`,
+                    ...v3Token
                 },
                 javascriptEnabled: true,
             },

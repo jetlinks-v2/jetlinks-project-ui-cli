@@ -1,10 +1,11 @@
-import {provide, inject, watchEffect, ref, } from 'vue'
+import {provide, inject, watchEffect, ref, watch } from 'vue'
 import type { Ref, Reactive } from 'vue'
 import type {JColumnsProps, Terms, ColumnsMap} from "../typing";
 import {getItemDefaultValue} from "../util";
 
 export * from './useSearchItems';
 export * from './useRouteQuery';
+export * from './useTermOptions';
 
 const optionMapKey = Symbol('optionMapKey');
 const columnsMapKey = Symbol('columnMapKey');
@@ -30,7 +31,7 @@ export const useDefaultValue = (): Ref<Record<string, any>> => {
   return inject(columnsValues)
 }
 
-export const useHandleColumns = (props: any, terms: Reactive<Terms>) : {
+export const useHandleColumns = (props: any, terms: Reactive<Terms>, options: { mode: string}) : {
   initValues: () => void
   columnsMap: Ref<Record<string, JColumnsProps>>
   defaultCacheValues: Record<string, any>
@@ -74,7 +75,9 @@ export const useHandleColumns = (props: any, terms: Reactive<Terms>) : {
   const initValues = () => {
     const arr = Object.values(columnsMap.value) as JColumnsProps[]
 
-    if (props.mode === 'advanced') {
+    if (!arr.length) return
+
+    if (options?.mode === 'advanced') {
       //  设置第一位
       terms.terms = [getItemDefaultValue(arr[0], defaultCacheValues.value)]
     } else {
@@ -98,7 +101,7 @@ export const useHandleColumns = (props: any, terms: Reactive<Terms>) : {
     }
   }
 
-  watchEffect(() =>{
+  watchEffect(() => {
     handleColumns(props.columns);
   })
 

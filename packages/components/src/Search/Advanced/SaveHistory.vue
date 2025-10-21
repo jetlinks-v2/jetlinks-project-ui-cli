@@ -1,6 +1,6 @@
 <template>
   <Popover
-      v-model:visible="visible"
+      v-model:open="visible"
       :title="contextLocale.advanced.saveHistory.searchName"
       trigger="click"
       placement="bottom"

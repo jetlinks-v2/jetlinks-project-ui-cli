@@ -1,3 +1,18 @@
+// *****************************************************************************
+// Copyright (C) 2022 Origin.js and others.
+//
+// This program and the accompanying materials are licensed under Mulan PSL v2.
+// You can use this software according to the terms and conditions of the Mulan PSL v2.
+// You may obtain a copy of Mulan PSL v2 at:
+//          http://license.coscl.org.cn/MulanPSL2
+// THIS SOFTWARE IS PROVIDED ON AN "AS IS" BASIS, WITHOUT WARRANTIES OF ANY KIND,
+// EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO NON-INFRINGEMENT,
+// MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
+// See the Mulan PSL v2 for more details.
+//
+// SPDX-License-Identifier: MulanPSL-2.0
+// *****************************************************************************
+
 import type {
   ConfigEnv,
   Plugin,
@@ -9,67 +24,23 @@ import virtual from '@rollup/plugin-virtual'
 import { dirname } from 'path'
 import { prodRemotePlugin } from './prod/remote-production'
 import type { VitePluginFederationOptions } from '../types'
-import {builderInfo, DEFAULT_ENTRY_FILENAME, DEFAULT_ORIGIN_NAME, parsedOptions} from './public'
+import { builderInfo, DEFAULT_ENTRY_FILENAME, parsedOptions } from './public'
 import type { PluginHooks } from '../types/pluginHooks'
-import type {
-  ModuleInfo,
-  NormalizedOutputOptions,
-  PluginContext,
-  RenderedChunk,
-  TransformPluginContext
-} from 'rollup'
+import type { ModuleInfo } from 'rollup'
 import { prodSharedPlugin } from './prod/shared-production'
 import { prodExposePlugin } from './prod/expose-production'
 import { devSharedPlugin } from './dev/shared-development'
 import { devRemotePlugin } from './dev/remote-development'
 import { devExposePlugin } from './dev/expose-development'
 
-async function runHook<T extends (...args: any[]) => any>(
-  hook: T | { handler: T } | undefined,
-  ctx: any,
-  ...args: any[]
-): Promise<any> {
-  if (!hook) return
-  if (typeof hook === 'function') {
-    const result = hook.call(ctx, ...args)
-    return result instanceof Promise ? await result : result
-  }
-  if (typeof (hook as any).handler === 'function') {
-    return (hook as any).handler.call(ctx, ...args)
-  }
-}
-
+export { VitePluginFederationVersion } from './public'
+export * from './runtime/dynamic-remote'
 export default function federation(
   options: VitePluginFederationOptions
 ): Plugin {
   options.filename = options.filename
     ? options.filename
     : DEFAULT_ENTRY_FILENAME
-
-  options.name = options.isHost ? DEFAULT_ORIGIN_NAME : undefined
-
-  options.shared = options.shared ? options.shared : [
-    'vue',
-    'pinia',
-    'axios',
-    'vue-router',
-    'vue-i18n',
-    '@jetlinks-web/constants',
-    '@jetlinks-web/core',
-    '@jetlinks-web/hooks',
-    '@jetlinks-web/types',
-    '@jetlinks-web/utils',
-    'ant-design-vue',
-  ].reduce((prev, key) => {
-    prev[key] = {
-      singleton: true, // 确保只有一个实例，这对 UI 库至关重要
-      eager: true,     // 宿主应用启动时就加载并共享，避免按需加载时的延迟
-    }
-    return prev
-  }, {})
-
-  // 支持动态remotes，默认为空对象
-  options.remotes = options.remotes ? options.remotes : options.isHost ? {} : undefined
 
   let pluginList: PluginHooks[] = []
   let virtualMod
@@ -131,7 +102,7 @@ export default function federation(
         _options.external = [_options.external as string]
       }
       for (const pluginHook of pluginList) {
-        runHook(pluginHook.options, this, _options)
+        pluginHook.options?.call(this, _options)
       }
       return _options
     },
@@ -140,7 +111,7 @@ export default function federation(
       registerPlugins(options.mode, env.command)
       registerCount++
       for (const pluginHook of pluginList) {
-        runHook(pluginHook.config, this, config, env)
+        pluginHook.config?.call(this, config, env)
       }
 
       // only run when builder is vite,rollup doesnt has hook named `config`
@@ -149,17 +120,17 @@ export default function federation(
     },
     configureServer(server: ViteDevServer) {
       for (const pluginHook of pluginList) {
-        runHook(pluginHook.configureServer, this, server)
+        pluginHook.configureServer?.call(this, server)
       }
     },
     configResolved(config: ResolvedConfig) {
       for (const pluginHook of pluginList) {
-        runHook(pluginHook.configResolved, this, config)
+        pluginHook.configResolved?.call(this, config)
       }
     },
     buildStart(inputOptions) {
       for (const pluginHook of pluginList) {
-        runHook(pluginHook.buildStart, this, inputOptions)
+        pluginHook.buildStart?.call(this, inputOptions)
       }
     },
 
@@ -176,19 +147,16 @@ export default function federation(
       }
       if (args[0] === '__federation_fn_satisfy') {
         const federationId = (
-          await this.resolve('@originjs/vite-plugin-federation')
+          await this.resolve('@jetlinks-web/vite')
         )?.id
-        return await this.resolve(`${dirname(federationId!)}/satisfy.mjs`)
+        if (federationId) {
+          return await this.resolve(`${dirname(federationId)}/satisfy.mjs`)
+        }
+        return null
       }
       if (args[0] === 'virtual:__federation__') {
         return {
           id: '\0virtual:__federation__',
-          moduleSideEffects: true
-        }
-      }
-      if (args[0] === '__federation_dynamic__') {
-        return {
-          id: '\0virtual:__federation_dynamic__',
           moduleSideEffects: true
         }
       }
@@ -203,11 +171,9 @@ export default function federation(
       return null
     },
 
-    transform(this: TransformPluginContext, ...args: [string, string, { ssr?: boolean }?]) {
-      const [code, id, options] = args
+    transform(code: string, id: string) {
       for (const pluginHook of pluginList) {
-
-        const result = runHook(pluginHook.transform, this, code, id, options)
+        const result = pluginHook.transform?.call(this, code, id)
         if (result) {
           return result
         }
@@ -216,20 +182,25 @@ export default function federation(
     },
     moduleParsed(moduleInfo: ModuleInfo): void {
       for (const pluginHook of pluginList) {
-        runHook(pluginHook.moduleParsed, this, moduleInfo)
+        pluginHook.moduleParsed?.call(this, moduleInfo)
       }
     },
 
     outputOptions(outputOptions) {
       for (const pluginHook of pluginList) {
-        runHook(pluginHook.outputOptions, this, outputOptions)
+        pluginHook.outputOptions?.call(this, outputOptions)
       }
       return outputOptions
     },
 
-    renderChunk(this: PluginContext, code: string, chunkInfo: RenderedChunk, options: NormalizedOutputOptions, meta: { chunks: Record<string, RenderedChunk> }) {
+    renderChunk(code, chunkInfo, _options) {
       for (const pluginHook of pluginList) {
-        const result = runHook(pluginHook.renderChunk, this, code, chunkInfo, options, meta)
+        const result = pluginHook.renderChunk?.call(
+          this,
+          code,
+          chunkInfo,
+          _options
+        )
         if (result) {
           return result
         }
@@ -239,7 +210,7 @@ export default function federation(
 
     generateBundle: function (_options, bundle, isWrite) {
       for (const pluginHook of pluginList) {
-        runHook(pluginHook.generateBundle, this, _options, bundle, isWrite)
+        pluginHook.generateBundle?.call(this, _options, bundle, isWrite)
       }
     }
   }

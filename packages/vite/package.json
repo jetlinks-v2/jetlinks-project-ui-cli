@@ -1,8 +1,9 @@
 {
   "name": "@jetlinks-web/vite",
-  "version": "2.1.2",
+  "version": "2.1.11",
   "description": "",
   "main": "dist/index.js",
+  "module": "dist/index.mjs",
   "scripts": {
     "compile-es": "vite build"
   },
@@ -16,7 +17,8 @@
   ],
   "files": [
     "dist",
-    "src"
+    "src",
+    "index.ts"
   ],
   "author": "",
   "private": false,
@@ -28,7 +30,7 @@
     "chalk": "^5.0.1",
     "child_process": "^1.0.2",
     "esbuild": "^0.25.5",
-    "estree-walker": "^3.0.3",
+    "estree-walker": "^3.0.2",
     "execa": "^6.1.0",
     "fs-extra": "^10.0.0",
     "kill-port": "^2.0.1",

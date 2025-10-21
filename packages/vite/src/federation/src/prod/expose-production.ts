@@ -108,7 +108,13 @@ export function prodExposePlugin(
            if (isAbsoluteUrl(baseUrl)) {
              href = [cleanBaseUrl, cleanAssetsDir, cleanCssPath].filter(Boolean).join('/');
            } else {
-            if (cleanCurUrl.includes(cleanBaseUrl)) {
+            // 当remoteEntry.js和CSS都在assets目录下时，使用相对路径
+            const remoteEntryInAssets = cleanCurUrl.endsWith('/assets/') || cleanCurUrl.endsWith('/assets');
+            
+            if (remoteEntryInAssets) {
+              // 都在assets目录下，直接使用CSS文件名
+              href = [cleanCurUrl, cleanCssPath].filter(Boolean).join('/');
+            } else if (cleanCurUrl.includes(cleanBaseUrl)) {
               href = [cleanCurUrl, cleanAssetsDir, cleanCssPath].filter(Boolean).join('/');
             } else {
               href = [cleanCurUrl + cleanBaseUrl, cleanAssetsDir, cleanCssPath].filter(Boolean).join('/');

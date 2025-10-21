@@ -1,0 +1,63 @@
+{
+  "name": "@jetlinks-web/mcp-server",
+  "version": "1.0.0",
+  "description": "MCP server for JetLinks UI component library, enabling AI assistants to understand and use your Vue components",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "bin": {
+    "jetlinks-web-mcp": "dist/index.js"
+  },
+  "files": [
+    "dist/",
+    "README.md",
+    "LICENSE",
+    "package.json"
+  ],
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "dev": "ts-node src/index.ts",
+    "prepublishOnly": "npm run build",
+    "test": "npm run build && node test.js",
+    "test:manual": "echo '{\"jsonrpc\":\"2.0\",\"id\":1,\"method\":\"tools/list\",\"params\":{}}' | node dist/index.js",
+    "start": "node dist/index.js"
+  },
+  "keywords": [
+    "mcp",
+    "model-context-protocol",
+    "vue",
+    "component-library",
+    "jetlinks-web",
+    "ai",
+    "claude",
+    "autocomplete",
+    "documentation"
+  ],
+  "author": "JetLinks Web Team",
+  "license": "MIT",
+  "homepage": "https://github.com/jetlinks/jetlinks-project-ui-cli#readme",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/jetlinks/jetlinks-project-ui-cli.git",
+    "directory": "packages/mcp-server"
+  },
+  "bugs": {
+    "url": "https://github.com/jetlinks/jetlinks-project-ui-cli/issues"
+  },
+  "engines": {
+    "node": ">=16.0.0"
+  },
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.17.5",
+    "zod": "^3.25.76"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "glob": "^11.0.3",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.9.2"
+  }
+}

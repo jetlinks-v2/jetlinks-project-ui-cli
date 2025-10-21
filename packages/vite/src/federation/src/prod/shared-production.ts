@@ -34,6 +34,59 @@ export function prodSharedPlugin(
   let isRemote
   const id2Prop = new Map<string, any>()
 
+
+  function negotiateManualChunksCompatibility(inputOptions: any) {
+    if (!inputOptions.output) return
+
+    const outputs = Array.isArray(inputOptions.output)
+      ? inputOptions.output
+      : [inputOptions.output]
+
+    outputs.forEach(output => {
+      if (!output.manualChunks) return
+
+      const sharedModuleNames = [...shareName2Prop.keys()]
+      const conflictModules = new Set<string>()
+
+      // 检测冲突模块
+      if (typeof output.manualChunks === 'object') {
+        Object.values(output.manualChunks).flat().forEach(mod => {
+          if (sharedModuleNames.some(shared => mod.includes(shared) || mod === shared)) {
+            conflictModules.add(mod)
+          }
+        })
+      }
+
+      if (conflictModules.size > 0) {
+        console.info(
+          `[Federation] 检测到模块 [${Array.from(conflictModules).join(', ')}] ` +
+          `同时配置在 shared 和 manualChunks 中，启用协商共存模式`
+        )
+
+        // 协商策略：修改 shared 配置以适配 manualChunks
+        adaptSharedToManualChunks(conflictModules)
+      }
+    })
+  }
+
+  function adaptSharedToManualChunks(conflictModules: Set<string>) {
+    // 为冲突模块调整 federation 共享策略
+    parsedOptions.prodShared.forEach((sharedItem, index) => {
+      const [moduleName, config] = sharedItem
+
+      if (conflictModules.has(moduleName)) {
+        // 保持 federation 共享逻辑，但标记为兼容模式
+        config.manualChunkCompat = true
+        config.chunkLoading = 'defer' // 延迟加载，让 manualChunk 先处理
+
+        console.info(
+          `[Federation] 模块 "${moduleName}" 设置为兼容模式：` +
+          `manualChunks 负责分块，federation 负责运行时共享`
+        )
+      }
+    })
+  }
+
   return {
     name: 'originjs:shared-production',
     virtualFile: {
@@ -41,8 +94,7 @@ export function prodSharedPlugin(
     },
     options(inputOptions) {
       isRemote = !!parsedOptions.prodExpose.length
-      isHost =
-        !!parsedOptions.prodRemote.length && !parsedOptions.prodExpose.length
+      isHost = options.isHost
 
       if (shareName2Prop.size) {
         // remove item which is both in external and shared
@@ -54,9 +106,12 @@ export function prodSharedPlugin(
           return !shareName2Prop.has(removeNonRegLetter(item, NAME_CHAR_REG))
         })
       }
+
+      // 协商共存：处理 manualChunks 与 shared 的兼容
+      negotiateManualChunksCompatibility(inputOptions)
+
       return inputOptions
     },
-
     async buildStart() {
       // Cannot emit chunks after module loading has finished, so emitFile first.
       if (parsedOptions.prodShared.length && isRemote) {

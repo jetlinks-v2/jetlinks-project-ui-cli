@@ -51,6 +51,14 @@ export const _contentProps = {
     type: [String, Function],
     default: 'id',
   },
+  type: {
+    type: String as PropType<'TREE' | 'PAGE'>, // TREE , PAGE
+    default: 'PAGE',
+  },
+  height: {
+    type: Number,
+    default: 500
+  }
 }
 
 export const _paginationProps = {
