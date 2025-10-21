@@ -133,6 +133,7 @@ export const componentProps = (record: Record<string, any>) => {
         name: DatePicker,
         props: {
           valueFormat: 'YYYY-MM-DD HH:mm:ss',
+          showTime: true,
           ..._props
         }
       };
