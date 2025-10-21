@@ -207,27 +207,38 @@ const onSelectedAllChange = (e) => {
 const onScroll = (e) => {
   const scrollTop = e.target.scrollTop
   const vh = viewportHeight.value || 500
+  const total = totalHeight.value
+
+  // 防止 scrollTop 超出范围
+  const clampedScrollTop = Math.min(scrollTop, total - vh)
 
   // 二分查找
   let low = 0, high = prefixSum.value.length - 1
   while (low < high) {
-    let mid = Math.floor((low + high) / 2)
-    if (prefixSum.value[mid] <= scrollTop) low = mid + 1
+    const mid = Math.floor((low + high) / 2)
+    if (prefixSum.value[mid] <= clampedScrollTop) low = mid + 1
     else high = mid
   }
-  start.value = Math.max(0, low - 1)
+  const newStart = Math.max(0, low - 1)
+
+  // 如果 start 没变化，直接跳过，避免重复计算导致闪动
+  if (newStart === start.value) return
+
+  start.value = newStart
 
   // 计算 end
   let y = prefixSum.value[start.value] || 0
   let i = start.value
-  while (i < visibleNodes.value.length && y < scrollTop + vh) {
+  while (i < visibleNodes.value.length && y < clampedScrollTop + vh) {
     y += rowHeights.value[i] || 40
     i++
   }
   end.value = Math.min(i + buffer, visibleNodes.value.length)
 
+  // 防止 offsetY 波动
   offsetY.value = prefixSum.value[start.value - 1] || 0
 }
+
 
 const toggleExpand = (row) => {
   row.expanded = !row.expanded
@@ -257,6 +268,7 @@ const updatePrefixSum = () => {
 const updateVisibleNodes = () => {
   visibleNodes.value = flattenData.value.filter(i => i.visible)
   updatePrefixSum()
+  console.log('123')
   nextTick(() => onScroll({target: container.value}))
 }
 
