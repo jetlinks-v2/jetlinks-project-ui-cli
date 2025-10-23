@@ -158,6 +158,9 @@ export const pageContainerProps = {
         type: Object,
         default: () => ({}),
     },
+    onBack: {
+      type: Function,
+    }
 };
 
 export type PageContainerProps = Partial<
@@ -252,6 +255,7 @@ const ProPageHeader: FunctionalComponent<
         prefixCls,
         fixedHeader: _,
         showBack,
+        onBack,
         ...restProps
     } = props;
 
@@ -283,7 +287,11 @@ const ProPageHeader: FunctionalComponent<
         // @ts-ignore
         backProps.backIcon = <Button>{contextLocale.value.pageContainer.back}</Button>;
         backProps.onBack = () => {
+          if (props.onBack) {
+            props.onBack();
+          } else {
             value.back?.();
+          }
         };
     }
 
