@@ -40,7 +40,7 @@
         <Table :columns="columns" :rowKey="rowKey" :data-source="visibleRows" :showHeader="false" :pagination="false"
                  :rowSelection="_rowSelection">
           <template #bodyCell="{text, record, index, column}">
-            <template v-if="column.dataIndex === firstColumn.dataIndex || column.key === firstColumn.key">
+            <template v-if="(firstColumn.dataIndex && column.dataIndex === firstColumn.dataIndex) || (firstColumn.key && column.key === firstColumn.key)">
               <span class="ant-table-row-indent indent-level-3" :style="{paddingLeft: `${record.level * 15}px`}"></span>
               <span
                   class="virtual-table-row-expand-icon"
