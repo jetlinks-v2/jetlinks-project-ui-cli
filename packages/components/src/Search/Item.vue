@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import {computed, defineOptions, ref, reactive, watch, isRef} from 'vue'
+import {computed, defineOptions, ref, reactive, watch, isRef, nextTick} from 'vue'
 import { Select } from 'ant-design-vue'
 import {componentProps, componentType, typeOptions} from "./setting";
 import { getTermOptions, getItemDefaultValue} from "./util";
@@ -61,7 +61,14 @@ const columnsValues = useDefaultValue()
 const targetComponents = ref<{ type?:string, label?: string, name?: any, props?: Record<string, any> }>({})
 const valueOptions = ref()
 
-const btwKeys = ['in', 'nin']
+const btwKeys = computed(() => {
+  const record = findItemByColumn()
+  if (record.search.isBtw && Array.isArray(record.search.isBtw)) {
+    return [...record.search.isBtw, 'in', 'nin']
+  }
+
+  return ['in', 'nin']
+})
 
 const prefixCls = computed(() => 'JSearch')
 const [wrapSSR, hashId] = useSearchStyle(prefixCls);
@@ -126,7 +133,7 @@ const onColumnChange = () => {
 }
 
 const onTermTypeChange = () => {
-  const isBtw = btwKeys.includes(termsModel.termType);
+  const isBtw = btwKeys.value.includes(termsModel.termType);
 
   if (!isBtw && termsModel.value && Array.isArray(termsModel.value)) {
     termsModel.value = termsModel.value[0]
@@ -142,21 +149,39 @@ const onTermTypeChange = () => {
 const onValueChange = () => {
   emit('update:value', termsModel.value)
 }
+const handleTermsModelValue = (isBtw: boolean) => {
+  if (isBtw) {
+    if (termsModel.value && !Array.isArray(termsModel.value)) {
+      termsModel.value = [termsModel.value]
+    } else if (!termsModel.value) {
+      termsModel.value = []
+    }
+  } else {
+    if (termsModel.value && Array.isArray(termsModel.value)) {
+      termsModel.value = termsModel.value[0]
+    } else if (!termsModel.value) {
+      termsModel.value = undefined
+    }
+  }
+}
 
-watch(() => termsModel.termType, () => {
-  const isBtw = btwKeys.includes(termsModel.termType);
+watch(() => [targetComponents.value.name, termsModel.termType], () => {
+  const isBtw = btwKeys.value.includes(termsModel.termType);
+
   if (targetComponents.value.type === componentType.treeSelect) {
     targetComponents.value.props = {
       ...targetComponents.value.props,
       multiple: isBtw,
     }
+    handleTermsModelValue(isBtw)
   } else if (targetComponents.value.type === componentType.select) {
     targetComponents.value.props = {
       ...targetComponents.value.props,
       mode: isBtw ? 'multiple' : 'combobox',
     }
+    handleTermsModelValue(isBtw)
   }
-}, { immediate: true })
+}, { immediate: true, deep: true })
 
 watch(() => [termsModel.column, columnsMap.value], async () => {
   // 根据column从map中获取record，再解析search属性

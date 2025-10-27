@@ -1,27 +1,23 @@
 <template>
-  <AutoComplete
-      v-bind="{ ...omit(props, ['onSelect']) }"
+  <Select
+      v-model:value="myValue"
+      allowClear
+      v-bind="props"
+      :options="_options"
+      mode="tags"
       style="width: 100%"
-      v-model:value="displayText"
-      :options="filteredOptions"
-      @search="onSearch"
       @select="onSelect"
+      @search="handleSearch"
+      @change="handleChange"
   >
-    <slot name="default" />
-    <template #option="{ value, label }">
-      <slot name="option" :value="value">
-        {{ label || value }}
-      </slot>
-    </template>
-  </AutoComplete>
+  </Select>
 </template>
 
 <script lang="ts" setup>
-import { AutoComplete } from 'ant-design-vue';
+import { Select } from 'ant-design-vue';
 import type { DefaultOptionType } from 'ant-design-vue/lib/vc-select/Select';
-import { autoCompleteProps } from 'ant-design-vue/lib/auto-complete';
+import { selectProps } from 'ant-design-vue/lib/select';
 import {ref, defineProps, defineEmits, defineOptions, watch, computed} from 'vue';
-import {omit} from "lodash-es";
 
 defineOptions({
   name: 'JAutoComplete'
@@ -34,43 +30,44 @@ type Emit = {
 };
 
 const props = defineProps({
-  ...autoCompleteProps(),
+  ...selectProps(),
   searchKey: {
     type: String,
     default: 'label',
   },
 });
 const emit = defineEmits<Emit>();
+const myValue = ref();
+const _label = ref()
 
-const displayText = ref()
-const keyword = ref('')
+const handleChange = (e) => {
+  if (e.length === 0) {
+    myValue.value = undefined
+    emit('update:value', undefined)
+  }
+}
 
-const filteredOptions = computed(() => {
-  if (!keyword.value) return props.options
-  const filterArr = props.options.filter(opt =>
-    String(opt[props.searchKey] ?? '')
-      .includes(keyword.value))
+const _options = computed(() => {
+  const item = props.options.find(option => option.value === myValue.value);
 
-  if (filterArr.length === 0) {
-    return [{
-      label: keyword.value,
-      value: keyword.value
-    }]
+  if (item || !myValue.value) {
+    _label.value = item?.label;
+    return props.options
   }
 
-  return filterArr
+  _label.value = myValue.value;
+  return [
+    { label: myValue.value, value: myValue.value },
+    ...props.options
+  ]
 })
-/**
- * 根据关键词提示
- * @param searchText 关键词
- */
-const onSearch = (searchText: string) => {
-  keyword.value = searchText
-};
+
+const handleSearch = (e) => {
+  myValue.value = e
+}
 
 const onSelect = (val: string, option: DefaultOptionType) => {
-  displayText.value = option.label
-  keyword.value = undefined
+  myValue.value = val;
   emit('update:value', val)
   emit('select', val, option)
 }
@@ -78,12 +75,7 @@ const onSelect = (val: string, option: DefaultOptionType) => {
 watch(
     () => props.value,
     (val) => {
-      if (!val) {
-        displayText.value = ''
-      } else {
-        const found = props.options?.find((opt) => opt.value === val)
-        displayText.value = found?.label ?? ''
-      }
+      myValue.value = val
     },
     { immediate: true }
 )

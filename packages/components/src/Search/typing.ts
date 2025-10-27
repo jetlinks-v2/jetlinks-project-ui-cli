@@ -30,6 +30,7 @@ export interface SearchBaseProps {
 
     handleValue?: (value: SearchItemData) => any;
     handleTerms?: (value: SearchItemData) => any;
+    isBtw?: string[]
 }
 
 export interface SearchItemProps {
