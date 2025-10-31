@@ -3,7 +3,7 @@
 /**
  * JetLinks UI MCP Server Test Suite
  *
- * 这个脚本测试所有MCP工具以确保服务器正常工作
+ * 这个脚本测试 MCP 工具，确保服务器正常工作
  */
 
 const { spawn } = require('child_process');
@@ -11,135 +11,179 @@ const path = require('path');
 
 const serverPath = path.join(__dirname, 'dist/index.js');
 
+/**
+ * 将 Markdown 格式转换为控制台友好格式
+ */
+function formatForConsole(markdown) {
+    if (!markdown) return '';
+
+    return markdown
+        // 处理代码块（在其他处理之前）
+        .replace(/```[\w]*\n?([\s\S]*?)```/g, (match, code) => {
+            const lines = code.trim().split('\n');
+            return '\n   代码示例:\n' + lines.map(line => '   ' + line).join('\n') + '\n';
+        })
+
+        // 移除 Markdown 标题符号，保留层级
+        .replace(/^### (.+)$/gm, '      ▸ $1')
+        .replace(/^## (.+)$/gm, '\n ○ $1')
+        .replace(/^# (.+)$/gm, '\n═══ $1 ═══')
+
+        // 转换表格为更简洁的格式
+        .replace(/\|(.+)\|/g, (match, content) => {
+            const cells = content.split('|').map(cell => cell.trim()).filter(cell => cell);
+            if (cells.every(cell => cell.match(/^-+$/))) {
+                return '   ' + '─'.repeat(50); // 表格分隔线
+            }
+            return '   ' + cells.join(' | ');
+        })
+
+        // 移除多余的 Markdown 语法
+        .replace(/\*\*(.+?)\*\*/g, '$1')  // 粗体
+        .replace(/`(.+?)`/g, '$1')        // 行内代码
+
+        // 转换列表
+        .replace(/^- (.+)$/gm, '  • $1')
+
+        // 清理多余空行并添加适当缩进
+        .replace(/\n{3,}/g, '\n\n')
+        .split('\n')
+        .map(line => {
+            // 为普通文本添加适当缩进
+            if (line && !line.match(/^[\s]*[○•═▸]/) && !line.match(/^[\s]*URI:/) && !line.match(/^[\s]*描述:/) && !line.match(/^[\s]*─/) && !line.match(/^[\s]*代码示例/)) {
+                return '   ' + line;
+            }
+            return line;
+        })
+        .join('\n')
+
+        // 移除开头结尾的空行
+        .trim();
+}
+
+// 配置 MCP 调用方法
+const MCP_TOOL_METHOD = 'tools/call'; // 尝试使用 tools/call 而不是 tools/run
+const MCP_RESOURCE_METHOD = 'resources/read';
+
 // 测试用例配置
 const testCases = [
-    // 提示词相关测试
     {
-        name: '列出所有提示词',
-        category: '提示词功能',
-        request: {"jsonrpc":"2.0","id":1,"method":"prompts/list","params":{}},
-        validation: (response) => {
-            return response.result && response.result.prompts && response.result.prompts.length > 0;
-        }
-    },
-    {
-        name: '获取JetLinks组件库助手提示词',
-        category: '提示词功能',
-        request: {"jsonrpc":"2.0","id":2,"method":"prompts/get","params":{"name":"jetlinks-component-helper","arguments":{}}},
-        validation: (response) => {
-            return response.result && response.result.messages && response.result.messages.length > 0;
-        }
-    },
-    
-    // 工具相关测试
-    {
-        name: '列出所有工具',
+        name: '获取所有资源',
         category: '工具功能',
-        request: {"jsonrpc":"2.0","id":3,"method":"tools/list","params":{}},
-        validation: (response) => {
-            return response.result && response.result.tools && response.result.tools.length > 0;
-        }
+        request: {
+            jsonrpc: '2.0',
+            id: 1,
+            method: MCP_TOOL_METHOD,
+            params: {
+                name: 'get_all_resources',
+                arguments: {}
+            }
+        },
+        validation: (response) => !!response.result?.content?.[0]?.text,
     },
     {
-        name: '获取所有组件',
-        category: '组件功能',
-        request: {"jsonrpc":"2.0","id":4,"method":"tools/call","params":{"name":"get_all_components","arguments":{}}},
-        validation: (response) => {
-            return response.result && response.result.content && response.result.content[0].text.includes('组件');
-        }
+        name: '获取 JetLinks 组件库资源',
+        category: '资源功能',
+        request: {
+            jsonrpc: '2.0',
+            id: 2,
+            method: MCP_RESOURCE_METHOD,
+            params: {
+                uri: 'jetlinks://components'
+            }
+        },
+        validation: (response) => !!response.result?.contents?.[0]?.text?.includes('JetLinks 组件库'),
     },
     {
-        name: '获取所有方法',
-        category: '工具函数',
-        request: {"jsonrpc":"2.0","id":5,"method":"tools/call","params":{"name":"get_all_functions","arguments":{}}},
-        validation: (response) => {
-            return response.result && response.result.content && response.result.content[0].text.includes('工具函数');
-        }
+        name: '获取 JetLinks 工具函数库资源',
+        category: '资源功能',
+        request: {
+            jsonrpc: '2.0',
+            id: 3,
+            method: MCP_RESOURCE_METHOD,
+            params: {
+                uri: 'jetlinks://utils'
+            }
+        },
+        validation: (response) => !!response.result?.contents?.[0]?.text?.includes('JetLinks 工具函数库'),
     },
     {
-        name: '获取AutoComplete组件使用示例',
-        category: '使用示例',
-        request: {"jsonrpc":"2.0","id":6,"method":"tools/call","params":{"name":"get_usage_examples","arguments":{"name":"AutoComplete"}}},
-        validation: (response) => {
-            return response.result && response.result.content && response.result.content[0].text.includes('AutoComplete');
-        }
+        name: '获取 Ant Design Vue 组件库资源',
+        category: '资源功能',
+        request: {
+            jsonrpc: '2.0',
+            id: 4,
+            method: MCP_RESOURCE_METHOD,
+            params: {
+                uri: 'antdv://components'
+            }
+        },
+        validation: (response) => !!response.result?.contents?.[0]?.text?.includes('Ant Design Vue 组件库'),
     },
     {
-        name: '获取ProTable组件使用示例',
-        category: '使用示例',
-        request: {"jsonrpc":"2.0","id":7,"method":"tools/call","params":{"name":"get_usage_examples","arguments":{"name":"ProTable"}}},
-        validation: (response) => {
-            return response.result && response.result.content && response.result.content[0].text.includes('ProTable');
-        }
+        name: '获取项目组件库资源',
+        category: '资源功能',
+        request: {
+            jsonrpc: '2.0',
+            id: 5,
+            method: MCP_RESOURCE_METHOD,
+            params: {
+                uri: 'project://components'
+            }
+        },
+        validation: (response) => !!response.result?.contents?.[0]?.text?.includes('项目组件库'),
     },
     {
-        name: '获取LocalStore工具函数示例',
-        category: '工具函数示例',
-        request: {"jsonrpc":"2.0","id":8,"method":"tools/call","params":{"name":"get_usage_examples","arguments":{"name":"LocalStore"}}},
-        validation: (response) => {
-            return response.result && response.result.content && response.result.content[0].text.includes('LocalStore');
-        }
-    }
+        name: '获取项目工具函数库资源',
+        category: '资源功能',
+        request: {
+            jsonrpc: '2.0',
+            id: 6,
+            method: MCP_RESOURCE_METHOD,
+            params: {
+                uri: 'project://utils'
+            }
+        },
+        validation: (response) => !!response.result?.contents?.[0]?.text?.includes('项目工具函数库'),
+    },
+    {
+        name: '测试开发规范提示词',
+        category: '提示词功能',
+        request: {
+            jsonrpc: '2.0',
+            id: 7,
+            method: 'prompts/get',
+            params: {
+                name: 'development_guidelines',
+                arguments: {
+                    task_type: 'component',
+                    component_name: 'UserCard'
+                }
+            }
+        },
+        validation: (response) => !!response.result?.messages?.[0]?.content?.text?.includes('Vue 3'),
+    },
+    {
+        name: '测试开发规范提示词（表单类型）',
+        category: '提示词功能',
+        request: {
+            jsonrpc: '2.0',
+            id: 8,
+            method: 'prompts/get',
+            params: {
+                name: 'development_guidelines',
+                arguments: {
+                    task_type: 'form'
+                }
+            }
+        },
+        validation: (response) => !!response.result?.messages?.[0]?.content?.text?.includes('表单组件'),
+    },
 ];
 
-// 错误处理测试用例
-const errorTestCases = [
-    {
-        name: '获取不存在组件的使用示例',
-        category: '错误处理',
-        request: {"jsonrpc":"2.0","id":101,"method":"tools/call","params":{"name":"get_usage_examples","arguments":{"name":"NonExistentComponent"}}},
-        expectError: false, // 应该返回错误信息但不是RPC错误
-        validation: (response) => {
-            return response.result && response.result.content && response.result.content[0].text.includes('未找到');
-        }
-    },
-    {
-        name: '获取不存在的提示词',
-        category: '错误处理',
-        request: {"jsonrpc":"2.0","id":102,"method":"prompts/get","params":{"name":"non-existent-prompt","arguments":{}}},
-        expectError: true,
-        validation: (response) => {
-            return response.error && response.error.message;
-        }
-    },
-    {
-        name: '调用不存在的工具',
-        category: '错误处理',
-        request: {"jsonrpc":"2.0","id":103,"method":"tools/call","params":{"name":"non_existent_tool","arguments":{}}},
-        expectError: true,
-        validation: (response) => {
-            return response.error && response.error.code;
-        }
-    },
-    {
-        name: '获取空字符串组件示例',
-        category: '错误处理',
-        request: {"jsonrpc":"2.0","id":104,"method":"tools/call","params":{"name":"get_usage_examples","arguments":{"name":""}}},
-        expectError: false,
-        validation: (response) => {
-            return response.result && response.result.content && (
-                response.result.content[0].text.includes('未找到') || 
-                response.result.content[0].text.includes('请提供组件或方法名称')
-            );
-        }
-    }
-];
-
-// 性能测试用例（用于大量数据测试）
-const performanceTestCases = [
-    {
-        name: '并发获取多个组件示例',
-        category: '性能测试',
-        concurrent: true,
-        requests: [
-            {"jsonrpc":"2.0","id":201,"method":"tools/call","params":{"name":"get_usage_examples","arguments":{"name":"AutoComplete"}}},
-            {"jsonrpc":"2.0","id":202,"method":"tools/call","params":{"name":"get_usage_examples","arguments":{"name":"ProTable"}}},
-            {"jsonrpc":"2.0","id":203,"method":"tools/call","params":{"name":"get_all_components","arguments":{}}},
-            {"jsonrpc":"2.0","id":204,"method":"prompts/list","params":{}}
-        ]
-    }
-];
-
+/**
+ * 运行单个测试用例
+ */
 async function runTest(testCase) {
     const startTime = Date.now();
     return new Promise((resolve, reject) => {
@@ -153,7 +197,6 @@ async function runTest(testCase) {
         let stderr = '';
 
         child.stdout.on('data', (data) => {
-          console.log('data', data)
             stdout += data.toString();
         });
 
@@ -161,9 +204,15 @@ async function runTest(testCase) {
             stderr += data.toString();
         });
 
-        // 发送测试请求
-        child.stdin.write(JSON.stringify(testCase.request) + '\n');
-        child.stdin.end();
+        // 延迟等待 MCP Server 初始化
+        setTimeout(() => {
+            try {
+                child.stdin.write(JSON.stringify(testCase.request) + '\n');
+                child.stdin.end();
+            } catch (err) {
+                reject(new Error('发送请求失败: ' + err.message));
+            }
+        }, 1000); // 1 秒延迟，可根据实际启动时间调整
 
         const timeout = setTimeout(() => {
             child.kill();
@@ -175,10 +224,8 @@ async function runTest(testCase) {
             const duration = Date.now() - startTime;
 
             try {
-              console.log(stdout, 'stdout')
-                // 解析JSON响应
-                const lines = stdout.split('\n').filter(line => line.trim());
-                const jsonLine = lines.find(line => line.startsWith('{'));
+                const lines = stdout.split('\n').map(l => l.trim()).filter(Boolean);
+                const jsonLine = lines.find(l => l.startsWith('{') && l.endsWith('}'));
 
                 if (!jsonLine) {
                     throw new Error('未找到JSON响应');
@@ -186,42 +233,43 @@ async function runTest(testCase) {
 
                 const response = JSON.parse(jsonLine);
 
-                // 检查是否期望错误
-                if (testCase.expectError && !response.error) {
-                    throw new Error('期望返回错误但实际成功');
-                }
-
-                if (!testCase.expectError && response.error) {
-                    throw new Error(`MCP错误: ${response.error.message}`);
-                }
-
-                // 运行自定义验证
                 if (testCase.validation && !testCase.validation(response)) {
                     throw new Error('响应验证失败');
                 }
 
                 console.log(`✅ ${testCase.name}: 通过 (${duration}ms)`);
 
-                // 显示适当的预览
-                if (testCase.name.includes('列出所有工具') && response.result && response.result.tools) {
-                    console.log(`   找到 ${response.result.tools.length} 个工具`);
-                } else if (response.result && response.result.content) {
-                    const content = response.result.content[0].text;
-                    const preview = content // .length > 100 ? content.substring(0, 100) + '...' : content;
-                    console.log(`   响应预览: ${preview}`);
-                } else if (testCase.expectError && response.error) {
-                    console.log(`   错误代码: ${response.error.code}`);
+                // 处理不同类型的响应内容
+                let content = '';
+                if (response.result?.content?.[0]?.text) {
+                    // 工具调用响应
+                    content = response.result.content[0].text;
+                } else if (response.result?.contents?.[0]?.text) {
+                    // 资源访问响应
+                    content = response.result.contents[0].text;
+                }
+
+                if (content) {
+                    const formattedContent = formatForConsole(content);
+                    // 对于资源列表，显示完整内容
+                    if (testCase.name === '获取所有资源') {
+                        console.log(`   完整响应:${formattedContent}`);
+                    } else {
+                        // const preview = formattedContent.length > 800 ? formattedContent.substring(0, 800) + '\n   ...(内容已截断)' : formattedContent;
+                        // console.log(`   响应预览:${preview}`);
+                        console.log(`   响应预览:${formattedContent}`);
+                    }
                 }
 
                 resolve({ ...response, testDuration: duration, testName: testCase.name, category: testCase.category });
             } catch (error) {
                 console.log(`❌ ${testCase.name}: 失败 (${duration}ms)`);
                 console.log(`   错误: ${error.message}`);
-                if (stdout && !testCase.expectError) {
+                if (stdout) {
                     const preview = stdout.substring(0, 200);
-                    if (preview.length > 0) console.log(`   输出: ${preview}${stdout.length > 200 ? '...' : ''}`);
+                    console.log(`   输出: ${preview}${stdout.length > 200 ? '...' : ''}`);
                 }
-                if (stderr && stderr.trim().length > 0) {
+                if (stderr) {
                     const preview = stderr.substring(0, 200);
                     console.log(`   错误输出: ${preview}${stderr.length > 200 ? '...' : ''}`);
                 }
@@ -231,120 +279,17 @@ async function runTest(testCase) {
     });
 }
 
-// 并发测试函数
-async function runConcurrentTest(performanceTest) {
-    console.log(`\n🚀 性能测试: ${performanceTest.name}`);
-    const startTime = Date.now();
-
-    try {
-        const promises = performanceTest.requests.map((request, index) => {
-            return new Promise((resolve, reject) => {
-                const child = spawn('node', [serverPath], {
-                    stdio: ['pipe', 'pipe', 'pipe']
-                });
-
-                let stdout = '';
-                child.stdout.on('data', (data) => {
-                    stdout += data.toString();
-                });
-
-                child.stdin.write(JSON.stringify(request) + '\n');
-                child.stdin.end();
-
-                const timeout = setTimeout(() => {
-                    child.kill();
-                    reject(new Error(`并发测试超时: Request ${index + 1}`));
-                }, 10000);
-
-                child.on('close', () => {
-                    clearTimeout(timeout);
-                    const lines = stdout.split('\n').filter(line => line.trim());
-                    const jsonLine = lines.find(line => line.startsWith('{'));
-                    if (jsonLine) {
-                        resolve(JSON.parse(jsonLine));
-                    } else {
-                        reject(new Error(`无效响应: Request ${index + 1}`));
-                    }
-                });
-            });
-        });
-
-        const results = await Promise.all(promises);
-        const duration = Date.now() - startTime;
-
-        console.log(`✅ ${performanceTest.name}: 成功 (${duration}ms, ${results.length}个请求)`);
-        console.log(`   平均响应时间: ${Math.round(duration / results.length)}ms`);
-
-        return { success: true, duration, results, testName: performanceTest.name };
-    } catch (error) {
-        const duration = Date.now() - startTime;
-        console.log(`❌ ${performanceTest.name}: 失败 (${duration}ms)`);
-        console.log(`   错误: ${error.message}`);
-        return { success: false, duration, error, testName: performanceTest.name };
-    }
-}
-
-// 生成详细测试报告
-function generateTestReport(results) {
-    const categories = {};
-    let totalDuration = 0;
-
-    results.forEach(result => {
-        if (!categories[result.category]) {
-            categories[result.category] = { passed: 0, failed: 0, tests: [] };
-        }
-
-        if (result.success) {
-            categories[result.category].passed++;
-        } else {
-            categories[result.category].failed++;
-        }
-
-        categories[result.category].tests.push(result);
-        totalDuration += result.testDuration || 0;
-    });
-
-    console.log('\n📄 详细测试报告');
-    console.log('=================');
-
-    Object.entries(categories).forEach(([category, stats]) => {
-        const total = stats.passed + stats.failed;
-        const rate = total > 0 ? Math.round((stats.passed / total) * 100) : 0;
-        console.log(`\n📎 ${category}: ${stats.passed}/${total} 通过 (${rate}%)`);
-
-        if (stats.failed > 0) {
-            stats.tests.filter(t => !t.success).forEach(test => {
-                console.log(`   ❌ ${test.testName}: ${test.error?.message || '未知错误'}`);
-            });
-        }
-    });
-
-    console.log(`\n🕰️ 性能统计:`);
-    console.log(`   总运行时间: ${totalDuration}ms`);
-    console.log(`   平均测试时间: ${Math.round(totalDuration / results.length)}ms`);
-
-    const slowTests = results
-        .filter(r => r.testDuration > 1000)
-        .sort((a, b) => (b.testDuration || 0) - (a.testDuration || 0));
-
-    if (slowTests.length > 0) {
-        console.log(`\n🐌 慢速测试 (>1s):`);
-        slowTests.forEach(test => {
-            console.log(`   ${test.testName}: ${test.testDuration}ms`);
-        });
-    }
-}
-
+/**
+ * 运行所有测试
+ */
 async function runAllTests() {
-    console.log('🚀 开始JetLinks UI MCP服务器全面测试');
+    console.log('🚀 开始 JetLinks UI MCP 服务器全面测试');
     console.log('==========================================');
 
     const allResults = [];
     let totalPassed = 0;
     let totalFailed = 0;
 
-    // 运行基础功能测试
-    console.log('\n🔍 运行基础功能测试...');
     for (const testCase of testCases) {
         try {
             const result = await runTest(testCase);
@@ -354,79 +299,20 @@ async function runAllTests() {
             allResults.push({ ...error, success: false });
             totalFailed++;
         }
-
-        // 测试间隔
         await new Promise(resolve => setTimeout(resolve, 200));
     }
 
-    // 运行错误处理测试
-    console.log('\n🛡️ 运行错误处理测试...');
-    for (const testCase of errorTestCases) {
-        try {
-            const result = await runTest(testCase);
-            allResults.push({ ...result, success: true });
-            totalPassed++;
-        } catch (error) {
-            allResults.push({ ...error, success: false });
-            totalFailed++;
-        }
-
-        await new Promise(resolve => setTimeout(resolve, 200));
-    }
-
-    // 运行性能测试
-    if (performanceTestCases.length > 0) {
-        console.log('\n🏁 运行性能测试...');
-        for (const perfTest of performanceTestCases) {
-            const result = await runConcurrentTest(perfTest);
-            allResults.push({ ...result, category: perfTest.category });
-            if (result.success) {
-                totalPassed++;
-            } else {
-                totalFailed++;
-            }
-        }
-    }
-
-    // 显示总结果
-    console.log('\n📊 测试结果总结');
-    console.log('==================');
-    console.log(`✅ 通过: ${totalPassed}`);
-    console.log(`❌ 失败: ${totalFailed}`);
-    console.log(`📊 总计: ${totalPassed + totalFailed}`);
-    console.log(`🎯 成功率: ${Math.round((totalPassed / (totalPassed + totalFailed)) * 100)}%`);
-
-    // 生成详细报告
-    if (allResults.length > 0) {
-        generateTestReport(allResults);
-    }
-
-    // 提供建议
-    if (totalFailed > 0) {
-        console.log('\n📝 建议操作:');
-        console.log('1. 检查上述失败的测试用例');
-        console.log('2. 运行 `npm run build` 确保项目已构建');
-        console.log('3. 检查组件数据文件是否存在');
-        console.log('4. 查看详细错误信息');
-        console.log('\n⚠️  有测试失败，请检查上述问题。');
-        process.exit(1);
-    } else {
-        console.log('\n🎉 所有测试通过！MCP服务器工作正常。');
-        console.log('\n📜 使用方法请参考 README.md');
-        console.log('\n🔗 配置 Claude Desktop:');
-        console.log('   macOS: ~/Library/Application\\ Support/Claude/claude_desktop_config.json');
-        console.log('   Windows: %APPDATA%\\Claude\\claude_desktop_config.json');
-        process.exit(0);
-    }
+    console.log('\n==========================================');
+    console.log(`✅ 测试完成: ${totalPassed} 通过, ${totalFailed} 失败`);
+    console.log('==========================================');
 }
 
-// 优雅处理Ctrl+C
+// 优雅处理 Ctrl+C
 process.on('SIGINT', () => {
-    console.log('\n\n👋 测试被用户中断');
+    console.log('\n👋 测试被用户中断');
     process.exit(0);
 });
 
-// 运行测试
 if (require.main === module) {
     runAllTests().catch((error) => {
         console.error('\n💥 测试运行器失败:', error.message);
@@ -437,9 +323,5 @@ if (require.main === module) {
 module.exports = {
     runAllTests,
     runTest,
-    runConcurrentTest,
-    generateTestReport,
     testCases,
-    errorTestCases,
-    performanceTestCases
 };

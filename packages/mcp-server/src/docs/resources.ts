@@ -288,24 +288,24 @@ export const resourceData: ResourceData = {
         },
         {
             "name": "Icon",
-            "description": "图标组件",
-            "code": "<template>\n  <AIcon type=\"icon-paiduizhong\" />\n</template>",
+            "description": "🚫【强制使用AIcon】图标组件。❌ 绝对禁止使用 <Icon />、<a-icon /> 或任何ant-design-vue的图标组件。✅ 必须使用 <AIcon type=\"icon-name\" />。这是项目封装的图标组件,支持iconfont图标库。任何需要显示图标的场景(按钮图标、装饰图标、状态图标等),都必须使用AIcon。",
+            "code": "<template>\n  <!-- ✅ 正确: 使用AIcon -->\n  <AIcon type=\"icon-paiduizhong\" />\n  \n  <!-- ✅ 正确: 带样式的图标 -->\n  <AIcon type=\"icon-setting\" class=\"icon-class\" />\n  \n  <!-- ✅ 正确: 在按钮中使用图标 -->\n  <a-button>\n    <AIcon type=\"icon-plus\" />\n    新增\n  </a-button>\n\n  <!-- ❌ 错误 - 绝对禁止! -->\n  <!-- <Icon /> -->\n  <!-- <a-icon /> -->\n</template>\n\n<script setup>\n// ✅ 正确: 直接使用ref,无需import\nconst iconType = ref('icon-setting')\n\n// ❌ 错误 - 绝对禁止!\n// import { ref } from 'vue'\n</script>",
             "api": [
                 {
                     "name": "type",
-                    "description": "Tooltip 的属性或内容",
+                    "description": "图标类型,对应iconfont图标名称(必填参数)",
                     "type": "string",
                     "default": "-"
                 },
                 {
                     "name": "scriptUrl",
-                    "description": "iconfont.cn 项目在线生成的 js 地址",
+                    "description": "iconfont.cn 项目在线生成的 js 地址(可选)",
                     "type": "string",
                     "default": "-"
                 },
                 {
                     "name": "class",
-                    "description": "样式class",
+                    "description": "自定义样式class(可选)",
                     "type": "string",
                     "default": "-"
                 }
@@ -808,23 +808,23 @@ export const resourceData: ResourceData = {
         },
         {
             "name": "onlyMessage",
-            "description": "单个message提示，根据类型只提示一次",
+            "description": "🚫【强制使用】消息提示方法。❌ 绝对禁止使用 message.success()、message.error()、message.warning() 等ant-design-vue的message API。✅ 必须使用 onlyMessage('提示内容', 'success')。根据类型只提示一次,避免重复提示,提供更好的用户体验。任何需要显示消息提示的场景(成功提示、错误提示、警告提示等),都必须使用onlyMessage。",
             "params": [
                 {
                     "name": "msg",
                     "type": "string",
                     "required": true,
-                    "description": "需要提示的信息"
+                    "description": "需要提示的信息内容"
                 },
                 {
                     "name": "type",
                     "type": "string",
                     "required": false,
                     "default": "'success'",
-                    "description": "类型"
+                    "description": "提示类型: 'success' | 'error' | 'warning' | 'info'"
                 }
             ],
-            "example": "onlyMessage('操作成功！');"
+            "example": "// ✅ 正确写法 - 必须使用onlyMessage\nonlyMessage('操作成功！', 'success');\nonlyMessage('操作失败！', 'error');\nonlyMessage('警告信息！', 'warning');\n\n// ❌ 错误写法 - 绝对禁止!\n// message.success('操作成功！');\n// message.error('操作失败！');"
         },
         {
             "name": "randomString",
