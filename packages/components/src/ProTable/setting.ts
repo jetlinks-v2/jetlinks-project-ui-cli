@@ -129,12 +129,6 @@ export const proTableProps = {
   },
   pagination: {
     type: Object, // Boolean,
-    default: () => {
-      return {
-        showSizeChanger: true,
-        size: 'size',
-        pageSizeOptions: ['12', '24', '48', '96'],
-      };
-    },
+    default: () => ({}),
   },
 }
