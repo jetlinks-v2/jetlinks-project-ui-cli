@@ -1,12 +1,12 @@
 {
   "name": "@jetlinks-web/mcp-server",
-  "version": "1.0.0",
+  "version": "1.0.4",
   "description": "MCP server for JetLinks UI component library, enabling AI assistants to understand and use your Vue components",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "bin": {
-    "@jetlinks-web/mcp-server": "dist/index.js"
+    "jetlinks-mcp": "dist/index.js"
   },
   "files": [
     "dist/",
