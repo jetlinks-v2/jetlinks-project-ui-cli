@@ -7,7 +7,28 @@
   "access": "public",
   "baseBranch": "master",
   "updateInternalDependencies": "patch",
-  "ignore": ["scripts"],
+  "ignore": [
+    "scripts",
+    "authentication-manager-ui",
+    "data-collector-ui",
+    "device-manager-ui",
+    "datasource-manager-ui",
+    "jetlinks-ai-agent-ui",
+    "jetlinks-aliyun-bridge-gateway-ui",
+    "jetlinks-components-ui",
+    "jetlinks-dueros-ui",
+    "jetlinks-function-ui",
+    "jetlinks-knowledge-ui",
+    "jetlinks-media-ui",
+    "network-card-manager-ui",
+    "notify-manager-ui",
+    "rule-engine-manager-ui",
+    "visualization-dashboard-ui",
+    "visualization-designer-ui",
+    "visualization-manager-ui",
+    "visualization-model-ui",
+    "visualization-resources"
+  ],
   "___experimentalUnsafeOptions_WILL_CHANGE_IN_PATCH": {
     "onlyUpdatePeerDependentsWhenOutOfRange": true
   }
