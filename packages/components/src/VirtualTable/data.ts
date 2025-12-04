@@ -1,5 +1,6 @@
 // 扁平化数据
 import {omit} from "lodash-es";
+import { tableProps } from "ant-design-vue/es/table";
 
 export const flattenTree = (tree: any[], level = 0, parentId = null) => {
   return tree.flatMap((item: any) => {
@@ -34,4 +35,43 @@ export const findAllChildren = (data = [], parentId = null) => {
 
   recursive(parentId);
   return result;
+}
+
+export const _headerProps = {
+  mode: {
+    type: [String, undefined] as PropType<'TABLE' | 'CARD' | undefined>, // TABLE , CARD
+    default: undefined,
+  },
+  modeValue: { // mode 为undefined时
+    type: String,
+    default: 'TABLE',
+  },
+}
+
+export const _contentProps = {
+  ...tableProps(),
+  ..._headerProps,
+  dataSource: {
+    type: Array,
+    default: () => []
+  },
+  columns: {
+    type: Array,
+    default: () => []
+  },
+  expandedRowKeys: {
+    type: Array,
+    default: () => []
+  },
+  rowSelection: {
+    type: Object
+  },
+  rowKey: {
+    type: [String, Function],
+    default: 'id',
+  },
+  height: {
+    type: Number,
+    default: 500
+  }
 }

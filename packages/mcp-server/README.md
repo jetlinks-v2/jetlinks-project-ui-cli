@@ -42,7 +42,7 @@ npm test
 ### 在 Claude Desktop 中配置
 
 #### 1. 配置文件路径
-- **macOS**: `~/Library/Application\ Support/Claude/claude_desktop_config.json`
+- **macOS**: `~/.claude.json`
 - **Windows**: `%APPDATA%\Claude\claude_desktop_config.json`
 
 #### 2. 添加配置

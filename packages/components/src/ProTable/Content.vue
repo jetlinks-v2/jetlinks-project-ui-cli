@@ -21,7 +21,7 @@
     </template>
     <template v-else>
       <template v-if="props.type === 'TREE'">
-        <JVirtualTable :rowKey="rowKey" :row-selection="__rowSelection" :dataSource="dataSource" :columns="_columns" :height="height">
+        <JVirtualTable v-bind="props" :rowKey="rowKey" :row-selection="__rowSelection" :dataSource="dataSource" :columns="_columns" :height="height">
           <template v-for="(_, slotKey) in _slots" :key="slotKey" v-slot:[slotKey]="slotProps">
             <template v-if="!((column?.key || column?.dataIndex) && column?.scopedSlots && (_slots?.[column?.dataIndex] || _slots?.[column?.key]))">
               <slot :name="slotKey" v-bind="slotProps"></slot>

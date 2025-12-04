@@ -1,53 +1,41 @@
 <template>
   <div :class="['virtual-table-wrapper', hashId]">
-    <div class="virtual-table-header">
-      <Table
-          :columns="_columns"
-          :pagination="false"
-          :rowKey="rowKey"
-          :data-source="[]"
-          :components="{
-            body: {
-               wrapper: () => h('div')
-            },
-          }"
-      >
-        <template #headerCell="{ column, title }">
-          <template v-if="column.key === '__selection__'">
-                    <span class="virtual-table-all-selected">
-                      <Checkbox
-                          v-model:checked="selectedAll"
-                          @change="onSelectedAllChange"
-                          v-if="rowSelection.type !== 'radio' && !rowSelection.hideSelectAll"
-                          :indeterminate="_indeterminate"
-                          :disabled="visibleRows.length === 0"
-                      />
-                      <span>{{ rowSelection?.columnTitle }}</span>
-                    </span>
+    <div class="virtual-table-header" ref="headerContainer">
+      <div class="virtual-table-header-fixed">
+        <Table v-bind="props" :columns="_columns" :pagination="false" :rowKey="rowKey" :data-source="[]" :components="{
+          body: { wrapper: () => h('div') },
+        }" :row-selection="false">
+          <template #headerCell="{ column, title }">
+            <template v-if="column.key === '__selection__'">
+              <span class="virtual-table-all-selected">
+                <Checkbox v-model:checked="selectedAll" @change="onSelectedAllChange"
+                  v-if="rowSelection.type !== 'radio' && !rowSelection.hideSelectAll" :indeterminate="_indeterminate"
+                  :disabled="visibleRows.length === 0" />
+                <span>{{ rowSelection?.columnTitle }}</span>
+              </span>
+            </template>
+            <template v-else>
+              <slot name="headerCell" :title="title" :column="column">
+                {{ title }}
+              </slot>
+            </template>
           </template>
-          <template v-else>
-            <slot name="headerCell" :title="title" :column="column">
-              {{ title }}
-            </slot>
-          </template>
-        </template>
-      </Table>
+        </Table>
+      </div>
     </div>
-    <div class="virtual-table-body" ref="container" @scroll="onScroll" :style="{height: `${viewportHeight}px`}">
-      <div class="virtual-table-height" :style="{height: totalHeight + 'px'}"></div>
+    <div class="virtual-table-body" ref="container" @scroll="onScroll" :style="{ height: `${viewportHeight}px` }">
+      <div class="virtual-table-height" :style="{ height: totalHeight + 'px' }"></div>
       <div class="virtual-table-visible-box"
-           :style="{ transform: `translateY(${offsetY}px)`, position: 'absolute', top: 0, left: 0, right: 0 }">
-        <Table :columns="columns" :rowKey="rowKey" :data-source="visibleRows" :showHeader="false" :pagination="false"
-                 :rowSelection="_rowSelection">
-          <template #bodyCell="{text, record, index, column}">
-            <template v-if="(firstColumn.dataIndex && column.dataIndex === firstColumn.dataIndex) || (firstColumn.key && column.key === firstColumn.key)">
-              <span class="ant-table-row-indent indent-level-3" :style="{paddingLeft: `${record.level * 15}px`}"></span>
-              <span
-                  class="virtual-table-row-expand-icon"
-                  @click="toggleExpand(record)"
-              >
+        :style="{ transform: `translateY(${offsetY}px)`, position: 'absolute', top: 0, left: 0, right: 0, height: '100%' }">
+        <Table v-bind="props" :columns="columns" :rowKey="rowKey" :data-source="visibleRows" :showHeader="false"
+          :pagination="false" :rowSelection="_rowSelection">
+          <template #bodyCell="{ text, record, index, column }">
+            <template
+              v-if="(firstColumn.dataIndex && column.dataIndex === firstColumn.dataIndex) || (firstColumn.key && column.key === firstColumn.key)">
+              <span class="ant-table-row-indent indent-level-3" :style="{ paddingLeft: `${record.level * 15}px` }"></span>
+              <span class="virtual-table-row-expand-icon" @click="toggleExpand(record)">
                 <AIcon v-if="record.hasChildren"
-                       :type="!record.expanded ? 'PlusSquareOutlined' : 'MinusSquareOutlined'"/>
+                  :type="!record.expanded ? 'PlusSquareOutlined' : 'MinusSquareOutlined'" />
               </span>
             </template>
             <slot name="bodyCell" :text="text" :record="record" :index="index" :column="column">
@@ -61,15 +49,17 @@
 </template>
 
 <script setup>
-import {findAllChildren, flattenTree} from "./data";
-import {isNumber, map, omit} from "lodash-es";
-import {defineOptions, h, computed, ref, watch, onMounted, defineEmits, defineProps, nextTick} from 'vue'
-import {Table, Checkbox} from 'ant-design-vue';
+import { findAllChildren, flattenTree } from "./data";
+import { isNumber, map, omit } from "lodash-es";
+import { defineOptions, h, computed, ref, watch, onMounted, defineEmits, defineProps, nextTick, onUnmounted} from 'vue'
+import { Table, Checkbox } from 'ant-design-vue';
 import AIcon from '../Icon';
 import useVirtualTableStyle from './style'
-import {useLocaleReceiver} from "../LocaleReciver";
+import { useLocaleReceiver } from "../LocaleReciver";
+import { _contentProps } from "./data";
 
 const props = defineProps({
+  ..._contentProps,
   dataSource: {
     type: Array,
     default: () => []
@@ -106,6 +96,7 @@ const [wrapSSR, hashId] = useVirtualTableStyle(prefixCls)
 const [contextLocale] = useLocaleReceiver('ProTable');
 
 const container = ref(null)
+const headerContainer = ref(null)
 const rowHeights = ref([])
 const prefixSum = ref([])
 const start = ref(0)
@@ -204,10 +195,68 @@ const onSelectedAllChange = (e) => {
   }
 }
 
+const horizontalScrollLeft = ref(0)
+
+let bodyContentEl = null
+let headerScrollEl = null
+
+const onBodyHorizontalScroll = (e) => {
+  const left = e.target.scrollLeft || 0
+  horizontalScrollLeft.value = left
+  if (headerScrollEl) {
+    if (typeof headerScrollEl.scrollTo === 'function') {
+      headerScrollEl.scrollTo({ left })
+    } else {
+      headerScrollEl.scrollLeft = left
+    }
+  }
+}
+
+const bindBodyHorizontalScroll = () => {
+  nextTick(() => {
+    const box = container.value?.querySelector('.virtual-table-visible-box')
+    const el = box?.querySelector('.ant-table-content') || box?.querySelector('.ant-table-body')
+    if (el && el !== bodyContentEl) {
+      if (bodyContentEl) {
+        bodyContentEl.removeEventListener('scroll', onBodyHorizontalScroll)
+      }
+      bodyContentEl = el
+      bodyContentEl.addEventListener('scroll', onBodyHorizontalScroll, { passive: true })
+      horizontalScrollLeft.value = bodyContentEl.scrollLeft || 0
+    }
+  })
+}
+
+const bindHeaderScrollTarget = () => {
+  nextTick(() => {
+    const el = headerContainer.value?.querySelector('.ant-table-header')
+      || headerContainer.value?.querySelector('.ant-table-content')
+    if (el && el !== headerScrollEl) {
+      headerScrollEl = el
+      // 初始化时同步一次
+      if (typeof headerScrollEl.scrollTo === 'function') {
+        headerScrollEl.scrollTo({ left: horizontalScrollLeft.value || 0 })
+      } else {
+        headerScrollEl.scrollLeft = horizontalScrollLeft.value || 0
+      }
+    }
+  })
+}
+
+onUnmounted(() => {
+  if (bodyContentEl) {
+    bodyContentEl.removeEventListener('scroll', onBodyHorizontalScroll)
+    bodyContentEl = null
+  }
+})
+
 const onScroll = (e) => {
   const scrollTop = e.target.scrollTop
   const vh = viewportHeight.value || 500
   const total = totalHeight.value
+
+  // 同步横向滚动位置给表头
+  horizontalScrollLeft.value = e.target.scrollLeft || 0
 
   // 防止 scrollTop 超出范围
   const clampedScrollTop = Math.min(scrollTop, total - vh)
@@ -268,8 +317,11 @@ const updatePrefixSum = () => {
 const updateVisibleNodes = () => {
   visibleNodes.value = flattenData.value.filter(i => i.visible)
   updatePrefixSum()
-  console.log('123')
-  nextTick(() => onScroll({target: container.value}))
+  nextTick(() => {
+    onScroll({ target: container.value })
+    bindBodyHorizontalScroll()
+    bindHeaderScrollTarget()
+  })
 }
 
 watch(() => [JSON.stringify(props.dataSource), JSON.stringify(props.expandedRowKeys)], () => {
@@ -307,5 +359,7 @@ watch(() => props.rowSelection?.selectedRowKeys, (val) => {
 
 onMounted(() => {
   updateVisibleNodes()
+  bindBodyHorizontalScroll()
+  bindHeaderScrollTarget()
 })
 </script>
