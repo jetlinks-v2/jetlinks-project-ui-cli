@@ -19,7 +19,7 @@ const props = defineProps({
   ...searchProps()
 })
 
-const emit = defineEmits(['search'])
+const emit = defineEmits(['search', 'reset'])
 
 const [contextLocale] = useLocaleReceiver('Search')
 const attrs = useAttrs()
@@ -49,6 +49,7 @@ const searchSubmit = () => {
 
 const reset = () => {
   initValues()
+  emit('reset')
 }
 
 const handleDefaultValues = (value) => {
