@@ -82,7 +82,7 @@ const _mode = ref<'TABLE' | 'CARD'>(props.mode || props.modeValue || 'CARD')
 const column = ref<number>(4)
 const page = reactive({
   pageIndex: 0,
-  pageSize: 12,
+  pageSize: tableConfig.pagination?.pageSize || 12 ,
   total: 0,
   loading: false
 })
