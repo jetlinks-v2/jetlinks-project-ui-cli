@@ -17,7 +17,7 @@
 <script setup>
 import {onBeforeUnmount, computed, defineEmits, reactive, watch, defineProps, defineOptions, provide} from "vue";
 import {get, isArray } from 'lodash-es'
-import { useProvideFormItemContext } from 'ant-design-vue/es/form/FormItemContext'
+import { useProvideFormItemContext } from 'ant-design-vue/lib/form/FormItemContext'
 import {useInjectError, useInjectForm} from "./hooks";
 import {TABLE_FORM_ITEM_ERROR} from "./consts";
 import genEditTableStyle from './style'
@@ -104,7 +104,10 @@ const validateRules = () => {
   }
 
   const promise = context.validateItem({ [filedName.value]: get(context.dataSource.value, props.name) }, index)
-  promise.catch(res => {
+  promise.then(() => {
+    hideErrorTip()
+    context.removeFieldError(eventKey.value)
+  }).catch(res => {
     const error = res?.filter(item => item.field === filedName.value) || []
     if (error.length === 0) {
       hideErrorTip()
@@ -142,7 +145,10 @@ useProvideFormItemContext({
   id: filedId,
   onFieldChange,
   onFieldBlur,
-}, computed(() => get(context.dataSource.value, props.name)))
+}, computed(() => {
+  console.log(context.dataSource.value, props.name)
+  return get(context.dataSource.value, props.name)
+}))
 
 onBeforeUnmount(() => {
   hideErrorTip()
