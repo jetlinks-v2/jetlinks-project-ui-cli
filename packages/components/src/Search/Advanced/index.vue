@@ -180,6 +180,7 @@ type UrlParam = {
 
 interface Emit {
   (e: 'search', data: Terms): void;
+  (e: 'reset'): void;
 }
 
 const props = defineProps({
@@ -221,7 +222,7 @@ const props = defineProps({
   }
 });
 
-const emit = defineEmits(['search'])
+const emit = defineEmits(['search', 'reset'])
 
 const columnsOptionMap = ref({}); // 存储每个columnItem的option
 const terms = reactive<Terms>({terms: []});// 当前查询条件
@@ -296,6 +297,7 @@ const reset = () => {
     target.value = null;
   }
   emit('search', {terms: []});
+  emit('reset');
 };
 
 /**
