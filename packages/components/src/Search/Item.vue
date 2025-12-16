@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import {computed, defineOptions, ref, reactive, watch, isRef, nextTick} from 'vue'
-import { Select } from 'ant-design-vue'
+import { Select, DatePicker, RangePicker } from 'ant-design-vue'
 import {componentProps, componentType, typeOptions} from "./setting";
 import { getTermOptions, getItemDefaultValue} from "./util";
 import {useLocaleReceiver} from "../LocaleReciver";
@@ -180,6 +180,14 @@ watch(() => [targetComponents.value.name, termsModel.termType], () => {
       mode: isBtw ? 'multiple' : 'combobox',
     }
     handleTermsModelValue(isBtw)
+  } else if (targetComponents.value.type === componentType.date && ['btw', 'between'].includes(termsModel.termType)) {
+    // 当日期类型选择了 btw 时，切换到 RangePicker 组件
+    targetComponents.value.name = RangePicker
+    termsModel.value = []
+  } else if (targetComponents.value.type === componentType.date && !['btw', 'between'].includes(termsModel.termType)) {
+    // 当 RangePicker 取消 btw 时，切换回 DatePicker 组件
+    targetComponents.value.name = DatePicker
+    termsModel.value = undefined
   }
 }, { immediate: true, deep: true })
 
