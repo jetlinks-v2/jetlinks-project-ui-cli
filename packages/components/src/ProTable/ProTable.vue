@@ -268,6 +268,12 @@ watch(
   {deep: true, immediate: true},
 );
 
+watch(props.modeValue, (newValue) => {
+  if (newValue) {
+    _mode.value = newValue;
+  }
+}, { immediate: true });
+
 watch(
   () => props.dataSource,
   (newVal) => {
