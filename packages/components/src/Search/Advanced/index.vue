@@ -297,7 +297,7 @@ const reset = () => {
     target.value = null;
   }
   emit('search', {terms: []});
-  emit('reset');
+  emit('reset', {terms: []});
 };
 
 /**
