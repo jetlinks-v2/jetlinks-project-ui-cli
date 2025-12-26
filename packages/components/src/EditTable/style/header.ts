@@ -5,7 +5,7 @@ export const genEditTableHeaderStyle = (config: any): CSSObject => {
   return {
     ['.jetlinks-edit-table-header-container']: {
       height: '100%',
-      position: 'relative',
+      // position: 'relative',
       ['.jetlinks-edit-table-header-cell']: {
         height: '100%',
         display: 'inline-flex',
@@ -13,6 +13,7 @@ export const genEditTableHeaderStyle = (config: any): CSSObject => {
         float: 'left',
         overflow: 'visible',
         position: 'absolute',
+        background: '#fafafa',
         top: 0,
         ['.jetlinks-edit-table-header-cell-box']: {
           padding: '0 12px',
@@ -54,7 +55,7 @@ export const genEditTableHeaderStyle = (config: any): CSSObject => {
             '&::before': {
               backgroundColor: 'transparent',
             }
-          } 
+          }
         },
       }
     },

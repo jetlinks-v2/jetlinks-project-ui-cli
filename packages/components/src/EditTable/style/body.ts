@@ -4,6 +4,7 @@ export const genEditTableBodyStyle = (config?: any): CSSObject => {
   const { componentCls, token } = config;
 
   return {
+    // 兼容旧版虚拟滚动样式
     ['.jetlinks-edit-table-body-viewport']: {
       maxHeight: '100%',
       width: '100%',
@@ -36,7 +37,7 @@ export const genEditTableBodyStyle = (config?: any): CSSObject => {
             minWidth: 0
           },
           ['&:hover']: {
-            backgroundColor: 'rgb(248, 248, 248)', 
+            backgroundColor: 'rgb(248, 248, 248)',
           },
           ['&.jetlinks-edit-table-row-selected']: {
             backgroundColor: 'var(--ant-primary-1)'
@@ -61,6 +62,26 @@ export const genEditTableBodyStyle = (config?: any): CSSObject => {
       width: '100%',
       justifyContent: 'center',
       paddingTop: 24,
+    },
+    // VirtualTable 集成样式
+    ['.jetlinks-edit-table-body']: {
+      ['.virtual-table-wrapper']: {
+        height: '100%',
+        ['.virtual-table-header']: {
+          display: 'none' // 使用 EditTable 自己的 Header
+        },
+        ['.virtual-table-body']: {
+          height: '100%'
+        }
+      },
+      ['.readonly-mask']: {
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        zIndex: 4
+      }
     }
   };
 };

@@ -8,50 +8,69 @@
       <slot name="extra" :isFullscreen="isFullscreen" :fullScreenToggle="toggle"/>
     </div>
     <div class="jetlinks-edit-table">
-      <div class="jetlinks-edit-table-header" style="height: 50px" :style="{paddingRight: scrollWidth + 'px'}">
-        <Header
-          :columns="myColumns"
-          :searchColumns="searchColumns"
-          :style="{width: tableStyle.width, transform: `translateX(-${horizontalScrollLeft}px)`}"
-        />
-      </div>
-      <div class="jetlinks-edit-table-body" :style="{width: tableStyle.width, height: `${height}px`}">
-        <Body
-          ref="tableBody"
+<!--      <Header-->
+<!--        ref="headerRef"-->
+<!--        :columns="myColumns"-->
+<!--        :searchColumns="searchColumns"-->
+<!--        :style="{width: tableStyle.width, transform: `translateX(-${horizontalScrollLeft}px)`}"-->
+<!--        :scrollWidth="scrollWidth"-->
+<!--      />-->
+<!--      <div class="jetlinks-edit-table-body" :style="{width: tableStyle.width, height: `${height}px`}">-->
+      <div class="jetlinks-edit-table-body">
+        <VirtualTable
+          ref="virtualTableRef"
           :dataSource="bodyDataSource"
-          :columns="myColumns"
-          :cellHeight="cellHeight"
+          :columns="tableColumns"
           :height="height"
-          :disableMenu="disableMenu"
           :rowKey="rowKey"
-          :groupKey="groupActive.value"
-          :openGroup="openGroup"
           :rowSelection="rowSelection"
-          :readonly="readonly"
-          :width="horizontalScrollWidth"
-          @scrollDown="onScrollDown"
+          :treeData="false"
+          :rowHeight="cellHeight"
+          :scroll="{x: '100%'}"
+          @scroll="onTableScroll"
+          @scrollEnd="onScrollDown"
         >
-        <template v-for="(_, name) in slots" #[name]="slotData">
-          <slot :name="name" v-bind="slotData || {}"/>
-        </template>
-        </Body>
+          <template #bodyCell="{ text, record, index, column }">
+            {{ column.dataIndex }}
+            <template v-if="column.dataIndex === '__serial'">
+              <slot name="serial" :record="record" :index="record.__dataIndex" :column="column">
+                {{ record.__serial }}
+              </slot>
+            </template>
+            <template v-else>
+              <slot :name="column.dataIndex" :record="record" :index="record.__dataIndex" :column="column">
+                <CellRender
+                  v-if="column.customRender"
+                  :record="record"
+                  :value="record[column.dataIndex]"
+                  :index="record.__dataIndex"
+                  :render-fn="column.customRender"
+                />
+                <template v-else>
+                  {{ record[column.dataIndex] }}
+                </template>
+              </slot>
+            </template>
+          </template>
+        </VirtualTable>
+        <div class="readonly-mask" v-if="readonly"></div>
         <slot name="bodyExtra"></slot>
       </div>
-      <div class="jetlinks-table-horizontal-scroll" v-if="showScroll">
-        <div
-          class="jetlinks-table-horizontal-scroll-bar"
-          ref="scrollBarRef"
-          :style="{
-            width: 'calc(100% - 15px)',
-            height: '100%',
-            overflowX: 'scroll'
-          }"
-          @scroll="onHorizontalScroll"
-        >
-          <div :style="{ minWidth: horizontalScrollWidth + 'px', maxWidth: horizontalScrollWidth + 'px', height: '100%'}"> </div>
-        </div>
-        <div style="width: 15px; height: 100%; overflow-x: hidden;"></div>
-      </div>
+<!--      <div class="jetlinks-table-horizontal-scroll" v-if="showScroll">-->
+<!--        <div-->
+<!--          class="jetlinks-table-horizontal-scroll-bar"-->
+<!--          ref="scrollBarRef"-->
+<!--          :style="{-->
+<!--            width: 'calc(100% - 15px)',-->
+<!--            height: '100%',-->
+<!--            overflowX: 'scroll'-->
+<!--          }"-->
+<!--          @scroll="onHorizontalScroll"-->
+<!--        >-->
+<!--          <div :style="{ minWidth: horizontalScrollWidth + 'px', maxWidth: horizontalScrollWidth + 'px', height: '100%'}"> </div>-->
+<!--        </div>-->
+<!--        <div style="width: 15px; height: 100%; overflow-x: hidden;"></div>-->
+<!--      </div>-->
       <Group
         v-if="dataSource.length && openGroup"
         v-model:activeKey="groupActive.value"
@@ -66,7 +85,7 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import {
   FULL_SCREEN,
   RIGHT_MENU,
@@ -74,31 +93,33 @@ import {
   TABLE_ERROR,
   TABLE_GROUP_ACTIVE,
   TABLE_GROUP_ERROR,
-  TABLE_GROUP_OPTIONS, TABLE_H_SCROLL,
+  TABLE_GROUP_OPTIONS,
+  TABLE_H_SCROLL,
   TABLE_OPEN_GROUP,
   TABLE_TOOL,
   TABLE_WRAPPER
 } from './consts'
-import {handleColumnsWidth} from './utils'
-import {useGroup, useResizeObserver, useValidate} from './hooks'
-import {tableProps} from 'ant-design-vue/lib/table'
-import {useFormContext} from './context'
-import {useFullscreen} from '@vueuse/core';
-import {provide, useSlots, ref, reactive, defineOptions, defineEmits, defineProps, computed, watch} from 'vue'
-import {bodyProps} from "./props";
-import {findIndex, get, sortBy} from 'lodash-es'
+import { handleColumnsWidth } from './utils'
+import { useGroup, useResizeObserver, useValidate } from './hooks'
+import { tableProps } from 'ant-design-vue/lib/table'
+import { useFormContext } from './context'
+import { useFullscreen } from '@vueuse/core'
+import { provide, useSlots, ref, reactive, computed, watch, nextTick } from 'vue'
+import { bodyProps } from "./props"
+import { findIndex, get, sortBy, cloneDeep } from 'lodash-es'
 import Header from './Header.vue'
-import Body from './Body.vue'
 import Group from './group.vue'
-import {useLocaleReceiver} from "../LocaleReciver";
+import CellRender from './CellRender.vue'
+import VirtualTable from '../VirtualTable/VirtualTable.vue'
+import { useLocaleReceiver } from "../LocaleReciver"
 import useEditTableStyle from './style'
 
 defineOptions({
   name: 'JEditTable'
 })
 
-const emit = defineEmits(['scrollDown', 'rightMenuClick', 'editChange', 'searchVisibleChange'])
-const [contextLocale] = useLocaleReceiver('EditTable');
+const emit = defineEmits(['scrollDown', 'rightMenuClick', 'editChange', 'searchVisibleChange', 'groupDelete', 'groupEdit'])
+const [contextLocale] = useLocaleReceiver('EditTable')
 
 const props = defineProps({
   ...tableProps(),
@@ -125,31 +146,32 @@ const props = defineProps({
 })
 
 const prefixCls = computed(() => 'jetlinks-edit-table')
-const [wrapSSR, hashId] = useEditTableStyle(prefixCls);
+const [wrapSSR, hashId] = useEditTableStyle(prefixCls)
 const slots = useSlots()
-const myColumns = ref([])
+const myColumns = ref<any[]>([])
 const tableWrapper = ref()
-const tableBody = ref()
+const virtualTableRef = ref()
+const headerRef = ref()
 const scrollBarRef = ref()
 const tableStyle = reactive({
-  width: '100%',
+  width: '100%' as string | number,
   height: props.height
 })
 const showScroll = ref(false)
 const horizontalScrollWidth = ref(0)
 const horizontalScrollLeft = ref(0)
 
-const fields = {}
+const fields: Record<string, any> = {}
 const defaultGroupId = 'group_1'
 
-const fieldsErrMap = ref({})
-const fieldsGroupError = ref({})
+const fieldsErrMap = ref<Record<string, string>>({})
+const fieldsGroupError = ref<Record<string, any>>({})
 const scrollDefaultWidth = ref(17)
 const sortData = reactive({
-  key: undefined,
-  order: undefined,
-  orderKeys: [],
-  dataIndex: undefined
+  key: undefined as string | undefined,
+  order: undefined as 'asc' | 'desc' | undefined,
+  orderKeys: [] as any[],
+  dataIndex: undefined as string | undefined
 })
 
 const {
@@ -161,18 +183,19 @@ const {
   updateGroupOptions
 } = useGroup(props.openGroup)
 
+// 处理数据源
 const _dataSource = computed(() => {
   const _options = new Map()
 
-  const sortDataSource = sortData.key ?
-    sortBy(props.dataSource, (val) => {
-      if (!val.id) return 99999999
+  const sortDataSource = sortData.key
+    ? sortBy(props.dataSource, (val: any) => {
+        if (!val.id) return 99999999
+        const index = findIndex(sortData.orderKeys, (val2: any) => get(val, sortData.key!) === val2)
+        return sortData.order === 'desc' ? index : ~index + 1
+      })
+    : props.dataSource
 
-      const index = findIndex(sortData.orderKeys, val2 => get(val, sortData.key) === val2)
-      return sortData.order === 'desc' ? index : ~index + 1
-    }) : props.dataSource
-
-  sortDataSource.forEach((item, index) => {
+  sortDataSource.forEach((item: any, index: number) => {
     item.__dataIndex = index
     if (props.openGroup) {
       const _groupId = item.expands?.groupId
@@ -187,8 +210,8 @@ const _dataSource = computed(() => {
         _options.set(item.expands.groupId, {
           value: item.expands?.groupId,
           label: item.expands?.groupName,
-          effective: item.id ? 1 : 0, // 有效数据长度
-          len: 1 // 分组数据总长度
+          effective: item.id ? 1 : 0,
+          len: 1
         })
       } else {
         if (item.id) {
@@ -211,56 +234,63 @@ const _dataSource = computed(() => {
   return sortDataSource
 })
 
+// 按分组过滤的数据
 const bodyDataSource = computed(() => {
   if (props.openGroup) {
-    return _dataSource.value.filter(item => {
+    return _dataSource.value.filter((item: any) => {
       return item.expands.groupId === groupActive.value
     })
   }
   return _dataSource.value
 })
 
+// 为 VirtualTable 准备的列配置
+const tableColumns = computed(() => {
+  return myColumns.value.map(col => ({
+    ...col,
+    // 移除 left 属性，VirtualTable 不需要
+    left: undefined
+  }))
+})
+
 useResizeObserver(tableWrapper, onResize)
 
-const {isFullscreen, toggle} = useFullscreen(tableWrapper);
+const { isFullscreen, toggle } = useFullscreen(tableWrapper)
 
-const {rules, validateItem, validate, errorMap} = useValidate(
+const { rules, validateItem, validate, errorMap } = useValidate(
   _dataSource,
   props.columns,
   props.rowKey,
   {
-    onError: (err) => {
+    onError: (err: any) => {
       fieldsErrMap.value = {}
       fieldsGroupError.value = {}
-      const errMap = {}
+      const errMap: Record<string, string> = {}
 
-      // 显示全部err红标
-      err.forEach((item, errIndex) => {
-        item.forEach((e, eIndex) => {
+      err.forEach((item: any, errIndex: number) => {
+        item.forEach((e: any, eIndex: number) => {
           const field = findField(e.__dataIndex, e.field)
-
           const _eventKey = field ? field.eventKey : `${e.__dataIndex}-${e.field}`
+
           if (field) {
             field.showErrorTip(e.message)
           }
           errMap[_eventKey] = e.message
 
           if (errIndex === 0 && eIndex === 0) {
-
             if (props.openGroup) {
               const expands = _dataSource.value[e.__dataIndex].expands
               updateGroupActive(expands.groupId, expands.groupName)
             }
 
             setTimeout(() => {
-              tableBody.value.scrollTo(e.__serial - 1)
+              scrollToByIndex(e.__serial - 1)
             }, 10)
           }
         })
       })
 
       fieldsErrMap.value = errMap
-
     },
     onSuccess: () => {
       fieldsErrMap.value = {}
@@ -272,30 +302,31 @@ const {rules, validateItem, validate, errorMap} = useValidate(
   }
 )
 
+// Provide context
 provide(TABLE_WRAPPER, tableWrapper)
 provide(FULL_SCREEN, isFullscreen)
-provide(RIGHT_MENU, {click: rightMenu, getPopupContainer: () => tableWrapper.value})
+provide(RIGHT_MENU, { click: rightMenu, getPopupContainer: () => tableWrapper.value })
 provide(TABLE_ERROR, fieldsErrMap)
 provide(TABLE_GROUP_ERROR, fieldsGroupError)
 provide(TABLE_DATA_SOURCE, _dataSource)
 provide(TABLE_OPEN_GROUP, props.openGroup)
 provide(TABLE_TOOL, {
-  scrollTo: (record) => {
+  scrollTo: (record: any) => {
     if (props.openGroup) {
       const expands = record.expands
       updateGroupActive(expands.groupId, expands.groupName)
     }
 
     setTimeout(() => {
-      tableBody.value.scrollTo(record.__serial)
+      scrollToByIndex(record.__serial)
     }, 10)
   },
-  selected: (keys) => {
-    tableBody.value.updateSelectedKeys(keys)
+  selected: (keys: any[]) => {
+    // VirtualTable 通过 rowSelection.selectedRowKeys 控制选中
   },
-  order: (type, key, orderKeys, dataIndex) => {
+  order: (type: string, key: string, orderKeys: any[], dataIndex: string) => {
     sortData.key = key
-    sortData.order = type
+    sortData.order = type as 'asc' | 'desc'
     sortData.orderKeys = orderKeys
     sortData.dataIndex = dataIndex
   },
@@ -311,27 +342,27 @@ provide(TABLE_GROUP_OPTIONS, groupOptions)
 provide(TABLE_GROUP_ACTIVE, groupActive)
 provide(TABLE_H_SCROLL, horizontalScrollLeft)
 
-const addField = (key, field) => {
+const addField = (key: string, field: any) => {
   fields[key] = field
 }
 
-const removeField = (key) => {
+const removeField = (key: string) => {
   delete fields[key]
 }
 
-function findField(index, name) {
+function findField(index: number, name: string) {
   const fieldId = Object.keys(fields).find(key => {
-    const {names} = fields[key]
+    const { names } = fields[key]
     return names[0] === index && names[1] === name
   })
-  return fields[fieldId]
+  return fields[fieldId!]
 }
 
-function removeFieldError(key) {
+function removeFieldError(key: string) {
   delete fieldsErrMap.value[key]
 }
 
-function addFieldError(key, message) {
+function addFieldError(key: string, message: string) {
   fieldsErrMap.value[key] = message
 }
 
@@ -340,74 +371,67 @@ const scrollWidth = computed(() => {
 })
 
 const handleColumns = () => {
-  let newColumns = [...props.columns]
+  let newColumns = [...props.columns] as any[]
   if (props.serial) {
     const serial = {
       dataIndex: '__serial',
-      title: props.serial.title || contextLocale.value.serial,
-      customRender: (customData) => {
-        if (props.serial?.customRender) {
-          return props.serial?.customRender(customData)
+      title: (props.serial as any).title || contextLocale.value.serial,
+      customRender: (customData: any) => {
+        if ((props.serial as any)?.customRender) {
+          return (props.serial as any)?.customRender(customData)
         }
         return customData.index + 1
       },
-      width: props.serial?.width,
+      width: (props.serial as any)?.width,
       fixed: 'left'
     }
     newColumns = [serial, ...props.columns]
   }
 
-  myColumns.value = handleColumnsWidth(newColumns, tableStyle.width - scrollWidth.value)
+  const width = typeof tableStyle.width === 'number' ? tableStyle.width : parseFloat(tableStyle.width as string) || 0
+  myColumns.value = handleColumnsWidth(newColumns, width - scrollWidth.value)
 
-  horizontalScrollWidth.value = myColumns.value.reduce((prev, next) => {
+  horizontalScrollWidth.value = myColumns.value.reduce((prev: number, next: any) => {
     prev += next.width
     return prev
   }, 0)
 
-  if (horizontalScrollWidth.value > tableStyle.width) {
+  if (horizontalScrollWidth.value > width) {
     showScroll.value = true
   }
 }
 
-function onResize({width = 0}) {
-
-  const _width = width - scrollWidth.value
-
+function onResize({ width = 0 }) {
   tableStyle.width = width || '100%'
-  // const viewportDom = document.querySelector('.jetlinks-edit-table-body-viewport')
-  // const viewportDivDom = viewportDom.querySelector('div')
-  //
-  // scrollDefaultWidth.value = viewportDom.offsetWidth - viewportDivDom.offsetWidth
   handleColumns()
 }
 
-const onScrollDown = (len) => {
-  emit('scrollDown', len)
-}
-
-function rightMenu(menuType, record, copyValue) {
+function rightMenu(menuType: string, record: any, copyValue: any) {
   emit('rightMenuClick', menuType, record, copyValue)
 }
 
-const scrollToById = (key) => {
-  const _index = _dataSource.value.findIndex(item => item[props.rowKey] === key)
-  tableBody.value.scrollTo(_index)
+const scrollToById = (key: string) => {
+  const _index = _dataSource.value.findIndex((item: any) => item[props.rowKey] === key)
+  scrollToByIndex(_index)
 }
 
-const scrollToByIndex = (index) => {
-  tableBody.value.scrollTo(index)
+const scrollToByIndex = (index: number) => {
+  // 通过 VirtualTable 暴露的方法滚动
+  if (virtualTableRef.value) {
+    virtualTableRef.value.scrollToIndex(index)
+  }
 }
 
 const getTableWrapperRef = () => {
   return tableWrapper.value
 }
 
-const groupDelete = (id, index) => {
+const groupDelete = (id: string, index: number) => {
   removeGroup(index)
   Object.keys(fieldsErrMap.value).forEach(errorKey => {
-    const [index] = errorKey.split('-')
-    const dataSourceItem = _dataSource.value[index]
-    const groupId = dataSourceItem.expands?.groupId
+    const [idx] = errorKey.split('-')
+    const dataSourceItem = _dataSource.value[parseInt(idx)]
+    const groupId = dataSourceItem?.expands?.groupId
     if (groupId === id) {
       removeFieldError(errorKey)
       removeField(errorKey)
@@ -416,7 +440,7 @@ const groupDelete = (id, index) => {
   emit('groupDelete', id)
 }
 
-const groupEdit = (record) => {
+const groupEdit = (record: any) => {
   emit('groupEdit', record)
 }
 
@@ -424,21 +448,38 @@ const getGroupActive = () => {
   return groupActive.value
 }
 
-const onHorizontalScroll = (e) => {
-  horizontalScrollLeft.value = scrollBarRef.value.scrollLeft
+const onHorizontalScroll = (e: Event) => {
+  horizontalScrollLeft.value = (e.target as HTMLElement).scrollLeft
 }
 
+// VirtualTable 滚动事件
+const onTableScroll = (e: Event) => {
+  const target = e.target as HTMLElement
+  horizontalScrollLeft.value = target.scrollLeft
+
+  // 同步滚动条
+  if (scrollBarRef.value && scrollBarRef.value.scrollLeft !== target.scrollLeft) {
+    scrollBarRef.value.scrollLeft = target.scrollLeft
+  }
+}
+
+// VirtualTable 滚动到底部事件
+const onScrollDown = () => {
+  emit('scrollDown')
+}
+
+// 监听错误变化
 watch(() => fieldsErrMap.value, (errorMap) => {
   fieldsGroupError.value = {}
 
   if (props.openGroup) {
     const _errorObj = errorMap
-    const groupErrorMap = {}
+    const groupErrorMap: Record<string, any[]> = {}
 
     Object.keys(_errorObj).forEach(errorKey => {
       const [index] = errorKey.split('-')
-      const dataSourceItem = _dataSource.value[index]
-      const groupId = dataSourceItem.expands?.groupId
+      const dataSourceItem = _dataSource.value[parseInt(index)]
+      const groupId = dataSourceItem?.expands?.groupId
 
       const groupError = groupErrorMap[groupId]
 
@@ -459,10 +500,10 @@ watch(() => fieldsErrMap.value, (errorMap) => {
 
     fieldsGroupError.value = groupErrorMap
   }
-}, {deep: true})
+}, { deep: true })
 
 watch(() => scrollWidth.value, () => {
-  onResize({width: tableStyle.width})
+  onResize({ width: tableStyle.width as number })
 })
 
 watch(() => [JSON.stringify(props.columns), tableStyle.width], () => {
@@ -470,9 +511,7 @@ watch(() => [JSON.stringify(props.columns), tableStyle.width], () => {
 })
 
 useFormContext({
-  dataSource: computed(() => {
-    return props.dataSource
-  }),
+  dataSource: computed(() => props.dataSource),
   errorMap,
   rules,
   addField,

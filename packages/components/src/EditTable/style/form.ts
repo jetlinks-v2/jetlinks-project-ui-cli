@@ -5,8 +5,8 @@ export const genEditTableFormItemStyle = (config: any): CSSObject => {
   return {
     ['.jetlinks-table-form-error-target']: {
       position: 'absolute',
-      right: '2px',
-      top: '-9px',
+      right: '0',
+      top: '0',
       border: '16px solid transparent',
       borderTopColor: token.colorError,
       borderRightWidth: 0,

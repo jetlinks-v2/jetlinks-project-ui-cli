@@ -1,4 +1,4 @@
-import { provide, inject, computed } from 'vue'
+import { provide, inject, computed, type Ref, type ComputedRef } from 'vue'
 import {
     RIGHT_MENU,
     TABLE_DATA_SOURCE,
@@ -9,27 +9,45 @@ import {
     TABLE_TOOL,
     TABLE_GROUP_OPTIONS,
     TABLE_FORM_ITEM_ERROR,
-    TABLE_GROUP_ACTIVE, FULL_SCREEN
+    TABLE_GROUP_ACTIVE,
+    FULL_SCREEN
 } from "./consts";
 
-type FiledExpose = {
+interface FieldExpose {
+    fieldName: string | number | undefined
+    eventKey: string
+    names: string | (string | number)[]
+    validateRules: () => Promise<any>
+    showErrorTip: (msg: string) => void
+}
 
+export interface FormContext {
+    addField?: (key: string, field: FieldExpose) => void
+    removeField?: (key: string) => void
+    dataSource?: ComputedRef<any[]>
+    rules?: Ref<Record<string, any>>
+    validateItem?: (data: Record<string, any>, index: number) => Promise<any>
+    removeFieldError?: (key: string) => void
+    addFieldError?: (key: string, message: string) => void
+    errorMap?: Ref<Record<string, any>>
 }
 
 const FormContextKey = 'form-context'
-export const useFormContext = (options: Record<string, any>) => {
+
+export const useFormContext = (options: FormContext) => {
     provide(FormContextKey, options)
 }
 
-export const useInjectForm = () => {
+export const useInjectForm = (): FormContext => {
     return inject(FormContextKey, {
-        addField: (key: string, field: FiledExpose) => {},
+        addField: () => {},
+        removeField: () => {},
         dataSource: computed(() => []),
-        rules: computed(() => undefined),
+        rules: computed(() => undefined) as unknown as Ref<Record<string, any>>,
     })
 }
 
-export const useInjectError = () => inject(TABLE_ERROR)
+export const useInjectError = () => inject<Ref<Record<string, string>>>(TABLE_ERROR)
 
 export const useTableWrapper = () => inject(TABLE_WRAPPER)
 
@@ -41,11 +59,12 @@ export const useTableDataSource = () => inject(TABLE_DATA_SOURCE, [])
 
 export const useTableOpenGroup = () => inject(TABLE_OPEN_GROUP, false)
 
-export const useTableTool = () => inject(TABLE_TOOL, false)
+export const useTableTool = () => inject(TABLE_TOOL, {} as any)
 
 export const useGroupOptions = () => inject(TABLE_GROUP_OPTIONS, [])
 
 export const useFormItemError = () => inject(TABLE_FORM_ITEM_ERROR)
+
 export const useGroupActive = () => inject(TABLE_GROUP_ACTIVE)
 
 export const useTableFullScreen = () => inject(FULL_SCREEN)

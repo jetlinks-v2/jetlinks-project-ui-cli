@@ -21,6 +21,7 @@ export const genTableStyle = (config: any): CSSObject => {
         '.jetlinks-edit-table-header': {
           overflow: 'hidden',
           width: '100%',
+          position:'relative'
         },
         '.jetlinks-edit-table-body': {
           backgroundColor: '#fff',
@@ -41,7 +42,7 @@ export const genTableStyle = (config: any): CSSObject => {
             height: '100%',
             overflowX: 'scroll',
           }
-        } 
+        }
       }
     },
   }

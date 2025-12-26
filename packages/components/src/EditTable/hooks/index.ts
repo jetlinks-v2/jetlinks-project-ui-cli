@@ -1,4 +1,4 @@
-import { provide, inject, computed } from 'vue'
+import { provide, inject, computed, type Ref, type ComputedRef } from 'vue'
 import {
   RIGHT_MENU,
   TABLE_DATA_SOURCE,
@@ -14,35 +14,48 @@ export * from './useResizeObserver'
 export * from './useValidate'
 export * from './useGroup'
 
-type FiledExpose = {
+interface FieldExpose {
+  fieldName: string | number | undefined
+  eventKey: string
+  names: string | (string | number)[]
+  validateRules: () => Promise<any>
+  showErrorTip: (msg: string) => void
+}
 
+interface FormContext {
+  addField?: (key: string, field: FieldExpose) => void
+  removeField?: (key: string) => void
+  dataSource?: ComputedRef<any[]>
+  rules?: Ref<Record<string, any>>
+  validateItem?: (data: Record<string, any>, index: number) => Promise<any>
+  removeFieldError?: (key: string) => void
+  addFieldError?: (key: string, message: string) => void
 }
 
 const FormContextKey = 'form-context'
-export const useFormContext = (options: Record<string, any>) => {
+
+export const useFormContext = (options: FormContext) => {
   provide(FormContextKey, options)
 }
 
-export const useInjectForm = () => {
+export const useInjectForm = (): FormContext => {
   return inject(FormContextKey, {
-    addField: (key: string, field: FiledExpose) => {},
+    addField: () => {},
+    removeField: () => {},
     dataSource: computed(() => []),
-    rules: computed(() => undefined),
+    rules: computed(() => undefined) as unknown as Ref<Record<string, any>>,
   })
 }
 
-export const useInjectError = () => inject(TABLE_ERROR)
+export const useInjectError = () => inject<Ref<Record<string, string>>>(TABLE_ERROR)
 
 export const useTableWrapper = () => inject(TABLE_WRAPPER)
 
 export const useRightMenuContext = () => inject(RIGHT_MENU)
 
-
 export const useTableDataSource = () => inject(TABLE_DATA_SOURCE, [])
 
-
-export const useTableTool = () => inject(TABLE_TOOL, false)
-
+export const useTableTool = () => inject(TABLE_TOOL, {} as any)
 
 export const useFormItemError = () => inject(TABLE_FORM_ITEM_ERROR)
 
