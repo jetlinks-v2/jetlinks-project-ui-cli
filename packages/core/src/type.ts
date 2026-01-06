@@ -1,7 +1,14 @@
 import type {AxiosError, AxiosResponse, InternalAxiosRequestConfig} from "axios";
 
+export interface AxiosResponseRewrite<T = any>
+  extends AxiosResponse<T, any> {
+  result: T
+  success: boolean
+}
+
+
 export interface Options {
-  tokenExpiration: (err?: AxiosError<any>, response?: AxiosResponse) => void
+  tokenExpiration: (err?: AxiosError<any>, response?: AxiosResponseRewrite) => void
   handleReconnect: () => Promise<any>
   filter_url?: Array<string>
   code?: number
@@ -16,7 +23,7 @@ export interface Options {
    * response处理函数
    * @param response AxiosResponse实例
    */
-  handleResponse?: (response: AxiosResponse) => void
+  handleResponse?: (response: AxiosResponseRewrite) => void
   /**
    * 错误处理函数
    * @param msg 错误消息
@@ -30,15 +37,17 @@ export interface Options {
 
 export interface ExpandRequestConfig extends InternalAxiosRequestConfig {
   __requestKey?: string
+  _retry?: boolean
 }
 
-export interface ExpandAxiosResponse extends AxiosResponse {
+export interface ExpandAxiosResponse<T = any> extends AxiosResponseRewrite<T> {
   config: ExpandRequestConfig
   message: string
 }
 
-export interface ExpandAxiosError<T> extends AxiosError<T> {
-  response: ExpandAxiosResponse
+export interface ExpandAxiosError<T = any> extends Omit<AxiosError<T>, 'config'> {
+  config?: ExpandRequestConfig
+  response?: ExpandAxiosResponse<T>
 }
 
 export interface PageResult<T> {
