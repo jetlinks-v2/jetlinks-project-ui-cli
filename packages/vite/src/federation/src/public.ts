@@ -13,7 +13,7 @@
 // SPDX-License-Identifier: MulanPSL-2.0
 // *****************************************************************************
 
-import type { ConfigTypeSet, RemotesConfig } from 'types'
+import type { ConfigTypeSet, RemotesConfig } from '../types'
 import type { ResolvedConfig } from 'vite'
 import { Remote } from './utils'
 // for generateBundle Hook replace

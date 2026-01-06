@@ -1,26 +1,13 @@
-// *****************************************************************************
-// Copyright (C) 2022 Origin.js and others.
-//
-// This program and the accompanying materials are licensed under Mulan PSL v2.
-// You can use this software according to the terms and conditions of the Mulan PSL v2.
-// You may obtain a copy of Mulan PSL v2 at:
-//          http://license.coscl.org.cn/MulanPSL2
-// THIS SOFTWARE IS PROVIDED ON AN "AS IS" BASIS, WITHOUT WARRANTIES OF ANY KIND,
-// EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO NON-INFRINGEMENT,
-// MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
-// See the Mulan PSL v2 for more details.
-//
-// SPDX-License-Identifier: MulanPSL-2.0
-// *****************************************************************************
-
 import type { PluginHooks } from '../../types/pluginHooks'
 import { NAME_CHAR_REG, parseSharedOptions, removeNonRegLetter } from '../utils'
 import { parsedOptions } from '../public'
-import type { ConfigTypeSet, VitePluginFederationOptions } from 'types'
+import type { ConfigTypeSet, VitePluginFederationOptions } from '../../types'
 import { basename, join, resolve } from 'path'
 import { readdirSync, readFileSync, statSync } from 'fs'
-const sharedFilePathReg = /__federation_shared_(.+)-.{8}\.js$/
+// @ts-ignore
 import federation_fn_import from './federation_fn_import.js?raw'
+
+const sharedFilePathReg = /__federation_shared_(.+)-.{8}\.js$/
 
 export function prodSharedPlugin(
   options: VitePluginFederationOptions
@@ -51,8 +38,9 @@ export function prodSharedPlugin(
       // 检测冲突模块
       if (typeof output.manualChunks === 'object') {
         Object.values(output.manualChunks).flat().forEach(mod => {
+          // @ts-ignore
           if (sharedModuleNames.some(shared => mod.includes(shared) || mod === shared)) {
-            conflictModules.add(mod)
+            conflictModules.add(mod as string)
           }
         })
       }
@@ -72,6 +60,7 @@ export function prodSharedPlugin(
   function adaptSharedToManualChunks(conflictModules: Set<string>) {
     // 为冲突模块调整 federation 共享策略
     parsedOptions.prodShared.forEach((sharedItem, index) => {
+      // @ts-ignore
       const [moduleName, config] = sharedItem
 
       if (conflictModules.has(moduleName)) {

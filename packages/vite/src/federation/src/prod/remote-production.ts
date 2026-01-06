@@ -17,12 +17,12 @@ import { walk } from 'estree-walker'
 import MagicString from 'magic-string'
 import path from 'node:path'
 import type {
-  AcornNode,
+  ProgramNode,
   TransformPluginContext,
   OutputAsset,
   OutputChunk
 } from 'rollup'
-import type { ConfigTypeSet, VitePluginFederationOptions } from 'types'
+import type { ConfigTypeSet, VitePluginFederationOptions } from '../../types'
 import type { PluginHooks } from '../../types/pluginHooks'
 import {
   builderInfo,
@@ -322,7 +322,7 @@ export function prodRemotePlugin(
       }
 
       if (builderInfo.isHost || builderInfo.isShared) {
-        let ast: AcornNode | null = null
+        let ast: ProgramNode | null = null
         try {
           ast = this.parse(code)
         } catch (err) {

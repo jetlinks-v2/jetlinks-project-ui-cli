@@ -32,8 +32,8 @@ import {
   SHARED,
   viteConfigResolved
 } from '../public'
-import type { AcornNode, OutputAsset, OutputChunk } from 'rollup'
-import type { VitePluginFederationOptions } from 'types'
+import type { ProgramNode, OutputAsset, OutputChunk } from 'rollup'
+import type { VitePluginFederationOptions } from '../../types'
 import type { PluginHooks } from '../../types/pluginHooks'
 import MagicString from 'magic-string'
 import { walk } from 'estree-walker'
@@ -170,10 +170,9 @@ export function prodExposePlugin(
     buildStart() {
       // if we don't expose any modules, there is no need to emit file
       if (parsedOptions.prodExpose.length > 0) {
+        const assetsDir = builderInfo.assetsDir
         this.emitFile({
-          fileName: `${
-            builderInfo.assetsDir ? builderInfo.assetsDir + '/' : ''
-          }${options.filename}`,
+          fileName: assetsDir ? `${assetsDir}/${options.filename}` : options.filename ,
           type: 'chunk',
           id: `__remoteEntryHelper__${options.filename}`,
           preserveSignature: 'strict'
@@ -204,7 +203,7 @@ export function prodExposePlugin(
           )
           .replace(
             '__VITE_ASSETS_DIR_PLACEHOLDER__',
-            `'${viteConfigResolved.config?.build?.assetsDir || 'assets'}'`
+            `'${builderInfo.assetsDir || ''}'`
           )
 
         const filepathMap = new Map()
@@ -301,7 +300,7 @@ export function prodExposePlugin(
         }
 
         // remove all __f__dynamic_loading_css__ after replace
-        let ast: AcornNode | null = null
+        let ast: ProgramNode | null = null
         try {
           ast = this.parse(remoteEntryChunk.code)
         } catch (err) {

@@ -19,7 +19,7 @@ import { walk } from 'estree-walker'
 import MagicString from 'magic-string'
 import { readFileSync } from 'fs'
 import { posix } from 'path'
-import type { AcornNode, TransformPluginContext } from 'rollup'
+import type { ProgramNode, TransformPluginContext } from 'rollup'
 import type { ViteDevServer } from '../../types/viteDevServer'
 import {
   createRemotesMap,
@@ -226,7 +226,7 @@ export {__federation_method_ensure, __federation_method_getRemote , __federation
         return
       }
 
-      let ast: AcornNode | null = null
+      let ast: ProgramNode | null = null
       try {
         ast = this.parse(code)
       } catch (err) {

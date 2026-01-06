@@ -8,7 +8,7 @@ export { VitePluginFederationVersion } from '../src/public'
 export * from '../src/runtime/dynamic-remote'
 export default function federation(options: VitePluginFederationOptions): Plugin
 
-declare interface VitePluginFederationOptions {
+export interface VitePluginFederationOptions {
   /**
    * Modules that should be exposed by this container. When provided, property name is used as public name, otherwise public name is automatically inferred from request.
    */
@@ -93,11 +93,11 @@ declare interface VitePluginFederationOptions {
   isHost?: boolean
 }
 
-type Exposes = (string | ExposesObject)[] | ExposesObject
+export type Exposes = (string | ExposesObject)[] | ExposesObject
 
-type Remotes = (string | RemotesObject)[] | RemotesObject
+export type Remotes = (string | RemotesObject)[] | RemotesObject
 
-type Shared = (string | SharedObject)[] | SharedObject
+export type Shared = (string | SharedObject)[] | SharedObject
 
 export type ConfigTypeSet = ExposesConfig | RemotesConfig | SharedConfig
 
@@ -222,14 +222,14 @@ declare interface LibraryCustomUmdObject {
 /**
  * Container locations from which modules should be resolved and loaded at runtime. Property names are used as request scopes.
  */
-declare interface RemotesObject {
+export interface RemotesObject {
   [index: string]: string | RemotesConfig | string[] | Promise<any>
 }
 
 /**
  * Advanced configuration for container locations from which modules should be resolved and loaded at runtime.
  */
-declare interface RemotesConfig {
+export interface RemotesConfig {
   /**
    * Container locations from which modules should be resolved and loaded at runtime.
    */
@@ -259,14 +259,14 @@ declare interface RemotesConfig {
 /**
  * Modules that should be shared in the share scope. Property names are used to match requested modules in this compilation. Relative requests are resolved, module requests are matched unresolved, absolute paths will match resolved requests. A trailing slash will match all requests with this prefix. In this case shareKey must also have a trailing slash.
  */
-declare interface SharedObject {
+export interface SharedObject {
   [index: string]: string | SharedConfig
 }
 
 /**
  * Advanced configuration for modules that should be shared in the share scope.
  */
-declare interface SharedConfig {
+export interface SharedConfig {
   /**
    * Include the provided and fallback module directly instead behind an async request. This allows to use this shared module in initial load too. All possible shared modules need to be eager too.
    */

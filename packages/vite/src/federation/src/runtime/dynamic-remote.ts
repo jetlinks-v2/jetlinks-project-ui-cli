@@ -1,22 +1,3 @@
-// *****************************************************************************
-// Copyright (C) 2022 Origin.js and others.
-//
-// This program and the accompanying materials are licensed under Mulan PSL v2.
-// You can use this software according to the terms and conditions of the Mulan PSL v2.
-// You may obtain a copy of Mulan PSL v2 at:
-//          http://license.coscl.org.cn/MulanPSL2
-// THIS SOFTWARE IS PROVIDED ON AN "AS IS" BASIS, WITHOUT WARRANTIES OF ANY KIND,
-// EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO NON-INFRINGEMENT,
-// MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
-// See the Mulan PSL v2 for more details.
-//
-// SPDX-License-Identifier: MulanPSL-2.0
-// *****************************************************************************
-
-/**
- * Dynamic remote loader for runtime
- * Provides utilities to dynamically load and manage remote components at runtime
- */
 
 export interface RemoteOptions {
   url: string | (() => string | Promise<string>);
@@ -52,6 +33,7 @@ export class DynamicRemoteManager {
       const federationModule = await import('virtual:__federation__');
       const { __federation_method_add_origin_setRemote } = federationModule;
 
+      // @ts-ignore
       await __federation_method_add_origin_setRemote(name, config.url, {
         format: config.format || 'esm',
         from: config.from || 'vite',
@@ -184,7 +166,9 @@ export async function loadDynamicRemoteComponent(config: RemoteComponentConfig):
  */
 export function useDynamicRemote(remoteName: string, componentName: string) {
   const loading = ref(true);
+  // @ts-ignore
   const error = ref<Error | null>(null);
+  // @ts-ignore
   const component = ref<any>(null);
 
   const loadComponent = async () => {

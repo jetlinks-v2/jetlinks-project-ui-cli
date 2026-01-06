@@ -21,7 +21,7 @@ import type {
   ResolvedConfig
 } from 'vite'
 import virtual from '@rollup/plugin-virtual'
-import { dirname } from 'path'
+import { dirname, isAbsolute, relative, resolve } from 'path'
 import { prodRemotePlugin } from './prod/remote-production'
 import type { VitePluginFederationOptions } from '../types'
 import { builderInfo, DEFAULT_ENTRY_FILENAME, parsedOptions } from './public'
@@ -32,6 +32,20 @@ import { prodExposePlugin } from './prod/expose-production'
 import { devSharedPlugin } from './dev/shared-development'
 import { devRemotePlugin } from './dev/remote-development'
 import { devExposePlugin } from './dev/expose-development'
+
+const normalizeAssetsDir = (config?: UserConfig) => {
+  const configured = config?.build?.assetsDir ?? 'assets'
+  if (!configured) return ''
+  if (!isAbsolute(configured)) return configured
+  const root = config?.root ? resolve(config.root) : process.cwd()
+  const resolvedOutDir = config?.build?.outDir
+    ? (isAbsolute(config.build.outDir)
+      ? config.build.outDir
+      : resolve(root, config.build.outDir))
+    : resolve(root, 'dist')
+  const normalized = relative(resolvedOutDir, configured).replace(/\\/g, '/')
+  return normalized.startsWith('..') ? '' : normalized || 'assets'
+}
 
 export { VitePluginFederationVersion } from './public'
 export * from './runtime/dynamic-remote'
@@ -102,6 +116,7 @@ export default function federation(
         _options.external = [_options.external as string]
       }
       for (const pluginHook of pluginList) {
+        // @ts-ignore
         pluginHook.options?.call(this, _options)
       }
       return _options
@@ -111,30 +126,35 @@ export default function federation(
       registerPlugins(options.mode, env.command)
       registerCount++
       for (const pluginHook of pluginList) {
+        // @ts-ignore
         pluginHook.config?.call(this, config, env)
       }
 
       // only run when builder is vite,rollup doesnt has hook named `config`
       builderInfo.builder = 'vite'
-      builderInfo.assetsDir = config?.build?.assetsDir ?? 'assets'
+      builderInfo.assetsDir = normalizeAssetsDir(config) ?? 'assets'
     },
     configureServer(server: ViteDevServer) {
       for (const pluginHook of pluginList) {
+        // @ts-ignore
         pluginHook.configureServer?.call(this, server)
       }
     },
     configResolved(config: ResolvedConfig) {
       for (const pluginHook of pluginList) {
+        // @ts-ignore
         pluginHook.configResolved?.call(this, config)
       }
     },
     buildStart(inputOptions) {
       for (const pluginHook of pluginList) {
+        // @ts-ignore
         pluginHook.buildStart?.call(this, inputOptions)
       }
     },
 
     async resolveId(...args) {
+      // @ts-ignore
       const v = virtualMod.resolveId.call(this, ...args)
       if (v) {
         return v
@@ -164,6 +184,7 @@ export default function federation(
     },
 
     load(...args) {
+      // @ts-ignore
       const v = virtualMod.load.call(this, ...args)
       if (v) {
         return v
@@ -173,6 +194,7 @@ export default function federation(
 
     transform(code: string, id: string) {
       for (const pluginHook of pluginList) {
+        // @ts-ignore
         const result = pluginHook.transform?.call(this, code, id)
         if (result) {
           return result
@@ -182,12 +204,14 @@ export default function federation(
     },
     moduleParsed(moduleInfo: ModuleInfo): void {
       for (const pluginHook of pluginList) {
+        // @ts-ignore
         pluginHook.moduleParsed?.call(this, moduleInfo)
       }
     },
 
     outputOptions(outputOptions) {
       for (const pluginHook of pluginList) {
+        // @ts-ignore
         pluginHook.outputOptions?.call(this, outputOptions)
       }
       return outputOptions
@@ -195,6 +219,7 @@ export default function federation(
 
     renderChunk(code, chunkInfo, _options) {
       for (const pluginHook of pluginList) {
+        // @ts-ignore
         const result = pluginHook.renderChunk?.call(
           this,
           code,
@@ -210,6 +235,7 @@ export default function federation(
 
     generateBundle: function (_options, bundle, isWrite) {
       for (const pluginHook of pluginList) {
+        // @ts-ignore
         pluginHook.generateBundle?.call(this, _options, bundle, isWrite)
       }
     }

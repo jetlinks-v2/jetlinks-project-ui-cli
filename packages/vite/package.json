@@ -1,9 +1,10 @@
 {
   "name": "@jetlinks-web/vite",
-  "version": "2.1.11",
+  "version": "2.1.13",
   "description": "",
   "main": "dist/index.js",
   "module": "dist/index.mjs",
+  "types": "dist/index.d.ts",
   "scripts": {
     "compile-es": "vite build"
   },
@@ -38,7 +39,8 @@
     "magic-string": "^0.30.17",
     "rollup": "^4.48.1",
     "typescript": "^4.9.4",
-    "vite": "^7.0.0"
+    "vite": "^7.0.0",
+    "vite-plugin-dts": "^4.5.4"
   },
   "publishConfig": {
     "registry": "https://registry.npmjs.org/",
