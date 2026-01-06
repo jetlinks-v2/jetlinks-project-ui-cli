@@ -1,4 +1,4 @@
-import VirtualTable from './VirtualTable.vue'
+import VirtualTable from './Table'
 import type { App } from 'vue';
 
 VirtualTable.install = function (app: App) {
