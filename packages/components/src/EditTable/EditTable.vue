@@ -8,69 +8,28 @@
       <slot name="extra" :isFullscreen="isFullscreen" :fullScreenToggle="toggle"/>
     </div>
     <div class="jetlinks-edit-table">
-<!--      <Header-->
-<!--        ref="headerRef"-->
-<!--        :columns="myColumns"-->
-<!--        :searchColumns="searchColumns"-->
-<!--        :style="{width: tableStyle.width, transform: `translateX(-${horizontalScrollLeft}px)`}"-->
-<!--        :scrollWidth="scrollWidth"-->
-<!--      />-->
-<!--      <div class="jetlinks-edit-table-body" :style="{width: tableStyle.width, height: `${height}px`}">-->
+
       <div class="jetlinks-edit-table-body">
         <VirtualTable
-          ref="virtualTableRef"
-          :dataSource="bodyDataSource"
-          :columns="tableColumns"
-          :height="height"
-          :rowKey="rowKey"
-          :rowSelection="rowSelection"
-          :treeData="false"
-          :rowHeight="cellHeight"
-          :scroll="{x: '100%'}"
-          @scroll="onTableScroll"
-          @scrollEnd="onScrollDown"
+          v-bind="props"
+          :data-source="bodyDataSource"
+          :columns="newColumns"
+          :scroll="scroll"
+          :pagination="false"
+          :virtual="{
+            itemHeight: props.cellHeight,
+            overscan: 1,
+            threshold: props.height / props.cellHeight
+          }"
         >
-          <template #bodyCell="{ text, record, index, column }">
-            {{ column.dataIndex }}
-            <template v-if="column.dataIndex === '__serial'">
-              <slot name="serial" :record="record" :index="record.__dataIndex" :column="column">
-                {{ record.__serial }}
-              </slot>
-            </template>
-            <template v-else>
-              <slot :name="column.dataIndex" :record="record" :index="record.__dataIndex" :column="column">
-                <CellRender
-                  v-if="column.customRender"
-                  :record="record"
-                  :value="record[column.dataIndex]"
-                  :index="record.__dataIndex"
-                  :render-fn="column.customRender"
-                />
-                <template v-else>
-                  {{ record[column.dataIndex] }}
-                </template>
-              </slot>
-            </template>
+          <template #bodyCell="{ column, record }">
+            <slot :name="column.dataIndex" :column="column" :record="record" />
           </template>
+
         </VirtualTable>
         <div class="readonly-mask" v-if="readonly"></div>
         <slot name="bodyExtra"></slot>
       </div>
-<!--      <div class="jetlinks-table-horizontal-scroll" v-if="showScroll">-->
-<!--        <div-->
-<!--          class="jetlinks-table-horizontal-scroll-bar"-->
-<!--          ref="scrollBarRef"-->
-<!--          :style="{-->
-<!--            width: 'calc(100% - 15px)',-->
-<!--            height: '100%',-->
-<!--            overflowX: 'scroll'-->
-<!--          }"-->
-<!--          @scroll="onHorizontalScroll"-->
-<!--        >-->
-<!--          <div :style="{ minWidth: horizontalScrollWidth + 'px', maxWidth: horizontalScrollWidth + 'px', height: '100%'}"> </div>-->
-<!--        </div>-->
-<!--        <div style="width: 15px; height: 100%; overflow-x: hidden;"></div>-->
-<!--      </div>-->
       <Group
         v-if="dataSource.length && openGroup"
         v-model:activeKey="groupActive.value"
@@ -99,18 +58,15 @@ import {
   TABLE_TOOL,
   TABLE_WRAPPER
 } from './consts'
-import { handleColumnsWidth } from './utils'
-import { useGroup, useResizeObserver, useValidate } from './hooks'
+import { useGroup, useValidate } from './hooks'
 import { tableProps } from 'ant-design-vue/lib/table'
 import { useFormContext } from './context'
 import { useFullscreen } from '@vueuse/core'
-import { provide, useSlots, ref, reactive, computed, watch, nextTick } from 'vue'
+import { provide, useSlots, ref, reactive, computed, watch } from 'vue'
 import { bodyProps } from "./props"
-import { findIndex, get, sortBy, cloneDeep } from 'lodash-es'
-import Header from './Header.vue'
+import { findIndex, get, sortBy } from 'lodash-es'
 import Group from './group.vue'
-import CellRender from './CellRender.vue'
-import VirtualTable from '../VirtualTable/VirtualTable.vue'
+import VirtualTable from '../VirtualTable/Table'
 import { useLocaleReceiver } from "../LocaleReciver"
 import useEditTableStyle from './style'
 
@@ -131,7 +87,7 @@ const props = defineProps({
   serial: {
     type: [Object, Boolean],
     default: () => ({
-      width: 66,
+      width: 70,
       title: ''
     })
   },
@@ -148,20 +104,12 @@ const props = defineProps({
 const prefixCls = computed(() => 'jetlinks-edit-table')
 const [wrapSSR, hashId] = useEditTableStyle(prefixCls)
 const slots = useSlots()
-const myColumns = ref<any[]>([])
 const tableWrapper = ref()
 const virtualTableRef = ref()
-const headerRef = ref()
-const scrollBarRef = ref()
-const tableStyle = reactive({
-  width: '100%' as string | number,
-  height: props.height
-})
-const showScroll = ref(false)
-const horizontalScrollWidth = ref(0)
 const horizontalScrollLeft = ref(0)
 
-const fields: Record<string, any> = {}
+// 使用 Map 管理字段，性能优于普通对象
+const fields = new Map<string, any>()
 const defaultGroupId = 'group_1'
 
 const fieldsErrMap = ref<Record<string, string>>({})
@@ -244,16 +192,17 @@ const bodyDataSource = computed(() => {
   return _dataSource.value
 })
 
-// 为 VirtualTable 准备的列配置
-const tableColumns = computed(() => {
-  return myColumns.value.map(col => ({
-    ...col,
-    // 移除 left 属性，VirtualTable 不需要
-    left: undefined
-  }))
-})
+const scroll = computed(() => {
+  const _scroll = {
+    y: props.height
+  }
 
-useResizeObserver(tableWrapper, onResize)
+  if (props.scroll?.x) {
+    _scroll.x = props.scroll.x
+  }
+
+  return _scroll
+})
 
 const { isFullscreen, toggle } = useFullscreen(tableWrapper)
 
@@ -343,19 +292,22 @@ provide(TABLE_GROUP_ACTIVE, groupActive)
 provide(TABLE_H_SCROLL, horizontalScrollLeft)
 
 const addField = (key: string, field: any) => {
-  fields[key] = field
+  fields.set(key, field)
 }
 
 const removeField = (key: string) => {
-  delete fields[key]
+  fields.delete(key)
 }
 
 function findField(index: number, name: string) {
-  const fieldId = Object.keys(fields).find(key => {
-    const { names } = fields[key]
-    return names[0] === index && names[1] === name
-  })
-  return fields[fieldId!]
+  // 使用 Map 的迭代器，性能更好
+  for (const [key, field] of fields.entries()) {
+    const { names } = field
+    if (names[0] === index && names[1] === name) {
+      return field
+    }
+  }
+  return undefined
 }
 
 function removeFieldError(key: string) {
@@ -370,41 +322,30 @@ const scrollWidth = computed(() => {
   return (props.dataSource.length * props.cellHeight) > props.height ? scrollDefaultWidth.value : 0
 })
 
-const handleColumns = () => {
-  let newColumns = [...props.columns] as any[]
+const newColumns = computed(() => {
+  const _columns = []
+
   if (props.serial) {
     const serial = {
       dataIndex: '__serial',
       title: (props.serial as any).title || contextLocale.value.serial,
       customRender: (customData: any) => {
+        const record = customData.record as Record<string, any>
         if ((props.serial as any)?.customRender) {
           return (props.serial as any)?.customRender(customData)
         }
-        return customData.index + 1
+        return record.__serial
       },
       width: (props.serial as any)?.width,
       fixed: 'left'
     }
-    newColumns = [serial, ...props.columns]
+    _columns.push(serial)
   }
 
-  const width = typeof tableStyle.width === 'number' ? tableStyle.width : parseFloat(tableStyle.width as string) || 0
-  myColumns.value = handleColumnsWidth(newColumns, width - scrollWidth.value)
+  _columns.push(...props.columns)
 
-  horizontalScrollWidth.value = myColumns.value.reduce((prev: number, next: any) => {
-    prev += next.width
-    return prev
-  }, 0)
-
-  if (horizontalScrollWidth.value > width) {
-    showScroll.value = true
-  }
-}
-
-function onResize({ width = 0 }) {
-  tableStyle.width = width || '100%'
-  handleColumns()
-}
+  return _columns
+})
 
 function rightMenu(menuType: string, record: any, copyValue: any) {
   emit('rightMenuClick', menuType, record, copyValue)
@@ -448,21 +389,6 @@ const getGroupActive = () => {
   return groupActive.value
 }
 
-const onHorizontalScroll = (e: Event) => {
-  horizontalScrollLeft.value = (e.target as HTMLElement).scrollLeft
-}
-
-// VirtualTable 滚动事件
-const onTableScroll = (e: Event) => {
-  const target = e.target as HTMLElement
-  horizontalScrollLeft.value = target.scrollLeft
-
-  // 同步滚动条
-  if (scrollBarRef.value && scrollBarRef.value.scrollLeft !== target.scrollLeft) {
-    scrollBarRef.value.scrollLeft = target.scrollLeft
-  }
-}
-
 // VirtualTable 滚动到底部事件
 const onScrollDown = () => {
   emit('scrollDown')
@@ -501,14 +427,6 @@ watch(() => fieldsErrMap.value, (errorMap) => {
     fieldsGroupError.value = groupErrorMap
   }
 }, { deep: true })
-
-watch(() => scrollWidth.value, () => {
-  onResize({ width: tableStyle.width as number })
-})
-
-watch(() => [JSON.stringify(props.columns), tableStyle.width], () => {
-  handleColumns()
-})
 
 useFormContext({
   dataSource: computed(() => props.dataSource),

@@ -13,6 +13,7 @@ import {
 export * from './useResizeObserver'
 export * from './useValidate'
 export * from './useGroup'
+export * from './useVirtualTreeTable'
 
 interface FieldExpose {
   fieldName: string | number | undefined

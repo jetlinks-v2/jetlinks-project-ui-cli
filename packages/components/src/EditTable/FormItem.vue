@@ -1,9 +1,10 @@
 <template>
   <a-tooltip
+    v-if="errorMap.visible"
     color="#ffffff"
     :get-popup-container="popContainer"
     :arrowPointAtCenter="true"
-    :open="errorMap.visible"
+    open
   >
     <template #title>
       <span style="color: #1d2129">{{ errorMap.message }}</span>
@@ -16,13 +17,14 @@
 </template>
 
 <script setup lang="ts">
-import { onBeforeUnmount, computed, reactive, watch, provide, toRaw } from "vue";
+import { onBeforeUnmount, computed, reactive, watch, provide, toRaw, nextTick, onMounted } from "vue";
 import { get, isArray, set, cloneDeep } from 'lodash-es'
 import { useProvideFormItemContext } from 'ant-design-vue/lib/form/FormItemContext'
 import Schema from 'async-validator'
 import { useInjectError, useInjectForm } from "./hooks";
 import { TABLE_FORM_ITEM_ERROR } from "./consts";
 import genEditTableStyle from './style'
+import { fieldPool } from './fieldPool'
 
 defineOptions({
   name: 'JEditTableFormItem'
@@ -52,40 +54,64 @@ const globalErrorMessage = useInjectError()
 
 let hideTimer: ReturnType<typeof setTimeout> | null = null
 
+// 缓存字段路径，避免频繁的数组操作
+let cachedFieldPath: (string | number)[] | null = null
+let cachedName: string | (string | number)[] | undefined = undefined
+
 // 计算字段路径
 const fieldPath = computed(() => {
   if (!props.name) return []
-  return isArray(props.name) ? props.name : [props.name]
+  // 如果 name 没变，返回缓存
+  if (cachedName === props.name && cachedFieldPath) {
+    return cachedFieldPath
+  }
+  cachedName = props.name
+  cachedFieldPath = isArray(props.name) ? props.name : [props.name]
+  return cachedFieldPath
 })
 
-// 事件key，用于标识字段
-const eventKey = computed(() => {
-  return fieldPath.value.join('-')
-})
+// 事件key，用于标识字段 - 使用简单字符串拼接
+const eventKey = computed(() => fieldPath.value.join('-'))
 
 // 字段ID
 const fieldId = computed(() => {
-  const [index, ...extra] = fieldPath.value
+  const path = fieldPath.value
+  if (path.length === 0) return ''
+  const [index, ...extra] = path
   return `${index}-${extra.join('.')}`
 })
 
 // 字段名（最后一个路径部分）
 const fieldName = computed(() => {
-  return [...fieldPath.value].pop()
+  const path = fieldPath.value
+  return path.length > 0 ? path[path.length - 1] : undefined
 })
 
 // 行索引
 const rowIndex = computed(() => {
-  if (fieldPath.value.length > 0) {
-    return Number(fieldPath.value[0])
-  }
-  return 0
+  const path = fieldPath.value
+  return path.length > 0 ? Number(path[0]) : 0
 })
 
-// 字段值
+// 字段值 - 优化：避免不必要的 get 调用
 const fieldValue = computed(() => {
   if (!context.dataSource?.value || !props.name) return undefined
-  return get(context.dataSource.value, props.name)
+  const dataSource = context.dataSource.value
+  const path = fieldPath.value
+
+  // 快速路径：单层访问
+  if (path.length === 1) {
+    return dataSource[path[0] as any]
+  }
+
+  // 快速路径：双层访问（最常见的情况：dataSource[index][field]）
+  if (path.length === 2) {
+    const item = dataSource[path[0] as any]
+    return item ? item[path[1] as any] : undefined
+  }
+
+  // 深层路径：使用 lodash.get
+  return get(dataSource, props.name)
 })
 
 // 错误状态
@@ -214,22 +240,24 @@ const validateRules = () => {
 }
 
 const onFieldBlur = () => {
-  // validateRules()
+  // 改为失焦时校验，减少实时校验的性能开销
+  validateRules()
 }
 
 const onFieldChange = () => {
-  validateRules()
+  // 只触发 change 事件，不进行校验
+  // validateRules() // 移到 onBlur
   emit('change')
 }
 
-// 监听全局错误变化
-watch(() => globalErrorMessage?.value, (val) => {
-  if (val?.[eventKey.value]) {
-    showErrorTip(val[eventKey.value])
+// 监听全局错误变化 - 精确监听单个字段，避免深度遍历
+watch(() => globalErrorMessage?.value?.[eventKey.value], (errorMsg) => {
+  if (errorMsg) {
+    showErrorTip(errorMsg)
   } else {
     hideErrorTip()
   }
-}, { immediate: true, deep: true })
+}, { immediate: true })
 
 // 注册到 ant-design-vue form context
 useProvideFormItemContext({
@@ -240,22 +268,39 @@ useProvideFormItemContext({
   return get(context.dataSource?.value, props.name)
 }))
 
-// 注册字段到父组件
-watch(() => [fieldName.value, props.name], () => {
-  if (props.name) {
-    context.addField?.(eventKey.value, {
+// 注册字段到父组件 - 使用字段池复用，减少创建/销毁开销
+let isRegistered = false
+const registerField = () => {
+  if (props.name && !isRegistered) {
+    // 使用字段池获取或创建字段信息
+    const fieldInfo = fieldPool.acquire(eventKey.value, {
       fieldName: fieldName.value,
       eventKey: eventKey.value,
       names: props.name,
       validateRules,
       showErrorTip
     })
+
+    context.addField?.(eventKey.value, fieldInfo)
+    isRegistered = true
   }
-}, { immediate: true })
+}
+
+// 延迟注册，避免虚拟滚动时的同步阻塞
+onMounted(() => {
+  nextTick(() => {
+    registerField()
+  })
+})
 
 onBeforeUnmount(() => {
   hideErrorTip()
-  context.removeField?.(eventKey.value)
+  if (isRegistered) {
+    context.removeField?.(eventKey.value)
+    // 释放字段到池中，而不是销毁
+    fieldPool.release(eventKey.value)
+    isRegistered = false
+  }
 })
 
 // 暴露方法
