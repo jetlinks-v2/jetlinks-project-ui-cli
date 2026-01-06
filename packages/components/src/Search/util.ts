@@ -223,7 +223,7 @@ export const getTermOptions = (type: string, locale: any) => {
             break;
         case 'time':
         case 'date':
-            keys = ['gt', 'lt', 'gte', 'lte'];
+            keys = ['gt', 'lt', 'gte', 'lte', 'btw'];
             break;
         case 'timeRange':
         case 'rangePicker':
