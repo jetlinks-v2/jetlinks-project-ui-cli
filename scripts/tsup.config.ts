@@ -71,11 +71,5 @@ export default defineConfig([
     outDir: '../packages/utils/dist',
     external: [...(Object.keys(utilsPkg.dependencies || {})), ...external],
     ...config,
-  },
-  {
-    entry: ['../packages/vite/index.ts'],
-    outDir: '../packages/vite/dist',
-    external: [...(Object.keys(vitePkg.dependencies || {})), ...external],
-    ...config,
   }
 ])
