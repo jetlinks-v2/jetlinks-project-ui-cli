@@ -1,4 +1,4 @@
-import { defineComponent, computed, ref, h, watch, onMounted, onBeforeUnmount, nextTick, shallowRef, markRaw } from 'vue';
+import { defineComponent, computed, ref, watch, onMounted, onBeforeUnmount, nextTick, toRef, defineExpose } from 'vue';
 import type { PropType } from 'vue';
 import { Table } from 'ant-design-vue'
 import { tableProps } from 'ant-design-vue/lib/table'
@@ -244,7 +244,7 @@ export default defineComponent({
     });
 
     // 暴露方法
-    expose({
+    defineExpose({
       scrollTo: virtualScroll.scrollTo,
       scrollToIndex: virtualScroll.scrollToIndex,
       // 树形数据相关方法
