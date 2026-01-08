@@ -1,24 +1,25 @@
 <template>
   <a-tooltip
-    v-if="errorMap.visible"
+    v-if="errorState.visible"
     color="#ffffff"
     :get-popup-container="popContainer"
     :arrowPointAtCenter="true"
-    open
+    v-model:open="visible"
+    @open-change="(v) => visible = v"
   >
     <template #title>
-      <span style="color: #1d2129">{{ errorMap.message }}</span>
+      <span style="color: #1d2129">{{ errorState.message }}</span>
     </template>
-    <div v-if="errorMap.visible" :class="['jetlinks-table-form-error-target', hashId, 'hashId']"></div>
+    <div :class="['jetlinks-table-form-error-target', hashId, 'hashId']"></div>
   </a-tooltip>
-  <div :id="eventKey" style="position: relative" :class="{'jetlinks-edit-table-form-has-error': errorMap.message, [hashId]: true }">
+  <div :id="eventKey" style="position: relative" :class="{'jetlinks-edit-table-form-has-error': errorState.message, [hashId]: true }">
     <slot />
   </div>
 </template>
 
 <script setup lang="ts">
-import { onBeforeUnmount, computed, reactive, watch, provide, toRaw, nextTick, onMounted } from "vue";
-import { get, isArray, set, cloneDeep } from 'lodash-es'
+import { onBeforeUnmount, computed, shallowReactive, watch, provide, toRaw, onMounted, shallowRef, ref } from "vue";
+import { get, isArray } from 'lodash-es'
 import { useProvideFormItemContext } from 'ant-design-vue/lib/form/FormItemContext'
 import Schema from 'async-validator'
 import { useInjectError, useInjectForm } from "./hooks";
@@ -48,38 +49,25 @@ const emit = defineEmits<{
 
 const prefixCls = computed(() => 'jetlinks-edit-table')
 const [wrapSSR, hashId] = genEditTableStyle(prefixCls)
+const visible = ref(false)
 
 const context = useInjectForm()
 const globalErrorMessage = useInjectError()
 
 let hideTimer: ReturnType<typeof setTimeout> | null = null
 
-// 缓存字段路径，避免频繁的数组操作
-let cachedFieldPath: (string | number)[] | null = null
-let cachedName: string | (string | number)[] | undefined = undefined
+// 缓存 Schema 实例，避免重复创建
+let cachedSchema: Schema | null = null
+let cachedRulesHash: string | null = null
 
-// 计算字段路径
-const fieldPath = computed(() => {
+// 计算字段路径 - 简化逻辑
+const fieldPath = computed<(string | number)[]>(() => {
   if (!props.name) return []
-  // 如果 name 没变，返回缓存
-  if (cachedName === props.name && cachedFieldPath) {
-    return cachedFieldPath
-  }
-  cachedName = props.name
-  cachedFieldPath = isArray(props.name) ? props.name : [props.name]
-  return cachedFieldPath
+  return isArray(props.name) ? props.name : [props.name]
 })
 
-// 事件key，用于标识字段 - 使用简单字符串拼接
+// 事件key - 使用 shallowRef 优化
 const eventKey = computed(() => fieldPath.value.join('-'))
-
-// 字段ID
-const fieldId = computed(() => {
-  const path = fieldPath.value
-  if (path.length === 0) return ''
-  const [index, ...extra] = path
-  return `${index}-${extra.join('.')}`
-})
 
 // 字段名（最后一个路径部分）
 const fieldName = computed(() => {
@@ -93,7 +81,7 @@ const rowIndex = computed(() => {
   return path.length > 0 ? Number(path[0]) : 0
 })
 
-// 字段值 - 优化：避免不必要的 get 调用
+// 字段值 - 优化访问路径
 const fieldValue = computed(() => {
   if (!context.dataSource?.value || !props.name) return undefined
   const dataSource = context.dataSource.value
@@ -114,41 +102,39 @@ const fieldValue = computed(() => {
   return get(dataSource, props.name)
 })
 
-// 错误状态
-const errorMap = reactive({
+// 错误状态 - 使用 shallowReactive 减少响应式开销
+const errorState = shallowReactive({
   message: '',
   visible: false
 })
 
 // 向下提供错误状态
-provide(TABLE_FORM_ITEM_ERROR, errorMap)
+provide(TABLE_FORM_ITEM_ERROR, errorState)
 
-const popContainer = (e: HTMLElement) => {
-  return e
-}
+const popContainer = (e: HTMLElement) => e
 
 const removeTimer = () => {
   if (hideTimer) {
-    window.clearTimeout(hideTimer)
+    clearTimeout(hideTimer)
     hideTimer = null
   }
 }
 
 const showErrorTip = (msg: string) => {
   removeTimer()
-  errorMap.message = msg
-  errorMap.visible = true
+  errorState.message = msg
+  errorState.visible = true
 }
 
 const hideErrorTip = () => {
-  errorMap.visible = false
+  errorState.visible = false
   removeTimer()
   hideTimer = setTimeout(() => {
-    errorMap.message = ''
+    errorState.message = ''
   }, 300)
 }
 
-// 获取当前字段的校验规则
+// 获取当前字段的校验规则 - 缓存规则
 const getFieldRules = () => {
   // 优先使用 props.rules
   if (props.rules && props.rules.length > 0) {
@@ -171,28 +157,49 @@ const getFieldRules = () => {
   return []
 }
 
+// 获取或创建 Schema 实例
+const getSchema = (): Schema | null => {
+  const rules = getFieldRules()
+
+  if (!rules || rules.length === 0) {
+    cachedSchema = null
+    cachedRulesHash = null
+    return null
+  }
+
+  // 简单的规则哈希检查
+  const rulesHash = JSON.stringify(rules)
+  if (cachedRulesHash === rulesHash && cachedSchema) {
+    return cachedSchema
+  }
+
+  // 创建新的 Schema
+  const descriptor = {
+    [fieldName.value as string]: rules
+  }
+  cachedSchema = new Schema(descriptor)
+  cachedRulesHash = rulesHash
+
+  return cachedSchema
+}
+
 // 使用 async-validator 执行校验
 const validateField = (): Promise<void> => {
   return new Promise((resolve, reject) => {
-    const rules = getFieldRules()
+    const schema = getSchema()
 
-    if (!rules || rules.length === 0) {
+    if (!schema) {
       hideErrorTip()
       context.removeFieldError?.(eventKey.value)
       resolve()
       return
     }
 
-    const descriptor = {
-      [fieldName.value as string]: rules
-    }
-
-    const validator = new Schema(descriptor)
     const data = {
       [fieldName.value as string]: toRaw(fieldValue.value)
     }
 
-    validator.validate(data, { firstFields: true }, (errors) => {
+    schema.validate(data, { firstFields: true }, (errors) => {
       if (errors && errors.length > 0) {
         const errorMsg = errors[0].message || '校验失败'
         showErrorTip(errorMsg)
@@ -226,9 +233,9 @@ const validateRules = () => {
         context.removeFieldError?.(eventKey.value)
       } else {
         removeTimer()
-        errorMap.message = error[0]?.message || errorMap.message
-        errorMap.visible = !!error.length
-        context.addFieldError?.(eventKey.value, errorMap.message)
+        errorState.message = error[0]?.message || errorState.message
+        errorState.visible = !!error.length
+        context.addFieldError?.(eventKey.value, errorState.message)
       }
     })
 
@@ -240,26 +247,40 @@ const validateRules = () => {
 }
 
 const onFieldBlur = () => {
-  // 改为失焦时校验，减少实时校验的性能开销
+  // 失焦时校验，减少实时校验的性能开销
   validateRules()
 }
 
 const onFieldChange = () => {
-  // 只触发 change 事件，不进行校验
-  // validateRules() // 移到 onBlur
   emit('change')
 }
 
-// 监听全局错误变化 - 精确监听单个字段，避免深度遍历
-watch(() => globalErrorMessage?.value?.[eventKey.value], (errorMsg) => {
+// 监听全局错误变化 - 使用精确的 key 监听
+const currentEventKey = shallowRef('')
+
+watch(() => eventKey.value, (newKey) => {
+  currentEventKey.value = newKey
+}, { immediate: true })
+
+watch(() => {
+  const key = currentEventKey.value
+  return key ? globalErrorMessage?.value?.[key] : undefined
+}, (errorMsg) => {
   if (errorMsg) {
     showErrorTip(errorMsg)
-  } else {
+  } else if (errorState.visible) {
     hideErrorTip()
   }
 }, { immediate: true })
 
-// 注册到 ant-design-vue form context
+// 注册到 ant-design-vue form context - 延迟计算
+const fieldId = computed(() => {
+  const path = fieldPath.value
+  if (path.length === 0) return ''
+  const [index, ...extra] = path
+  return `${index}-${extra.join('.')}`
+})
+
 useProvideFormItemContext({
   id: fieldId,
   onFieldChange,
@@ -268,11 +289,11 @@ useProvideFormItemContext({
   return get(context.dataSource?.value, props.name)
 }))
 
-// 注册字段到父组件 - 使用字段池复用，减少创建/销毁开销
+// 注册字段到父组件 - 使用字段池复用
 let isRegistered = false
+
 const registerField = () => {
   if (props.name && !isRegistered) {
-    // 使用字段池获取或创建字段信息
     const fieldInfo = fieldPool.acquire(eventKey.value, {
       fieldName: fieldName.value,
       eventKey: eventKey.value,
@@ -286,21 +307,21 @@ const registerField = () => {
   }
 }
 
-// 延迟注册，避免虚拟滚动时的同步阻塞
+// 延迟注册，使用 queueMicrotask 替代 nextTick，性能更好
 onMounted(() => {
-  nextTick(() => {
-    registerField()
-  })
+  queueMicrotask(registerField)
 })
 
 onBeforeUnmount(() => {
-  hideErrorTip()
+  removeTimer()
   if (isRegistered) {
     context.removeField?.(eventKey.value)
-    // 释放字段到池中，而不是销毁
     fieldPool.release(eventKey.value)
     isRegistered = false
   }
+  // 清理缓存
+  cachedSchema = null
+  cachedRulesHash = null
 })
 
 // 暴露方法

@@ -1,5 +1,5 @@
-import { defineComponent, computed, ref, watch, onMounted, onBeforeUnmount, nextTick, toRef, defineExpose } from 'vue';
-import type { PropType } from 'vue';
+import { defineComponent, computed, ref, watch, onMounted, onBeforeUnmount, nextTick, toRef, shallowRef, markRaw } from 'vue';
+import type { PropType, CSSProperties } from 'vue';
 import { Table } from 'ant-design-vue'
 import { tableProps } from 'ant-design-vue/lib/table'
 import type { TableProps } from 'ant-design-vue/lib/table';
@@ -30,8 +30,8 @@ export interface VirtualTableProps extends TableProps {
   };
 }
 
-// 展开图标组件
-const ExpandIcon = defineComponent({
+// 展开图标组件 - 使用 markRaw 避免响应式包装
+const ExpandIcon = markRaw(defineComponent({
   name: 'VirtualExpandIcon',
   props: {
     expanded: Boolean,
@@ -50,7 +50,6 @@ const ExpandIcon = defineComponent({
 
     return () => {
       if (!props.hasChildren) {
-        // 占位符，保持对齐
         return <span class={`${props.prefixCls}-row-expand-icon ${props.prefixCls}-row-expand-icon-spaced`} />;
       }
 
@@ -69,12 +68,58 @@ const ExpandIcon = defineComponent({
       );
     };
   },
-});
+}));
+
+// Proxy 缓存池
+const proxyCache = new WeakMap<object, any>();
+
+function getOrCreateProxy(record: any, node: FlattenedNode): any {
+  let proxy = proxyCache.get(record);
+  if (proxy && proxy.__virtual_tree_node__ === node) {
+    return proxy;
+  }
+
+  proxy = new Proxy(record, {
+    get(target, prop) {
+      if (prop === '__virtual_tree_node__') {
+        return node;
+      }
+      return Reflect.get(target, prop);
+    },
+    set(target, prop, value) {
+      if (prop !== '__virtual_tree_node__') {
+        return Reflect.set(target, prop, value);
+      }
+      return true;
+    },
+    has(target, prop) {
+      if (prop === '__virtual_tree_node__') {
+        return true;
+      }
+      return Reflect.has(target, prop);
+    },
+    ownKeys(target) {
+      return [...Reflect.ownKeys(target), '__virtual_tree_node__'];
+    },
+    getOwnPropertyDescriptor(target, prop) {
+      if (prop === '__virtual_tree_node__') {
+        return { configurable: true, enumerable: false, value: node };
+      }
+      return Reflect.getOwnPropertyDescriptor(target, prop);
+    },
+  });
+
+  proxyCache.set(record, proxy);
+  return proxy;
+}
 
 /**
  * 虚拟滚动 Table 组件
- * 完全兼容 a-table 的所有功能，同时支持大数据虚拟滚动
- * 支持树形数据的虚拟滚动
+ * 性能优化：
+ * 1. 数据切片使用 computed 缓存，避免重复切片
+ * 2. 使用 shallowRef 减少响应式开销
+ * 3. 使用 passive 滚动事件监听
+ * 4. rowKey 确保组件正确复用
  */
 export default defineComponent({
   name: 'JVirtualTable',
@@ -88,9 +133,8 @@ export default defineComponent({
   },
   emits: ['expandedRowsChange', 'expand'],
   setup(props, { attrs, slots, expose, emit }) {
-    // Table ref
     const tableRef = ref();
-    const scrollContainerRef = ref<HTMLElement>();
+    const scrollContainerRef = shallowRef<HTMLElement>();
 
     // 解析虚拟滚动配置
     const virtualConfig = computed(() => {
@@ -98,11 +142,7 @@ export default defineComponent({
 
       if (typeof props.virtual === 'boolean') {
         return props.virtual
-          ? {
-            itemHeight: 54,
-            overscan: 5,
-            threshold: 100,
-          }
+          ? { itemHeight: 54, overscan: 5, threshold: 100 }
           : null;
       }
 
@@ -113,27 +153,17 @@ export default defineComponent({
       };
     });
 
-    // 获取容器高度
+    // 容器高度
     const containerHeight = computed(() => {
       if (!props.scroll?.y) return 0;
-
       const y = props.scroll.y;
       if (typeof y === 'number') return y;
-
-      // 解析 '500px' 这样的字符串
       const num = parseInt(String(y), 10);
       return isNaN(num) ? 0 : num;
     });
 
-    // 获取子节点字段名
-    const childrenColumnName = computed(() => {
-      return props.childrenColumnName || 'children';
-    });
-
-    // 获取 rowKey
-    const rowKeyProp = computed(() => {
-      return props.rowKey || 'key';
-    });
+    const childrenColumnName = computed(() => props.childrenColumnName || 'children');
+    const rowKeyProp = computed(() => props.rowKey || 'key');
 
     // 判断是否为树形数据
     const isTreeData = computed(() => {
@@ -144,7 +174,7 @@ export default defineComponent({
       });
     });
 
-    // 使用树形数据 hook
+    // 树形数据处理
     const treeDataResult = useTreeData({
       data: toRef(props, 'dataSource') as any,
       childrenColumnName: childrenColumnName.value,
@@ -152,31 +182,15 @@ export default defineComponent({
       defaultExpandedRowKeys: props.defaultExpandedRowKeys as any,
       expandedRowKeys: props.expandedRowKeys ? toRef(props, 'expandedRowKeys') as any : undefined,
       defaultExpandAllRows: props.defaultExpandAllRows,
-      onExpandedRowsChange: (keys) => {
-        emit('expandedRowsChange', keys);
-      },
+      onExpandedRowsChange: (keys) => emit('expandedRowsChange', keys),
     });
 
-    // 处理展开/折叠
     const handleExpand = (node: FlattenedNode) => {
       treeDataResult.toggle(node.key);
       emit('expand', !node.expanded, node.record);
     };
 
-    // 判断是否启用虚拟滚动
-    const shouldEnableVirtual = computed(() => {
-      if (!virtualConfig.value) return false;
-      if (!props.scroll?.y) return false;
-
-      // 对于树形数据，使用扁平化后的数据长度
-      const dataLength = isTreeData.value
-        ? treeDataResult.flattenedData.value.length
-        : (props.dataSource?.length || 0);
-
-      return dataLength >= virtualConfig.value.threshold;
-    });
-
-    // 虚拟滚动的数据数量（树形数据使用扁平化后的长度）
+    // 数据数量
     const itemCount = computed(() => {
       if (isTreeData.value) {
         return treeDataResult.flattenedData.value.length;
@@ -184,7 +198,14 @@ export default defineComponent({
       return props.dataSource?.length || 0;
     });
 
-    // 初始化虚拟滚动
+    // 判断是否启用虚拟滚动
+    const shouldEnableVirtual = computed(() => {
+      if (!virtualConfig.value) return false;
+      if (!props.scroll?.y) return false;
+      return itemCount.value >= virtualConfig.value.threshold;
+    });
+
+    // 虚拟滚动 hook
     const virtualScroll = useVirtualScroll({
       itemCount,
       containerHeight,
@@ -193,29 +214,131 @@ export default defineComponent({
       threshold: virtualConfig.value?.threshold || 100,
     });
 
-    // 查找并监听滚动容器
+    // ⭐ 关键优化：使用 computed 缓存切片数据，避免每次渲染都创建新数组
+    const virtualDataSource = computed(() => {
+      if (!shouldEnableVirtual.value) {
+        return props.dataSource || [];
+      }
+
+      const start = virtualScroll.startIndex.value;
+      const end = virtualScroll.endIndex.value;
+
+      if (isTreeData.value) {
+        const flatData = treeDataResult.flattenedData.value;
+        const visibleNodes = flatData.slice(start, end);
+        return visibleNodes.map((node) => getOrCreateProxy(node.record, node));
+      }
+
+      return (props.dataSource || []).slice(start, end);
+    });
+
+    // 缓存 columns 处理
+    const processedColumns = computed(() => {
+      if (!isTreeData.value || !shouldEnableVirtual.value) {
+        return props.columns;
+      }
+
+      const columns = props.columns;
+      if (!columns || columns.length === 0) return columns;
+
+      const indentSize = props.indentSize ?? 15;
+
+      return columns.map((col, colIndex) => {
+        if (colIndex === 0) {
+          const originalRender = col.customRender;
+          return {
+            ...col,
+            customRender: (renderProps: any) => {
+              const { record, text } = renderProps;
+              const treeNode = record.__virtual_tree_node__ as FlattenedNode | undefined;
+
+              if (!treeNode) {
+                if (originalRender) return originalRender(renderProps);
+                return text;
+              }
+
+              const { level, hasChildren, expanded } = treeNode;
+              const indentStyle: CSSProperties = {
+                paddingLeft: `${level * indentSize}px`,
+                display: 'inline-flex',
+                alignItems: 'center',
+              };
+
+              const content = originalRender ? originalRender(renderProps) : text;
+
+              return (
+                <span style={indentStyle}>
+                  <ExpandIcon
+                    expanded={expanded}
+                    hasChildren={hasChildren}
+                    onExpand={() => handleExpand(treeNode)}
+                  />
+                  <span>{content}</span>
+                </span>
+              );
+            },
+          };
+        }
+        return col;
+      });
+    });
+
+    // 缓存 components
+    const virtualComponents = computed(() => {
+      if (!shouldEnableVirtual.value) {
+        return props.components;
+      }
+
+      const { startIndex, endIndex, offsetY, totalHeight, getItemHeight } = virtualScroll;
+      const columns = processedColumns.value;
+
+      return {
+        ...(props.components || {}),
+        body: {
+          wrapper: (bodyProps: any, { slots: bodySlots }: any) => {
+            let accumulatedHeight = offsetY.value;
+            for (let i = startIndex.value; i < endIndex.value; i++) {
+              accumulatedHeight += getItemHeight(i);
+            }
+            const bottomHeight = totalHeight.value - accumulatedHeight;
+
+            return (
+              <tbody {...bodyProps} class="ant-table-tbody">
+                {offsetY.value > 0 && (
+                  <tr aria-hidden="true" style={{ height: 0 }}>
+                    <td style={{ padding: 0, border: 0, height: `${offsetY.value}px` }} colSpan={columns?.length || 1} />
+                  </tr>
+                )}
+                {bodySlots.default?.()}
+                {bottomHeight > 0 && (
+                  <tr aria-hidden="true" style={{ height: 0 }}>
+                    <td style={{ padding: 0, border: 0, height: `${bottomHeight}px` }} colSpan={columns?.length || 1} />
+                  </tr>
+                )}
+              </tbody>
+            );
+          },
+        },
+      };
+    });
+
+    // 滚动监听
     const findScrollContainer = () => {
       if (!tableRef.value) return null;
-
-      // 查找 .ant-table-body 元素（这是实际的滚动容器）
       const tableElement = tableRef.value.$el || tableRef.value;
-      const scrollBody = tableElement.querySelector('.ant-table-body');
-
-      return scrollBody as HTMLElement;
+      return tableElement.querySelector('.ant-table-body') as HTMLElement;
     };
 
-    // 设置滚动监听
     const setupScrollListener = () => {
       nextTick(() => {
         const container = findScrollContainer();
         if (container) {
           scrollContainerRef.value = container;
-          container.addEventListener('scroll', virtualScroll.handleScroll);
+          container.addEventListener('scroll', virtualScroll.handleScroll, { passive: true });
         }
       });
     };
 
-    // 移除滚动监听
     const removeScrollListener = () => {
       if (scrollContainerRef.value) {
         scrollContainerRef.value.removeEventListener('scroll', virtualScroll.handleScroll);
@@ -223,31 +346,43 @@ export default defineComponent({
       }
     };
 
-    // 监听虚拟滚动启用状态变化
     watch(shouldEnableVirtual, (enabled) => {
-      if (enabled) {
-        setupScrollListener();
-      } else {
-        removeScrollListener();
-      }
+      if (enabled) setupScrollListener();
+      else removeScrollListener();
     });
 
-    // 生命周期
     onMounted(() => {
-      if (shouldEnableVirtual.value) {
-        setupScrollListener();
-      }
+      if (shouldEnableVirtual.value) setupScrollListener();
     });
 
     onBeforeUnmount(() => {
       removeScrollListener();
     });
 
-    // 暴露方法
-    defineExpose({
-      scrollTo: virtualScroll.scrollTo,
-      scrollToIndex: virtualScroll.scrollToIndex,
-      // 树形数据相关方法
+    // 滚动到指定索引（同时更新虚拟状态和真实 DOM）
+    const scrollToIndex = (index: number) => {
+      virtualScroll.scrollToIndex(index);
+      // 同步滚动真实 DOM
+      nextTick(() => {
+        if (scrollContainerRef.value) {
+          scrollContainerRef.value.scrollTop = virtualScroll.scrollTop.value;
+        }
+      });
+    };
+
+    // 滚动到指定位置
+    const scrollTo = (offset: number) => {
+      virtualScroll.scrollTo(offset);
+      nextTick(() => {
+        if (scrollContainerRef.value) {
+          scrollContainerRef.value.scrollTop = virtualScroll.scrollTop.value;
+        }
+      });
+    };
+
+    expose({
+      scrollTo,
+      scrollToIndex,
       expand: treeDataResult.expand,
       collapse: treeDataResult.collapse,
       toggle: treeDataResult.toggle,
@@ -257,188 +392,20 @@ export default defineComponent({
       isExpanded: treeDataResult.isExpanded,
     });
 
-    // 渲染函数
     return () => {
-      // 不使用虚拟滚动的情况
-      if (!shouldEnableVirtual.value) {
-        return (
-          <Table
-            ref={tableRef}
-            {...attrs}
-            {...props}
-            v-slots={slots}
-          />
-        );
-      }
-
-      // 使用虚拟滚动
-      const { startIndex, endIndex, offsetY, totalHeight } = virtualScroll;
-
-      // 准备虚拟滚动数据
-      let virtualDataSource: any[];
-      let needsCustomIndent = false;
-      const indentSize = props.indentSize ?? 15;
-
-      if (isTreeData.value) {
-        // 树形数据：使用扁平化后的数据
-        const flatData = treeDataResult.flattenedData.value;
-        const visibleNodes = flatData.slice(startIndex.value, endIndex.value);
-
-        // 使用 Proxy 代理原始 record，确保修改能同步到原始数据
-        virtualDataSource = visibleNodes.map((node) => {
-          return new Proxy(node.record, {
-            get(target, prop) {
-              if (prop === '__virtual_tree_node__') {
-                return node;
-              }
-              return Reflect.get(target, prop);
-            },
-            set(target, prop, value) {
-              if (prop !== '__virtual_tree_node__') {
-                return Reflect.set(target, prop, value);
-              }
-              return true;
-            },
-            has(target, prop) {
-              if (prop === '__virtual_tree_node__') {
-                return true;
-              }
-              return Reflect.has(target, prop);
-            },
-            ownKeys(target) {
-              return [...Reflect.ownKeys(target), '__virtual_tree_node__'];
-            },
-            getOwnPropertyDescriptor(target, prop) {
-              if (prop === '__virtual_tree_node__') {
-                return { configurable: true, enumerable: false, value: node };
-              }
-              return Reflect.getOwnPropertyDescriptor(target, prop);
-            },
-          });
-        });
-
-        needsCustomIndent = true;
-      } else {
-        // 普通数据：直接切片
-        virtualDataSource = (props.dataSource || []).slice(
-          startIndex.value,
-          endIndex.value,
-        );
-      }
-
-      // 处理列，添加树形展开功能
-      let processedColumns = props.columns;
-
-      if (needsCustomIndent && processedColumns && processedColumns.length > 0) {
-        // 克隆 columns，修改第一列以添加展开按钮和缩进
-        processedColumns = processedColumns.map((col, colIndex) => {
-          if (colIndex === 0) {
-            const originalRender = col.customRender;
-            return {
-              ...col,
-              customRender: (renderProps: any) => {
-                const { record, text, index } = renderProps;
-                const treeNode = record.__virtual_tree_node__ as FlattenedNode | undefined;
-
-                if (!treeNode) {
-                  // 非树形数据行，使用原始渲染
-                  if (originalRender) {
-                    return originalRender(renderProps);
-                  }
-                  return text;
-                }
-
-                const { level, hasChildren, expanded } = treeNode;
-                const indentStyle: CSSProperties = {
-                  paddingLeft: `${level * indentSize}px`,
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                };
-
-                const content = originalRender ? originalRender(renderProps) : text;
-
-                return (
-                  <span style={indentStyle}>
-                    <ExpandIcon
-                      expanded={expanded}
-                      hasChildren={hasChildren}
-                      onExpand={() => handleExpand(treeNode)}
-                    />
-                    <span>{content}</span>
-                  </span>
-                );
-              },
-            };
-          }
-          return col;
-        });
-      }
-
-      // 自定义 body 组件
-      const customComponents = {
-        ...(props.components || {}),
-        body: {
-          wrapper: (bodyProps: any, { slots: bodySlots }: any) => {
-            // 计算底部占位高度
-            let accumulatedHeight = offsetY.value;
-            for (let i = startIndex.value; i < endIndex.value; i++) {
-              accumulatedHeight += virtualScroll.getItemHeight(i);
-            }
-            const bottomHeight = totalHeight.value - accumulatedHeight;
-
-            return (
-              <tbody {...bodyProps} class="ant-table-tbody">
-              {/* 顶部占位 */}
-              {offsetY.value > 0 && (
-                <tr aria-hidden="true" style={{ height: 0 }}>
-                  <td
-                    style={{
-                      padding: 0,
-                      border: 0,
-                      height: `${offsetY.value}px`,
-                    }}
-                    colSpan={processedColumns?.length || 1}
-                  />
-                </tr>
-              )}
-
-              {/* 渲染可见行 */}
-              {bodySlots.default?.()}
-
-              {/* 底部占位 */}
-              {bottomHeight > 0 && (
-                <tr aria-hidden="true" style={{ height: 0 }}>
-                  <td
-                    style={{
-                      padding: 0,
-                      border: 0,
-                      height: `${bottomHeight}px`,
-                    }}
-                    colSpan={processedColumns?.length || 1}
-                  />
-                </tr>
-              )}
-              </tbody>
-            );
-          },
-        },
-      };
-
-      // 移除树形数据的 children 配置，因为我们自己处理
-      const tableProps = {
+      const tablePropsObj = {
         ...props,
-        dataSource: virtualDataSource,
-        columns: processedColumns,
-        components: customComponents,
-        // 禁用 Table 自带的树形功能，我们自己处理
-        ...(isTreeData.value ? { childrenColumnName: '__disabled__' } : {}),
+        dataSource: virtualDataSource.value,
+        columns: processedColumns.value,
+        components: virtualComponents.value,
+        ...(isTreeData.value && shouldEnableVirtual.value ? { childrenColumnName: '__disabled__' } : {}),
       };
 
       return (
         <Table
           ref={tableRef}
           {...attrs}
-          {...tableProps}
+          {...tablePropsObj}
           v-slots={slots}
         />
       );

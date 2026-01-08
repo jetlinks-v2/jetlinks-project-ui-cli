@@ -1,5 +1,5 @@
 import type { Ref, ComputedRef } from 'vue';
-import { computed, ref, watch, isRef } from 'vue';
+import { computed, ref, watch, isRef, shallowRef } from 'vue';
 
 export interface VirtualScrollOptions {
   // 总数据量
@@ -36,7 +36,12 @@ export interface VirtualScrollResult {
 }
 
 /**
- * 虚拟滚动 Hook
+ * 高性能虚拟滚动 Hook
+ * 优化点：
+ * 1. 使用累积高度缓存，避免重复计算
+ * 2. 使用二分查找快速定位索引
+ * 3. 使用 shallowRef 减少响应式开销
+ * 4. 滚动节流减少计算频率
  */
 export function useVirtualScroll(options: VirtualScrollOptions): VirtualScrollResult {
   const {
@@ -47,6 +52,10 @@ export function useVirtualScroll(options: VirtualScrollOptions): VirtualScrollRe
     threshold = 100,
   } = options;
 
+  // 固定行高模式（性能更高）
+  const isFixedHeight = typeof itemHeight === 'number';
+  const fixedItemHeight = isFixedHeight ? itemHeight : 54;
+
   // 容器高度（支持响应式）
   const containerHeight = computed(() => {
     if (isRef(containerHeightOption)) {
@@ -55,27 +64,36 @@ export function useVirtualScroll(options: VirtualScrollOptions): VirtualScrollRe
     return containerHeightOption;
   });
 
-  // 滚动位置
-  const scrollTop = ref(0);
+  // 滚动位置 - 使用 shallowRef 减少响应式开销
+  const scrollTop = shallowRef(0);
 
-  // 动态行高缓存
-  const itemHeights = ref<Map<number, number>>(new Map());
+  // 动态行高缓存（仅在非固定高度模式使用）
+  const itemHeights = shallowRef<Map<number, number>>(new Map());
+
+  // 累积高度缓存 - 用于二分查找
+  const accumulatedHeights = shallowRef<number[]>([]);
+  let heightsCacheValid = false;
 
   /**
    * 获取指定索引的行高
    */
   const getItemHeight = (index: number): number => {
-    // 优先使用缓存的高度
-    if (itemHeights.value.has(index)) {
-      return itemHeights.value.get(index)!;
+    if (isFixedHeight) {
+      return fixedItemHeight;
     }
 
-    // 使用配置的高度
+    // 优先使用缓存的高度
+    const cached = itemHeights.value.get(index);
+    if (cached !== undefined) {
+      return cached;
+    }
+
+    // 使用配置的高度函数
     if (typeof itemHeight === 'function') {
       return itemHeight(index);
     }
 
-    return itemHeight;
+    return fixedItemHeight;
   };
 
   /**
@@ -84,74 +102,119 @@ export function useVirtualScroll(options: VirtualScrollOptions): VirtualScrollRe
   const setItemHeight = (index: number, height: number) => {
     if (height > 0 && itemHeights.value.get(index) !== height) {
       itemHeights.value.set(index, height);
+      heightsCacheValid = false; // 使缓存失效
     }
+  };
+
+  /**
+   * 重建累积高度缓存
+   */
+  const rebuildAccumulatedHeights = () => {
+    if (heightsCacheValid) return;
+
+    const count = itemCount.value;
+    const heights: number[] = new Array(count + 1);
+    heights[0] = 0;
+
+    if (isFixedHeight) {
+      // 固定高度模式，直接计算
+      for (let i = 0; i < count; i++) {
+        heights[i + 1] = heights[i] + fixedItemHeight;
+      }
+    } else {
+      // 动态高度模式
+      for (let i = 0; i < count; i++) {
+        heights[i + 1] = heights[i] + getItemHeight(i);
+      }
+    }
+
+    accumulatedHeights.value = heights;
+    heightsCacheValid = true;
+  };
+
+  /**
+   * 二分查找：找到第一个累积高度大于 target 的索引
+   */
+  const binarySearchIndex = (target: number): number => {
+    rebuildAccumulatedHeights();
+    const heights = accumulatedHeights.value;
+
+    if (heights.length === 0) return 0;
+
+    let left = 0;
+    let right = heights.length - 1;
+
+    while (left < right) {
+      const mid = Math.floor((left + right) / 2);
+      if (heights[mid] <= target) {
+        left = mid + 1;
+      } else {
+        right = mid;
+      }
+    }
+
+    return Math.max(0, left - 1);
+  };
+
+  /**
+   * 获取累积高度
+   */
+  const getAccumulatedHeight = (index: number): number => {
+    rebuildAccumulatedHeights();
+    const heights = accumulatedHeights.value;
+
+    if (index < 0) return 0;
+    if (index >= heights.length) return heights[heights.length - 1] || 0;
+
+    return heights[index];
   };
 
   /**
    * 计算总高度
    */
   const totalHeight = computed(() => {
-    let total = 0;
-    for (let i = 0; i < itemCount.value; i++) {
-      total += getItemHeight(i);
+    if (isFixedHeight) {
+      return itemCount.value * fixedItemHeight;
     }
-    return total;
+    rebuildAccumulatedHeights();
+    const heights = accumulatedHeights.value;
+    return heights.length > 0 ? heights[heights.length - 1] : 0;
   });
 
   /**
-   * 计算可视范围的起始索引
+   * 计算可视范围的起始索引 - 使用二分查找 O(log n)
    */
   const startIndex = computed(() => {
-    if (itemCount.value < threshold) {
+    const count = itemCount.value;
+    if (count < threshold) {
       return 0;
     }
 
-    let accumulated = 0;
-    for (let i = 0; i < itemCount.value; i++) {
-      const height = getItemHeight(i);
-      if (accumulated + height > scrollTop.value) {
-        return Math.max(0, i - overscan);
-      }
-      accumulated += height;
-    }
-    return 0;
+    const index = binarySearchIndex(scrollTop.value);
+    return Math.max(0, index - overscan);
   });
 
   /**
    * 计算可视范围的结束索引
    */
   const endIndex = computed(() => {
-    if (itemCount.value < threshold) {
-      return itemCount.value;
+    const count = itemCount.value;
+    if (count < threshold) {
+      return count;
     }
 
-    const start = startIndex.value;
-    let accumulated = 0;
-
-    // 从起始索引开始累加
-    for (let i = 0; i < start; i++) {
-      accumulated += getItemHeight(i);
-    }
-
-    for (let i = start; i < itemCount.value; i++) {
-      accumulated += getItemHeight(i);
-      if (accumulated > scrollTop.value + containerHeight.value) {
-        return Math.min(itemCount.value, i + 1 + overscan);
-      }
-    }
-
-    return itemCount.value;
+    const targetHeight = scrollTop.value + containerHeight.value;
+    const index = binarySearchIndex(targetHeight);
+    return Math.min(count, index + 1 + overscan);
   });
 
   /**
    * 顶部偏移量
    */
   const offsetY = computed(() => {
-    let offset = 0;
-    for (let i = 0; i < startIndex.value; i++) {
-      offset += getItemHeight(i);
-    }
-    return offset;
+    const start = startIndex.value;
+    if (start === 0) return 0;
+    return getAccumulatedHeight(start);
   });
 
   /**
@@ -159,21 +222,33 @@ export function useVirtualScroll(options: VirtualScrollOptions): VirtualScrollRe
    */
   const visibleCount = computed(() => endIndex.value - startIndex.value);
 
+  // 滚动节流
+  let scrollRAF: number | null = null;
+
   /**
-   * 处理滚动事件
+   * 处理滚动事件（带节流）
    */
   const handleScroll = (e: Event) => {
     const target = e.target as HTMLElement;
-    if (target) {
-      scrollTop.value = target.scrollTop;
+    if (!target) return;
+
+    // 使用 RAF 节流
+    if (scrollRAF !== null) {
+      cancelAnimationFrame(scrollRAF);
     }
+
+    scrollRAF = requestAnimationFrame(() => {
+      scrollTop.value = target.scrollTop;
+      scrollRAF = null;
+    });
   };
 
   /**
    * 滚动到指定位置
    */
   const scrollTo = (offset: number) => {
-    scrollTop.value = Math.max(0, Math.min(offset, totalHeight.value - containerHeight.value));
+    const maxScroll = Math.max(0, totalHeight.value - containerHeight.value);
+    scrollTop.value = Math.max(0, Math.min(offset, maxScroll));
   };
 
   /**
@@ -183,16 +258,12 @@ export function useVirtualScroll(options: VirtualScrollOptions): VirtualScrollRe
     if (index < 0 || index >= itemCount.value) {
       return;
     }
-
-    let offset = 0;
-    for (let i = 0; i < index; i++) {
-      offset += getItemHeight(i);
-    }
-    scrollTo(offset);
+    scrollTo(getAccumulatedHeight(index));
   };
 
-  // 数据变化时重置滚动位置
+  // 数据变化时使缓存失效并重置滚动位置
   watch(itemCount, () => {
+    heightsCacheValid = false;
     const maxScroll = Math.max(0, totalHeight.value - containerHeight.value);
     if (scrollTop.value > maxScroll) {
       scrollTop.value = maxScroll;

@@ -11,6 +11,7 @@
 
       <div class="jetlinks-edit-table-body">
         <VirtualTable
+          ref="virtualTableRef"
           v-bind="props"
           :data-source="bodyDataSource"
           :columns="newColumns"
@@ -18,12 +19,12 @@
           :pagination="false"
           :virtual="{
             itemHeight: props.cellHeight,
-            overscan: 1,
+            overscan: 5,
             threshold: props.height / props.cellHeight
           }"
         >
-          <template #bodyCell="{ column, record }">
-            <slot :name="column.dataIndex" :column="column" :record="record" />
+          <template #bodyCell="{ column, record, index }">
+            <slot :name="column.dataIndex" :column="column" :record="record" :index="record.__dataIndex" :visibleIndex="index" />
           </template>
 
         </VirtualTable>
