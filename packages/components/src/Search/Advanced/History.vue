@@ -62,7 +62,7 @@ import type { SearchHistoryList } from '../typing';
 import { computed, ref } from 'vue';
 import type { PropType } from 'vue';
 import { isFunction } from 'lodash-es';
-import { AIcon, Empty, Ellipsis } from '../../../';
+import { AIcon, Empty, Ellipsis } from '../../';
 import { Popconfirm, Button, FormItemRest, Popover, message } from 'ant-design-vue'
 import { useLocaleReceiver } from "../../LocaleReciver";
 import useSearchStyle from '../style'
