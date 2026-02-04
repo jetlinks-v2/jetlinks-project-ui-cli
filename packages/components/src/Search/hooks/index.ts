@@ -87,6 +87,7 @@ export const useHandleColumns = (props: any, terms: Reactive<Terms>, options: { 
 
   const handleColumns = (columns: JColumnsProps[]) => {
     const columnsSearch = columns.filter(item => item.hasOwnProperty('search') && Object.keys(item.search).length)
+    columnsMap.value = new Map()
     // 排序
     const columnsSort = moveFirstElementsToFront(columnsSearch)
 
