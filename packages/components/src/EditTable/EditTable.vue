@@ -12,7 +12,7 @@
       <div class="jetlinks-edit-table-body">
         <VirtualTable
           ref="virtualTableRef"
-          v-bind="props"
+          v-bind="$attrs"
           :data-source="bodyDataSource"
           :columns="newColumns"
           :scroll="scroll"
@@ -23,10 +23,15 @@
             threshold: props.height / props.cellHeight
           }"
         >
-          <template #bodyCell="{ column, record, index }">
-            <slot :name="column.dataIndex" :column="column" :record="record" :index="record.__dataIndex" :visibleIndex="index" />
-          </template>
 
+          <template #bodyCell="{ column, record, index }">
+            <slot v-if="$slots[column.dataIndex]" :name="column.dataIndex" :column="column" :record="record" :index="record.__dataIndex" :visibleIndex="index" />
+          </template>
+          <template v-for="(_, slotName) in $slots" :key="slotName">
+            <template v-if="slotName !== 'bodyCell'" #[slotName]="slotProps">
+              <slot :name="slotName" v-bind="slotProps || {}"></slot>
+            </template>
+          </template>
         </VirtualTable>
         <div class="readonly-mask" v-if="readonly"></div>
         <slot name="bodyExtra"></slot>
