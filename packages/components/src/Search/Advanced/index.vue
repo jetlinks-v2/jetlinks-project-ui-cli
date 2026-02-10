@@ -1,28 +1,22 @@
 <template>
   <Form :model="terms" @finish="searchSubmit">
     <div
-        ref="searchRef"
-        class="JSearch-warp senior"
-        :class="[attrs.class, hashId]"
-        :style="attrs.style"
+      ref="searchRef"
+      class="JSearch-warp senior"
+      :class="[attrs.class, hashId]"
+      :style="attrs.style"
     >
       <!--  高级模式  -->
       <div
-          v-if="props.type === 'advanced'"
-          ref="searchRefContentRef"
-          :class="[
-                    'JSearch-content',
-                    expand || compatible ? 'senior-expand' : 'pack-up',
-                    screenSize ? 'big' : 'small',
-                ]"
+        v-if="props.type === 'advanced'"
+        ref="searchRefContentRef"
+        :class="[
+          'JSearch-content',
+          expand || compatible ? 'senior-expand' : 'pack-up',
+          screenSize ? 'big' : 'small',
+        ]"
       >
-        <div
-            :class="[
-                        'JSearch-items',
-                        expand ? 'items-expand' : '',
-                        layout,
-                    ]"
-        >
+        <div :class="['JSearch-items', expand ? 'items-expand' : '', layout]">
           <div class="left">
             <div class="left-items">
               <template v-for="(item, index) in terms.terms.slice(0, 3)">
@@ -40,10 +34,10 @@
           </div>
           <div v-if="expand" class="center">
             <Select
-                v-model:value="terms.terms[3].type"
-                class="center-select"
-                style="width: 100px"
-                :options="typeOptions(contextLocale)"
+              v-model:value="terms.terms[3].type"
+              class="center-select"
+              style="width: 100px"
+              :options="typeOptions(contextLocale)"
             />
           </div>
           <div v-if="expand" class="right">
@@ -63,41 +57,37 @@
             </div>
           </div>
         </div>
-        <div
-            :class="[
-                        'JSearch-footer',
-                        expand || compatible ? 'expand' : '',
-                    ]"
-        >
-          <slot name="footerRender" :reset="reset" :submit="searchSubmit" :expandChange="expandChange">
+        <div :class="['JSearch-footer', expand || compatible ? 'expand' : '']">
+          <slot
+            name="footerRender"
+            :reset="reset"
+            :submit="searchSubmit"
+            :expandChange="expandChange"
+          >
             <div class="JSearch-footer--btns">
-              <Button @click="reset"> {{contextLocale.advanced.reset}}</Button>
+              <Button @click="reset">
+                {{ contextLocale.advanced.reset }}</Button
+              >
               <SaveHistory
-                  :terms="terms"
-                  :target="target"
-                  :request="request || context.saveRequest"
+                v-if="saveButton !== false"
+                :terms="terms"
+                :target="target"
+                :request="request || context.saveRequest"
               />
               <History
-                  :target="target"
-                  :request="historyRequest || context.historyRequest"
-                  :delete-request="deleteRequest || context.deleteRequest"
-                  :delete-key="deleteKey || context.deleteKey"
-                  @click="searchSubmit"
-                  @itemClick="historyItemClick"
+                :target="target"
+                :request="historyRequest || context.historyRequest"
+                :delete-request="deleteRequest || context.deleteRequest"
+                :delete-key="deleteKey || context.deleteKey"
+                @click="searchSubmit"
+                @itemClick="historyItemClick"
               />
             </div>
-            <Button
-                type="link"
-                class="more-btn"
-                @click="expandChange"
-            >
-              <span class="more-text"> {{contextLocale.advanced.more}} </span>
+            <Button type="link" class="more-btn" @click="expandChange">
+              <span class="more-text"> {{ contextLocale.advanced.more }} </span>
               <AIcon
-                  type="DoubleRightOutlined"
-                  :class="[
-                                  'more-icon',
-                                  expand ? 'more-up' : 'more-down',
-                              ]"
+                type="DoubleRightOutlined"
+                :class="['more-icon', expand ? 'more-up' : 'more-down']"
               />
             </Button>
           </slot>
@@ -122,10 +112,10 @@
           <div class="JSearch-footer--btns">
             <FormItemRest>
               <Button @click="reset">
-                {{contextLocale.advanced.reset}}
+                {{ contextLocale.advanced.reset }}
               </Button>
               <Button html-type="submit" type="primary">
-                {{contextLocale.advanced.search}}
+                {{ contextLocale.advanced.search }}
               </Button>
             </FormItemRest>
           </div>
@@ -136,9 +126,9 @@
 </template>
 
 <script setup lang="ts">
-import SearchItem from '../Item.vue';
-import { typeOptions } from '../setting';
-import {useHandleColumns, useOptionMapContent, useRouteQuery} from '../hooks';
+import SearchItem from '../Item.vue'
+import { typeOptions } from '../setting'
+import { useHandleColumns, useOptionMapContent, useRouteQuery } from '../hooks'
 import {
   PropType,
   ref,
@@ -148,39 +138,37 @@ import {
   useAttrs,
   inject,
   computed,
-  toRefs
-} from 'vue';
-import SaveHistory from './SaveHistory.vue';
-import History from './History.vue';
-import type {
-  Terms,
-  JColumnsProps,
-} from '../typing';
+  toRefs,
+} from 'vue'
+import SaveHistory from './SaveHistory.vue'
+import History from './History.vue'
+import type { Terms, JColumnsProps } from '../typing'
 import {
-  compatibleOldTerms, getItemDefaultValue,
+  compatibleOldTerms,
+  getItemDefaultValue,
   hasExpand,
   termsParamsFormat,
-} from '../util';
+} from '../util'
 import { Select, Button, Form, FormItemRest } from 'ant-design-vue'
 import { AIcon } from '../../components'
-import {useLocaleReceiver} from "../../LocaleReciver";
-import {SearchConfig} from "../../utils/constants";
-import {isObject} from "lodash-es";
+import { useLocaleReceiver } from '../../LocaleReciver'
+import { SearchConfig } from '../../utils/constants'
+import { isObject } from 'lodash-es'
 import useSearchStyle from '../style'
 
 defineOptions({
   name: 'JAdvancedSearch',
-  inheritAttrs: false
+  inheritAttrs: false,
 })
 
 type UrlParam = {
-  q: string | null;
-  target: string | null;
-};
+  q: string | null
+  target: string | null
+}
 
 interface Emit {
-  (e: 'search', data: Terms): void;
-  (e: 'reset'): void;
+  (e: 'search', data: Terms): void
+  (e: 'reset'): void
 }
 
 const props = defineProps({
@@ -207,9 +195,7 @@ const props = defineProps({
     default: undefined,
   },
   deleteRequest: {
-    type: Function as PropType<
-        (target: string, id: string) => Promise<any>
-    >,
+    type: Function as PropType<(target: string, id: string) => Promise<any>>,
     default: null,
   },
   deleteKey: {
@@ -219,17 +205,21 @@ const props = defineProps({
   defaultValues: {
     type: Object,
     default: undefined,
-  }
-});
+  },
+  saveButton: {
+    type: Boolean,
+    default: true,
+  },
+})
 
 const emit = defineEmits(['search', 'reset'])
 
-const columnsOptionMap = ref({}); // 存储每个columnItem的option
-const terms = reactive<Terms>({terms: []});// 当前查询条件
-const expand = ref(false);
-const layout = ref('horizontal');
-const compatible = ref(false);
-const screenSize = ref(true);
+const columnsOptionMap = ref({}) // 存储每个columnItem的option
+const terms = reactive<Terms>({ terms: [] }) // 当前查询条件
+const expand = ref(false)
+const layout = ref('horizontal')
+const compatible = ref(false)
+const screenSize = ref(true)
 
 const context = inject(SearchConfig)
 
@@ -238,67 +228,72 @@ const [wrapSSR, hashId] = useSearchStyle(prefixCls)
 
 const [contextLocale] = useLocaleReceiver('Search')
 const attrs = useAttrs()
-const q = useRouteQuery('q');
-const target = useRouteQuery('target');
-const { initValues, columnsMap, defaultCacheValues } = useHandleColumns(props, terms, { mode: 'advanced'})
+const q = useRouteQuery('q')
+const target = useRouteQuery('target')
+const { initValues, columnsMap, defaultCacheValues } = useHandleColumns(
+  props,
+  terms,
+  { mode: 'advanced' },
+)
 
 useOptionMapContent(columnsOptionMap)
 
 const expandChange = () => {
-  expand.value = !expand.value;
+  expand.value = !expand.value
   terms.terms.length = 1
-  if (expand.value) { // 展开
+  if (expand.value) {
+    // 展开
     let arr = Object.values(columnsMap.value)
     const mergeArr = []
 
     for (let i = 1; i < 6; i++) {
-      const indexIn = i % arr.length;
+      const indexIn = i % arr.length
       const obj = getItemDefaultValue(arr[indexIn], defaultCacheValues.value)
       if (i === 3) {
         obj.type = 'and'
       }
-      mergeArr.push(obj);
+      mergeArr.push(obj)
     }
 
-    terms.terms = [...terms.terms,...mergeArr]
+    terms.terms = [...terms.terms, ...mergeArr]
   }
-};
+}
 
 const addUrlParams = () => {
-  if(props.target){
-    q.value = encodeURI(JSON.stringify(terms));
-    target.value = props.target;
+  if (props.target) {
+    q.value = encodeURI(JSON.stringify(terms))
+    target.value = props.target
   }
-};
+}
 
 const submitData = () => {
   const data = termsParamsFormat(terms, columnsMap.value)
-  emit('search', data);
-};
+  emit('search', data)
+}
 
 /**
  * 提交
  */
 const searchSubmit = () => {
-  submitData();
+  submitData()
   if (props.type === 'advanced') {
-    addUrlParams();
+    addUrlParams()
   }
-};
+}
 
 /**
  * 重置查询
  */
 const reset = () => {
-  expand.value = false;
+  expand.value = false
   initValues()
   if (props.type === 'advanced') {
-    q.value = null;
-    target.value = null;
+    q.value = null
+    target.value = null
   }
-  emit('search', {terms: []});
-  emit('reset', {terms: []});
-};
+  emit('search', { terms: [] })
+  emit('reset', { terms: [] })
+}
 
 /**
  * 历史下拉单选
@@ -306,14 +301,18 @@ const reset = () => {
  */
 const historyItemClick = (content: string) => {
   try {
-    const object = compatibleOldTerms(content, columnsMap.value, defaultCacheValues.value)
-    terms.terms = object.terms || [];
+    const object = compatibleOldTerms(
+      content,
+      columnsMap.value,
+      defaultCacheValues.value,
+    )
+    terms.terms = object.terms || []
     expand.value = object.expand
-    searchSubmit();
+    searchSubmit()
   } catch (e) {
-    console.warn(`Search组件中han.dleUrlParams处理JSON时异常：【${e}】`);
+    console.warn(`Search组件中han.dleUrlParams处理JSON时异常：【${e}】`)
   }
-};
+}
 
 /**
  * 处理URL中的查询参数
@@ -329,10 +328,9 @@ const handleUrlParams = () => {
  * 处理传入的默认值
  */
 const handleDefaultValues = (value) => {
-
   if (!isObject(value)) return
 
-  const _value = JSON.parse(JSON.stringify(value));
+  const _value = JSON.parse(JSON.stringify(value))
   if (!(_value.terms.length === 1 && _value.terms[0].terms.length === 1)) {
     let arr = Object.values(columnsMap.value)
 
@@ -342,7 +340,10 @@ const handleDefaultValues = (value) => {
       const item = _value.terms[aIndex].terms[bIndex]
 
       if (!item) {
-        const fillItem = getItemDefaultValue(arr[aIndex * 3 + bIndex], defaultCacheValues.value)
+        const fillItem = getItemDefaultValue(
+          arr[aIndex * 3 + bIndex],
+          defaultCacheValues.value,
+        )
         if (i === 3) {
           fillItem.type = 'and'
         }
@@ -358,22 +359,25 @@ const handleDefaultValues = (value) => {
  */
 const clearValue = () => {
   if (props.type === 'advanced' && props.target !== target.value) {
-    q.value = null;
-    target.value = null;
+    q.value = null
+    target.value = null
   }
 }
 
 handleUrlParams()
 
-watch(() => props.target, () => {
-  clearValue()
-}, {
-  immediate: true
-})
+watch(
+  () => props.target,
+  () => {
+    clearValue()
+  },
+  {
+    immediate: true,
+  },
+)
 
 defineExpose({
-  setValues:handleDefaultValues,
-  reset
+  setValues: handleDefaultValues,
+  reset,
 })
 </script>
-

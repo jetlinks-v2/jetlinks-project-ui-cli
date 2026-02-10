@@ -1,14 +1,20 @@
 <template>
-  <div :class="{
-    'jetlinks-edit-table-wrapper': true,
-    'table-full-screen': isFullscreen,
-    [hashId]: true
-  }" ref="tableWrapper">
+  <div
+    :class="{
+      'jetlinks-edit-table-wrapper': true,
+      'table-full-screen': isFullscreen,
+      [hashId]: true,
+    }"
+    ref="tableWrapper"
+  >
     <div class="jetlinks-edit-table-extra">
-      <slot name="extra" :isFullscreen="isFullscreen" :fullScreenToggle="toggle"/>
+      <slot
+        name="extra"
+        :isFullscreen="isFullscreen"
+        :fullScreenToggle="toggle"
+      />
     </div>
     <div class="jetlinks-edit-table">
-
       <div class="jetlinks-edit-table-body">
         <VirtualTable
           ref="virtualTableRef"
@@ -20,17 +26,25 @@
           :virtual="{
             itemHeight: props.cellHeight,
             overscan: 5,
-            threshold: props.height / props.cellHeight
+            threshold: props.height / props.cellHeight,
           }"
         >
-
           <template #bodyCell="{ column, record, index }">
-            <slot v-if="$slots[column.dataIndex]" :name="column.dataIndex" :column="column" :record="record" :index="record.__dataIndex" :visibleIndex="index" />
+            <slot
+              v-if="$slots[column.dataIndex]"
+              :name="column.dataIndex"
+              :column="column"
+              :record="record"
+              :index="record.__dataIndex"
+              :visibleIndex="index"
+            />
           </template>
-          <template v-for="(_, slotName) in $slots" :key="slotName">
-            <template v-if="slotName !== 'bodyCell'" #[slotName]="slotProps">
+          <template
+            v-for="(_, slotName) in $slots"
+            :key="slotName"
+            #[slotName]="slotProps"
+          >
               <slot :name="slotName" v-bind="slotProps || {}"></slot>
-            </template>
           </template>
         </VirtualTable>
         <div class="readonly-mask" v-if="readonly"></div>
@@ -62,25 +76,32 @@ import {
   TABLE_H_SCROLL,
   TABLE_OPEN_GROUP,
   TABLE_TOOL,
-  TABLE_WRAPPER
+  TABLE_WRAPPER,
 } from './consts'
 import { useGroup, useValidate } from './hooks'
 import { tableProps } from 'ant-design-vue/lib/table'
 import { useFormContext } from './context'
 import { useFullscreen } from '@vueuse/core'
 import { provide, useSlots, ref, reactive, computed, watch } from 'vue'
-import { bodyProps } from "./props"
+import { bodyProps } from './props'
 import { findIndex, get, sortBy } from 'lodash-es'
 import Group from './group.vue'
 import VirtualTable from '../VirtualTable/Table'
-import { useLocaleReceiver } from "../LocaleReciver"
+import { useLocaleReceiver } from '../LocaleReciver'
 import useEditTableStyle from './style'
 
 defineOptions({
-  name: 'JEditTable'
+  name: 'JEditTable',
 })
 
-const emit = defineEmits(['scrollDown', 'rightMenuClick', 'editChange', 'searchVisibleChange', 'groupDelete', 'groupEdit'])
+const emit = defineEmits([
+  'scrollDown',
+  'rightMenuClick',
+  'editChange',
+  'searchVisibleChange',
+  'groupDelete',
+  'groupEdit',
+])
 const [contextLocale] = useLocaleReceiver('EditTable')
 
 const props = defineProps({
@@ -88,23 +109,23 @@ const props = defineProps({
   ...bodyProps(),
   searchColumns: {
     type: Array,
-    default: undefined
+    default: undefined,
   },
   serial: {
     type: [Object, Boolean],
     default: () => ({
       width: 70,
-      title: ''
-    })
+      title: '',
+    }),
   },
   validateRowKey: {
     type: Boolean,
-    default: false
+    default: false,
   },
   readonly: {
     type: Boolean,
-    default: false
-  }
+    default: false,
+  },
 })
 
 const prefixCls = computed(() => 'jetlinks-edit-table')
@@ -125,7 +146,7 @@ const sortData = reactive({
   key: undefined as string | undefined,
   order: undefined as 'asc' | 'desc' | undefined,
   orderKeys: [] as any[],
-  dataIndex: undefined as string | undefined
+  dataIndex: undefined as string | undefined,
 })
 
 const {
@@ -134,7 +155,7 @@ const {
   addGroup,
   removeGroup,
   updateGroupActive,
-  updateGroupOptions
+  updateGroupOptions,
 } = useGroup(props.openGroup)
 
 // 处理数据源
@@ -144,7 +165,10 @@ const _dataSource = computed(() => {
   const sortDataSource = sortData.key
     ? sortBy(props.dataSource, (val: any) => {
         if (!val.id) return 99999999
-        const index = findIndex(sortData.orderKeys, (val2: any) => get(val, sortData.key!) === val2)
+        const index = findIndex(
+          sortData.orderKeys,
+          (val2: any) => get(val, sortData.key!) === val2,
+        )
         return sortData.order === 'desc' ? index : ~index + 1
       })
     : props.dataSource
@@ -155,7 +179,8 @@ const _dataSource = computed(() => {
       const _groupId = item.expands?.groupId
       if (!_groupId) {
         item.expands.groupId = groupActive.value || defaultGroupId
-        item.expands.groupName = groupActive.label || (contextLocale.value.Group.one + '1')
+        item.expands.groupName =
+          groupActive.label || contextLocale.value.Group.one + '1'
       }
 
       const _optionsItem = _options.get(item.expands.groupId)
@@ -165,7 +190,7 @@ const _dataSource = computed(() => {
           value: item.expands?.groupId,
           label: item.expands?.groupName,
           effective: item.id ? 1 : 0,
-          len: 1
+          len: 1,
         })
       } else {
         if (item.id) {
@@ -200,7 +225,7 @@ const bodyDataSource = computed(() => {
 
 const scroll = computed(() => {
   const _scroll = {
-    y: props.height
+    y: props.height,
   }
 
   if (props.scroll?.x) {
@@ -225,7 +250,9 @@ const { rules, validateItem, validate, errorMap } = useValidate(
       err.forEach((item: any, errIndex: number) => {
         item.forEach((e: any, eIndex: number) => {
           const field = findField(e.__dataIndex, e.field)
-          const _eventKey = field ? field.eventKey : `${e.__dataIndex}-${e.field}`
+          const _eventKey = field
+            ? field.eventKey
+            : `${e.__dataIndex}-${e.field}`
 
           if (field) {
             field.showErrorTip(e.message)
@@ -253,14 +280,17 @@ const { rules, validateItem, validate, errorMap } = useValidate(
     onEdit: () => {
       emit('editChange', true)
     },
-    validateRowKey: props.validateRowKey
-  }
+    validateRowKey: props.validateRowKey,
+  },
 )
 
 // Provide context
 provide(TABLE_WRAPPER, tableWrapper)
 provide(FULL_SCREEN, isFullscreen)
-provide(RIGHT_MENU, { click: rightMenu, getPopupContainer: () => tableWrapper.value })
+provide(RIGHT_MENU, {
+  click: rightMenu,
+  getPopupContainer: () => tableWrapper.value,
+})
 provide(TABLE_ERROR, fieldsErrMap)
 provide(TABLE_GROUP_ERROR, fieldsGroupError)
 provide(TABLE_DATA_SOURCE, _dataSource)
@@ -291,7 +321,7 @@ provide(TABLE_TOOL, {
     sortData.orderKeys = []
     sortData.dataIndex = undefined
   },
-  sortData
+  sortData,
 })
 provide(TABLE_GROUP_OPTIONS, groupOptions)
 provide(TABLE_GROUP_ACTIVE, groupActive)
@@ -325,7 +355,9 @@ function addFieldError(key: string, message: string) {
 }
 
 const scrollWidth = computed(() => {
-  return (props.dataSource.length * props.cellHeight) > props.height ? scrollDefaultWidth.value : 0
+  return props.dataSource.length * props.cellHeight > props.height
+    ? scrollDefaultWidth.value
+    : 0
 })
 
 const newColumns = computed(() => {
@@ -343,7 +375,7 @@ const newColumns = computed(() => {
         return record.__serial
       },
       width: (props.serial as any)?.width,
-      fixed: 'left'
+      fixed: 'left',
     }
     _columns.push(serial)
   }
@@ -358,7 +390,9 @@ function rightMenu(menuType: string, record: any, copyValue: any) {
 }
 
 const scrollToById = (key: string) => {
-  const _index = _dataSource.value.findIndex((item: any) => item[props.rowKey] === key)
+  const _index = _dataSource.value.findIndex(
+    (item: any) => item[props.rowKey] === key,
+  )
   scrollToByIndex(_index)
 }
 
@@ -375,7 +409,7 @@ const getTableWrapperRef = () => {
 
 const groupDelete = (id: string, index: number) => {
   removeGroup(index)
-  Object.keys(fieldsErrMap.value).forEach(errorKey => {
+  Object.keys(fieldsErrMap.value).forEach((errorKey) => {
     const [idx] = errorKey.split('-')
     const dataSourceItem = _dataSource.value[parseInt(idx)]
     const groupId = dataSourceItem?.expands?.groupId
@@ -401,38 +435,42 @@ const onScrollDown = () => {
 }
 
 // 监听错误变化
-watch(() => fieldsErrMap.value, (errorMap) => {
-  fieldsGroupError.value = {}
+watch(
+  () => fieldsErrMap.value,
+  (errorMap) => {
+    fieldsGroupError.value = {}
 
-  if (props.openGroup) {
-    const _errorObj = errorMap
-    const groupErrorMap: Record<string, any[]> = {}
+    if (props.openGroup) {
+      const _errorObj = errorMap
+      const groupErrorMap: Record<string, any[]> = {}
 
-    Object.keys(_errorObj).forEach(errorKey => {
-      const [index] = errorKey.split('-')
-      const dataSourceItem = _dataSource.value[parseInt(index)]
-      const groupId = dataSourceItem?.expands?.groupId
+      Object.keys(_errorObj).forEach((errorKey) => {
+        const [index] = errorKey.split('-')
+        const dataSourceItem = _dataSource.value[parseInt(index)]
+        const groupId = dataSourceItem?.expands?.groupId
 
-      const groupError = groupErrorMap[groupId]
+        const groupError = groupErrorMap[groupId]
 
-      const groupErrorItem = {
-        [errorKey]: {
-          message: _errorObj[errorKey],
-          index,
-          serial: dataSourceItem.__serial
+        const groupErrorItem = {
+          [errorKey]: {
+            message: _errorObj[errorKey],
+            index,
+            serial: dataSourceItem.__serial,
+          },
         }
-      }
 
-      if (groupError) {
-        groupError.push(groupErrorItem)
-      } else {
-        groupErrorMap[groupId] = [groupErrorItem]
-      }
-    })
+        if (groupError) {
+          groupError.push(groupErrorItem)
+        } else {
+          groupErrorMap[groupId] = [groupErrorItem]
+        }
+      })
 
-    fieldsGroupError.value = groupErrorMap
-  }
-}, { deep: true })
+      fieldsGroupError.value = groupErrorMap
+    }
+  },
+  { deep: true },
+)
 
 useFormContext({
   dataSource: computed(() => props.dataSource),
@@ -442,7 +480,7 @@ useFormContext({
   removeField,
   removeFieldError,
   addFieldError,
-  validateItem
+  validateItem,
 })
 
 defineExpose({
@@ -451,6 +489,6 @@ defineExpose({
   scrollToById,
   scrollToByIndex,
   getTableWrapperRef,
-  getGroupActive
+  getGroupActive,
 })
 </script>
