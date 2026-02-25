@@ -4,7 +4,7 @@ import PropTypes from 'ant-design-vue/es/_util/vue-types';
 import type { VueNode } from 'ant-design-vue/es/_util/type';
 import type { ExtractPropTypes, PropType } from 'vue';
 import { defineComponent, computed, toRefs } from 'vue';
-import type { WithFalse } from '../typings';
+import type { LeftContentRender, WithFalse } from '../typings';
 import { useRouteContext } from '../RouteContext';
 import { Layout } from 'ant-design-vue';
 import {LayoutType} from "../defaultSettings";
@@ -27,6 +27,10 @@ export const headerViewProps = {
         type: [Object, Function, Boolean] as PropType<
             WithFalse<(props: any) => VueNode>
         >,
+        default: () => undefined,
+    },
+    leftContentRender: {
+        type: [Object, Function, Boolean] as PropType<LeftContentRender>,
         default: () => undefined,
     },
     hasSiderMenu: PropTypes.looseBool,
@@ -69,6 +73,7 @@ export default defineComponent({
                     theme={theme.value}
                     mode="horizontal"
                     {...props}
+                    leftContentRender={props.leftContentRender}
                     onCollapse={onCollapse.value}
                     menuData={context.menuData}
                 />

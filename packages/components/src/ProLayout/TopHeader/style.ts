@@ -109,7 +109,12 @@ export const genTopHeaderStyle = (config: any): CSSObject => {
         [`${topNavHeaderCls}-main-left`]: {
           display: 'flex',
           minWidth: '192px',
-        }
+        },
+        [`${topNavHeaderCls}-left-content`]: {
+          display: 'flex',
+          alignItems: 'center',
+          marginInlineEnd: '16px',
+        },
       },
       '.anticon': {
         color: '#fff'

@@ -5,6 +5,7 @@ import type {
     WithFalse,
     HeaderRender,
     RightContentRender,
+    LeftContentRender,
     CollapsedButtonRender,
     MenuExtraRender,
     SubMenuItemRender,
@@ -221,6 +222,7 @@ export default defineComponent({
                 hasSiderMenu: boolean;
                 headerRender: HeaderRender;
                 rightContentRender: RightContentRender;
+                leftContentRender: LeftContentRender;
                 topHeaderMenuRender: TopHeaderMenuRender;
             },
             matchMenuKeys?: string[],
@@ -313,6 +315,11 @@ export default defineComponent({
                 props,
                 'rightContentRender',
             );
+            const leftContentRender = getSlot<LeftContentRender>(
+                slots,
+                props,
+                'leftContentRender',
+            );
             const customHeaderRender = getSlot<HeaderRender>(
                 slots,
                 props,
@@ -382,6 +389,7 @@ export default defineComponent({
                   onSelect,
                   onMenuHeaderClick,
                   rightContentRender,
+                  leftContentRender,
                   collapsedButtonRender,
                   headerTitleRender: menuHeaderRender,
                   menuExtraRender,

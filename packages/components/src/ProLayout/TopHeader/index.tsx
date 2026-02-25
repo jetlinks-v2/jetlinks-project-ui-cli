@@ -12,6 +12,7 @@ import type {
     MenuDataItem,
     ProProps,
     RightContentRender,
+    LeftContentRender,
     WithFalse,
     Theme,
   MenuExtraRender,
@@ -59,6 +60,10 @@ export const baseHeaderProps = {
     subMenuItemRender: siderMenuProps.subMenuItemRender,
     rightContentRender: {
         type: [Object, Function] as PropType<RightContentRender>,
+        default: () => undefined,
+    },
+    leftContentRender: {
+        type: [Object, Function] as PropType<LeftContentRender>,
         default: () => undefined,
     },
     collapsedButtonRender: siderMenuProps.collapsedButtonRender,
@@ -127,6 +132,7 @@ export const TopNavHeader: FunctionalComponent<TopNavHeaderProps> = (props) => {
         onOpenKeys,
         onSelect,
         contentWidth,
+        leftContentRender,
         rightContentRender,
         topHeaderMenuRender,
         layout,
@@ -189,6 +195,15 @@ export const TopNavHeader: FunctionalComponent<TopNavHeaderProps> = (props) => {
                         <div class={`${prefixCls}-logo`} key="logo" id="logo">
                             {headerDom}
                         </div>
+                    </div>
+                )}
+                {leftContentRender && (
+                    <div class={`${prefixCls}-left-content`}>
+                        {typeof leftContentRender === 'function'
+                            ? leftContentRender({
+                                  ...props,
+                              })
+                            : leftContentRender}
                     </div>
                 )}
                 <div style={{ flex: 1 }} class={`${prefixCls}-menu`}>

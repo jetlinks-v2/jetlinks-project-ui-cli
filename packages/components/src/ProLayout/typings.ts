@@ -63,6 +63,7 @@ export type BreadcrumbRender = BreadcrumbProps['itemRender'];
 export type HeaderContentRender = WithFalse<() => VueNode>;
 export type HeaderRender = WithFalse<(props: ProProps) => VueNode>;
 export type RightContentRender = WithFalse<(props: ProProps) => VueNode>;
+export type LeftContentRender = WithFalse<(props: ProProps) => VueNode>;
 export type MenuItemRender = WithFalse<
     (args: {
         item: MenuDataItem;
