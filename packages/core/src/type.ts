@@ -30,7 +30,7 @@ export interface Options {
    * @param status 错误code
    * @param error 错误实例
    */
-  handleError?: (msg: string, status: string | number, error: AxiosError<any>) => void
+  handleError?: (msg: string, status: string | number, error: AxiosError<any>) => void | Promise<any>
   requestOptions?: (config: InternalAxiosRequestConfig) => InternalAxiosRequestConfig | Record<string, any>
   isCreateTokenRefresh?: boolean
 }

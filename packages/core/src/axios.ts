@@ -309,7 +309,11 @@ export class AxiosService {
     }
 
     if (this.options.handleError && isFunction(this.options.handleError)) {
-      this.options.handleError(description, _status, err as any)
+      const result = this.options.handleError(description, _status, err as any)
+      // 如果 handleError 返回了 Promise，则返回它以替换原始错误
+      if (result && typeof result.then === 'function') {
+        return result
+      }
     }
 
     return Promise.reject(err)
