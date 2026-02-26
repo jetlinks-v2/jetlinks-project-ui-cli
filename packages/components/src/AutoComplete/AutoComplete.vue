@@ -1,20 +1,32 @@
 <template>
   <Select
-    v-model:value="myValue"
+    v-if="props.multiple"
+    :value="myValue"
     allowClear
-    v-bind="props"
-    :options="_options"
+    v-bind="componentProps"
     mode="tags"
+    :options="displayOptions"
     style="width: 100%"
     @select="onSelect"
     @search="handleSearch"
-    @change="handleChange"
-  >
-  </Select>
+    @change="handleMultipleChange"
+  />
+  <AutoComplete
+    v-else
+    :value="myValue"
+    allowClear
+    v-bind="componentProps"
+    :options="displayOptions"
+    style="width: 100%"
+    @select="onSelect"
+    @search="handleSearch"
+    @change="handleSingleChange"
+    @blur="handleSingleBlur"
+  />
 </template>
 
 <script lang="ts" setup>
-import { Select } from 'ant-design-vue'
+import { AutoComplete, Select } from 'ant-design-vue'
 import type { DefaultOptionType } from 'ant-design-vue/lib/vc-select/Select'
 import { selectProps } from 'ant-design-vue/lib/select'
 import {
@@ -33,7 +45,7 @@ defineOptions({
 type Emit = {
   (e: 'select', value, option): void
   (e: 'change', value): void
-  (e: 'update:value', value: string | string[]): void
+  (e: 'update:value', value: string | string[] | undefined): void
 }
 
 const props = defineProps({
@@ -47,49 +59,136 @@ const props = defineProps({
     default: true,
   },
 })
+
 const emit = defineEmits<Emit>()
 const myValue = ref()
-const _label = ref()
+const searchValue = ref('')
+const customOptions = ref<DefaultOptionType[]>([])
 
-const handleChange = (e) => {
-  if (e.length === 0) {
-    myValue.value = undefined
-    emit('update:value', undefined)
+const isEmpty = (val) => val === undefined || val === null || val === ''
+
+const normalizeText = (val) => {
+  if (isEmpty(val)) {
+    return ''
   }
+  if (typeof val === 'object' && val !== null && 'value' in val) {
+    return String(val.value ?? '').trim()
+  }
+  return String(val).trim()
 }
 
-const _options = computed(() => {
-  const item = props.options.find((option) => option.value === myValue.value)
+const isOptionMatched = (option: DefaultOptionType, keyword: string) => {
+  const optionValue = normalizeText(option?.value)
+  const optionLabel = normalizeText(option?.[props.searchKey] ?? option?.label)
+  return optionValue === keyword || optionLabel === keyword
+}
 
-  if (item || !myValue.value) {
-    _label.value = item?.label
-    return props.options
-  }
-
-  _label.value = myValue.value
-  return [{ label: myValue.value, value: myValue.value }, ...props.options]
+const componentProps = computed(() => {
+  const { multiple, searchKey, options, value, mode, ...rest } = props
+  return rest
 })
 
-const handleSearch = (e) => {
-  myValue.value = e
+const mergedOptions = computed<DefaultOptionType[]>(() => {
+  const baseOptions = Array.isArray(props.options)
+    ? (props.options as DefaultOptionType[])
+    : []
+  const result: DefaultOptionType[] = []
+  const keys = new Set<string>()
+
+  ;[...customOptions.value, ...baseOptions].forEach((option) => {
+    const key = normalizeText(option?.value || option?.[props.searchKey] || option?.label)
+    if (!key || keys.has(key)) {
+      return
+    }
+    keys.add(key)
+    result.push(option)
+  })
+
+  return result
+})
+
+const displayOptions = computed(() => {
+  const keyword = normalizeText(searchValue.value)
+  if (!keyword) {
+    return mergedOptions.value
+  }
+
+  const exists = mergedOptions.value.some((option) => isOptionMatched(option, keyword))
+  if (exists) {
+    return mergedOptions.value
+  }
+
+  return [{ label: keyword, value: keyword }, ...mergedOptions.value]
+})
+
+const appendCustomOption = (val) => {
+  const keyword = normalizeText(val)
+  if (!keyword) {
+    return
+  }
+
+  const exists = mergedOptions.value.some((option) => isOptionMatched(option, keyword))
+  if (exists) {
+    return
+  }
+
+  customOptions.value = [{ label: keyword, value: keyword }, ...customOptions.value]
 }
 
-const onSelect = (val: string[], option: DefaultOptionType) => {
-  let _val = val
-  let _option = option
-  if (props.multiple === false) {
-    _val = val[0]
-    _option = option[0]
+const handleSearch = (val) => {
+  searchValue.value = normalizeText(val)
+}
+
+const handleMultipleChange = (val) => {
+  const nextValue = Array.isArray(val)
+    ? val
+    : isEmpty(val)
+    ? []
+    : [val]
+
+  nextValue.forEach((item) => appendCustomOption(item))
+  myValue.value = nextValue
+  emit('update:value', nextValue)
+  emit('change', nextValue)
+}
+
+const handleSingleChange = (val) => {
+  const nextValue = isEmpty(val) ? undefined : val
+  myValue.value = nextValue
+  emit('update:value', nextValue)
+  emit('change', nextValue)
+}
+
+const handleSingleBlur = () => {
+  appendCustomOption(myValue.value)
+}
+
+const onSelect = (val, option: DefaultOptionType) => {
+  appendCustomOption(val)
+  emit('select', val, option)
+}
+
+const normalizeValueByMode = (val) => {
+  if (isEmpty(val)) {
+    return props.multiple ? [] : undefined
   }
-  myValue.value = [_val]
-  emit('update:value', _val)
-  emit('select', _val, _option)
+  if (props.multiple) {
+    return Array.isArray(val) ? val : [val]
+  }
+  return Array.isArray(val) ? val[val.length - 1] : val
 }
 
 watch(
-  () => props.value,
-  (val) => {
-    myValue.value = props.multiple ? [val] : val
+  [() => props.value, () => props.multiple],
+  ([val]) => {
+    const nextValue = normalizeValueByMode(val)
+    myValue.value = nextValue
+
+    if (Array.isArray(nextValue)) {
+      nextValue.forEach((item) => appendCustomOption(item))
+    } else {
+      appendCustomOption(nextValue)
+    }
   },
   { immediate: true },
 )
