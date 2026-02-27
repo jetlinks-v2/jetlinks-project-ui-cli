@@ -83,6 +83,12 @@ const isOptionMatched = (option: DefaultOptionType, keyword: string) => {
   return optionValue === keyword || optionLabel === keyword
 }
 
+const isOptionContainsKeyword = (option: DefaultOptionType, keyword: string) => {
+  const optionValue = normalizeText(option?.value)
+  const optionLabel = normalizeText(option?.[props.searchKey] ?? option?.label)
+  return optionValue.includes(keyword) || optionLabel.includes(keyword)
+}
+
 const componentProps = computed(() => {
   const { multiple, searchKey, options, value, mode, ...rest } = props
   return rest
@@ -113,12 +119,15 @@ const displayOptions = computed(() => {
     return mergedOptions.value
   }
 
+  const matchedOptions = mergedOptions.value.filter((option) =>
+    isOptionContainsKeyword(option, keyword),
+  )
   const exists = mergedOptions.value.some((option) => isOptionMatched(option, keyword))
   if (exists) {
-    return mergedOptions.value
+    return matchedOptions
   }
 
-  return [{ label: keyword, value: keyword }, ...mergedOptions.value]
+  return [{ label: keyword, value: keyword }, ...matchedOptions]
 })
 
 const appendCustomOption = (val) => {
@@ -139,6 +148,10 @@ const handleSearch = (val) => {
   searchValue.value = normalizeText(val)
 }
 
+const resetSearchValue = () => {
+  searchValue.value = ''
+}
+
 const handleMultipleChange = (val) => {
   const nextValue = Array.isArray(val)
     ? val
@@ -148,6 +161,7 @@ const handleMultipleChange = (val) => {
 
   nextValue.forEach((item) => appendCustomOption(item))
   myValue.value = nextValue
+  resetSearchValue()
   emit('update:value', nextValue)
   emit('change', nextValue)
 }
@@ -161,10 +175,12 @@ const handleSingleChange = (val) => {
 
 const handleSingleBlur = () => {
   appendCustomOption(myValue.value)
+  resetSearchValue()
 }
 
 const onSelect = (val, option: DefaultOptionType) => {
   appendCustomOption(val)
+  resetSearchValue()
   emit('select', val, option)
 }
 
@@ -187,6 +203,12 @@ watch(
     if (Array.isArray(nextValue)) {
       nextValue.forEach((item) => appendCustomOption(item))
     } else {
+      if (
+        !props.multiple &&
+        normalizeText(nextValue) === normalizeText(searchValue.value)
+      ) {
+        return
+      }
       appendCustomOption(nextValue)
     }
   },
