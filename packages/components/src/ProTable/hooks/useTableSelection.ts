@@ -73,12 +73,14 @@ export const useTableSelection = (options: SelectionOptions = {
       selectionObj.value = type === 'checkbox' ? {
         ...omit(options, ['isCheck']),
         selectedRowKeys: selectedRowKeys,
+        type,
         onSelect,
         onSelectAll,
         onSelectNone,
       } : {
         ...omit(options, ['isCheck']),
         selectedRowKeys: selectedRowKeys,
+        type,
         onChange,
         onSelectNone
       }

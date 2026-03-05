@@ -3,9 +3,9 @@
     <template v-if="mode === 'CARD'">
       <div class="jtable-card">
         <div style="margin-bottom: 10px" v-if="__rowSelection && __rowSelection.type === 'checkbox'">
-          <a-checkbox :indeterminate="indeterminate" :checked="checkedAll"
+          <Checkbox :indeterminate="indeterminate" :checked="checkedAll"
                       @change="handleCheckedAllChange">{{ contextLocale.select.all }}
-          </a-checkbox>
+          </Checkbox>
         </div>
         <div class="jtable-card-items" :style="{ gridTemplateColumns }" v-if="dataSource.length">
           <div :class="['jtable-card-item', props.cardBodyClass]" v-for="item in dataSource" :key="item[props.rowKey]" @click="onClick(item)">
@@ -45,7 +45,7 @@
 <script setup lang="ts">
 import {useSlots, computed} from 'vue';
 import {_contentProps} from "./setting";
-import {Table} from 'ant-design-vue';
+import {Table, Checkbox} from 'ant-design-vue';
 import {get, omit} from 'lodash-es';
 import Empty from '../Empty';
 import {useTableInject} from './hooks'
