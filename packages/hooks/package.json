@@ -1,6 +1,6 @@
 {
   "name": "@jetlinks-web/hooks",
-  "version": "1.0.29",
+  "version": "1.0.31",
   "main": "dist/index.mjs",
   "module": "dist/index.mjs",
   "types": "dist/index.d.ts",
