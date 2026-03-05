@@ -3,8 +3,8 @@
 import {McpServer} from "@modelcontextprotocol/sdk/server/mcp.js";
 import {StdioServerTransport} from "@modelcontextprotocol/sdk/server/stdio.js";
 import {z} from "zod";
-import {readFileSync} from "fs";
-import {join, dirname} from "path";
+import {readFileSync, existsSync, readdirSync, statSync} from "fs";
+import {join, dirname, resolve, extname} from "path";
 import {fileURLToPath} from "url";
 import {resourceData} from "./docs/resources.js";
 import {parseAntdvComponents, scanComponents, scanUtils, getComponentDetails, getUtilDetails, getProjectInfo} from "./tool.js";
@@ -34,6 +34,528 @@ function createConsoleOutput(title: string, data: any[], type: 'components' | 'u
             type: type === 'components' ? 'component' : 'util'
         }))
     };
+}
+
+type CapabilityCategory = 'data_fetching' | 'state_management' | 'computation_logic' | 'action_behavior';
+type PluginSourceType = 'components' | 'constants' | 'core' | 'hooks' | 'utils' | 'unknown';
+
+interface FunctionCandidate {
+    name: string;
+    snippet: string;
+}
+
+interface CapabilityCandidate {
+    symbolName: string;
+    category: CapabilityCategory;
+    score: number;
+    sourceType: PluginSourceType;
+    filePath: string;
+    snippet: string;
+}
+
+interface GeneratedToolDefinition {
+    name: string;
+    description: string;
+    input_schema: Record<string, unknown>;
+    output_schema: Record<string, unknown>;
+    example_invocation: {
+        tool: string;
+        input: Record<string, unknown>;
+    };
+    source: {
+        symbol: string;
+        file: string;
+        type: PluginSourceType;
+        category: CapabilityCategory;
+    };
+}
+
+interface PluginMcpJson {
+    server: {
+        name: string;
+        version: string;
+        generatedAt: string;
+        rootPath: string;
+    };
+    objective: string;
+    constraints: string[];
+    analysis_scope: {
+        include_paths: string[];
+        scanned_files: string[];
+        missing_paths: string[];
+    };
+    capability_summary: {
+        total: number;
+        by_category: Record<CapabilityCategory, number>;
+    };
+    tools: GeneratedToolDefinition[];
+}
+
+interface CapabilityAnalysisResult {
+    capabilities: CapabilityCandidate[];
+    scannedFiles: string[];
+    missingPaths: string[];
+}
+
+const DEFAULT_PLUGIN_ANALYSIS_PATHS: string[] = [
+    "packages/components/src",
+    "packages/constants/src",
+    "packages/constants/index.ts",
+    "packages/core/src",
+    "packages/core/index.ts",
+    "packages/hooks/src",
+    "packages/hooks/index.ts",
+    "packages/utils/src",
+    "packages/utils/index.ts",
+];
+
+const BUSINESS_CATEGORY_KEYWORDS: Record<CapabilityCategory, string[]> = {
+    data_fetching: ["fetch", "query", "load", "request", "api", "http", "axios", "get", "list", "search"],
+    state_management: ["state", "store", "cache", "ref", "reactive", "set", "update", "reset", "pinia", "vuex"],
+    computation_logic: ["compute", "calc", "format", "transform", "map", "reduce", "filter", "sort", "parse", "validate"],
+    action_behavior: ["handle", "submit", "create", "remove", "delete", "toggle", "execute", "dispatch", "start", "stop"]
+};
+
+function toPosixPath(filePath: string): string {
+    return filePath.replace(/\\/g, "/");
+}
+
+function escapeRegExp(value: string): string {
+    return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+function toSnakeCase(value: string): string {
+    return value
+        .replace(/([a-z0-9])([A-Z])/g, "$1_$2")
+        .replace(/[-\s]+/g, "_")
+        .replace(/[^\w]/g, "_")
+        .replace(/_+/g, "_")
+        .replace(/^_+|_+$/g, "")
+        .toLowerCase();
+}
+
+function normalizeBusinessContent(filePath: string, content: string): string {
+    if (filePath.toLowerCase().endsWith(".vue")) {
+        const scriptMatches = [...content.matchAll(/<script(?:\s[^>]*)?>([\s\S]*?)<\/script>/gi)];
+        return scriptMatches.map((match) => match[1]).join("\n");
+    }
+
+    return content
+        .replace(/<template[\s\S]*?<\/template>/gi, "")
+        .replace(/<style[\s\S]*?<\/style>/gi, "");
+}
+
+function collectAnalyzableFiles(targetPath: string, fileSet: Set<string>): void {
+    if (!existsSync(targetPath)) {
+        return;
+    }
+
+    const stat = statSync(targetPath);
+
+    if (stat.isDirectory()) {
+        const entries = readdirSync(targetPath);
+        entries.forEach((entry) => {
+            collectAnalyzableFiles(join(targetPath, entry), fileSet);
+        });
+        return;
+    }
+
+    const normalizedPath = toPosixPath(targetPath);
+    const extension = extname(targetPath).toLowerCase();
+    const allowedExtensions = new Set([".ts", ".tsx", ".js", ".jsx", ".vue", ".mjs"]);
+
+    if (allowedExtensions.has(extension) && !normalizedPath.endsWith(".d.ts")) {
+        fileSet.add(targetPath);
+    }
+}
+
+function detectPluginSourceType(filePath: string): PluginSourceType {
+    const normalizedPath = toPosixPath(filePath);
+    const sourceMatch = normalizedPath.match(/\/packages\/(components|constants|core|hooks|utils)\//);
+    return (sourceMatch?.[1] as PluginSourceType) || "unknown";
+}
+
+function extractFunctionCandidates(content: string): FunctionCandidate[] {
+    const patterns: RegExp[] = [
+        /export\s+(?:async\s+)?function\s+([A-Za-z_$][\w$]*)\s*\([^)]*\)\s*\{/g,
+        /(?:export\s+)?const\s+([A-Za-z_$][\w$]*)\s*=\s*(?:async\s*)?\([^)]*\)\s*=>/g,
+        /(?:export\s+)?const\s+([A-Za-z_$][\w$]*)\s*=\s*(?:async\s*)?[A-Za-z_$][\w$]*\s*=>/g,
+        /(?:export\s+)?function\s+([A-Za-z_$][\w$]*)\s*\([^)]*\)\s*\{/g
+    ];
+
+    const candidates: FunctionCandidate[] = [];
+    const dedupe = new Set<string>();
+
+    patterns.forEach((pattern) => {
+        let match: RegExpExecArray | null;
+        while ((match = pattern.exec(content)) !== null) {
+            const name = match[1];
+            const key = `${name}:${match.index}`;
+            if (!name || dedupe.has(key)) {
+                continue;
+            }
+
+            dedupe.add(key);
+            candidates.push({
+                name,
+                snippet: content.slice(match.index, match.index + 600)
+            });
+        }
+    });
+
+    return candidates;
+}
+
+function scoreCategory(name: string, snippet: string, category: CapabilityCategory): number {
+    const lowerName = name.toLowerCase();
+    const lowerSnippet = snippet.toLowerCase();
+    const keywords = BUSINESS_CATEGORY_KEYWORDS[category];
+    let score = 0;
+
+    keywords.forEach((keyword) => {
+        if (lowerName.includes(keyword)) {
+            score += 3;
+        }
+
+        const wordPattern = new RegExp(`\\b${escapeRegExp(keyword)}\\b`, "g");
+        const occurrences = lowerSnippet.match(wordPattern)?.length || 0;
+        score += Math.min(occurrences, 3);
+    });
+
+    return score;
+}
+
+function pickCategory(name: string, snippet: string, sourceType: PluginSourceType): {category: CapabilityCategory; score: number} | null {
+    const categories = Object.keys(BUSINESS_CATEGORY_KEYWORDS) as CapabilityCategory[];
+    let bestCategory: CapabilityCategory | null = null;
+    let bestScore = 0;
+
+    categories.forEach((category) => {
+        const score = scoreCategory(name, snippet, category);
+        if (score > bestScore) {
+            bestScore = score;
+            bestCategory = category;
+        }
+    });
+
+    if (bestCategory && bestScore >= 2) {
+        return {category: bestCategory, score: bestScore};
+    }
+
+    if (/^use[A-Z]/.test(name) || sourceType === "hooks") {
+        return {category: "state_management", score: 1};
+    }
+    if (/^(get|fetch|query|load|list)/i.test(name)) {
+        return {category: "data_fetching", score: 1};
+    }
+    if (/^(calc|compute|format|transform|parse|validate)/i.test(name)) {
+        return {category: "computation_logic", score: 1};
+    }
+    if (/^(handle|submit|create|update|remove|delete|toggle|execute)/i.test(name)) {
+        return {category: "action_behavior", score: 1};
+    }
+
+    return null;
+}
+
+function buildToolDescription(symbolName: string, category: CapabilityCategory, sourceType: PluginSourceType): string {
+    const sourceText = sourceType === "unknown" ? "插件源码" : `${sourceType} 模块`;
+    switch (category) {
+        case "data_fetching":
+            return `抽象 ${sourceText} 中的 ${symbolName}，用于业务数据获取与查询。`;
+        case "state_management":
+            return `抽象 ${sourceText} 中的 ${symbolName}，用于状态读取、更新与同步。`;
+        case "computation_logic":
+            return `抽象 ${sourceText} 中的 ${symbolName}，用于纯计算、转换与校验逻辑。`;
+        case "action_behavior":
+            return `抽象 ${sourceText} 中的 ${symbolName}，用于触发业务动作与流程执行。`;
+        default:
+            return `抽象 ${sourceText} 中的 ${symbolName} 业务能力。`;
+    }
+}
+
+function buildInputSchema(category: CapabilityCategory): Record<string, unknown> {
+    switch (category) {
+        case "data_fetching":
+            return {
+                type: "object",
+                properties: {
+                    query: {type: "string", description: "查询关键词或业务查询语句"},
+                    filters: {type: "object", description: "过滤条件"},
+                    pagination: {
+                        type: "object",
+                        properties: {
+                            page: {type: "number"},
+                            pageSize: {type: "number"}
+                        }
+                    }
+                },
+                required: ["query"]
+            };
+        case "state_management":
+            return {
+                type: "object",
+                properties: {
+                    action: {type: "string", enum: ["get", "set", "merge", "reset"]},
+                    stateKey: {type: "string"},
+                    payload: {type: "object", description: "写入状态的数据"}
+                },
+                required: ["action", "stateKey"]
+            };
+        case "computation_logic":
+            return {
+                type: "object",
+                properties: {
+                    input: {type: "object", description: "待计算输入"},
+                    options: {type: "object", description: "计算参数"}
+                },
+                required: ["input"]
+            };
+        case "action_behavior":
+            return {
+                type: "object",
+                properties: {
+                    action: {type: "string", description: "动作类型"},
+                    payload: {type: "object", description: "动作参数"},
+                    dryRun: {type: "boolean", description: "是否仅模拟执行"}
+                },
+                required: ["action"]
+            };
+        default:
+            return {type: "object", properties: {}};
+    }
+}
+
+function buildOutputSchema(category: CapabilityCategory): Record<string, unknown> {
+    switch (category) {
+        case "data_fetching":
+            return {
+                type: "object",
+                properties: {
+                    success: {type: "boolean"},
+                    items: {type: "array", items: {type: "object"}},
+                    total: {type: "number"},
+                    message: {type: "string"}
+                },
+                required: ["success", "items"]
+            };
+        case "state_management":
+            return {
+                type: "object",
+                properties: {
+                    success: {type: "boolean"},
+                    stateSnapshot: {type: "object"},
+                    changedKeys: {type: "array", items: {type: "string"}}
+                },
+                required: ["success", "stateSnapshot"]
+            };
+        case "computation_logic":
+            return {
+                type: "object",
+                properties: {
+                    success: {type: "boolean"},
+                    result: {type: "object"},
+                    diagnostics: {type: "array", items: {type: "string"}}
+                },
+                required: ["success", "result"]
+            };
+        case "action_behavior":
+            return {
+                type: "object",
+                properties: {
+                    success: {type: "boolean"},
+                    status: {type: "string"},
+                    effects: {type: "array", items: {type: "string"}}
+                },
+                required: ["success", "status"]
+            };
+        default:
+            return {type: "object", properties: {}};
+    }
+}
+
+function buildExampleInvocation(toolName: string, category: CapabilityCategory): {tool: string; input: Record<string, unknown>} {
+    switch (category) {
+        case "data_fetching":
+            return {
+                tool: toolName,
+                input: {
+                    query: "status:active",
+                    filters: {tenantId: "tenant-001"},
+                    pagination: {page: 1, pageSize: 20}
+                }
+            };
+        case "state_management":
+            return {
+                tool: toolName,
+                input: {
+                    action: "set",
+                    stateKey: "currentDevice",
+                    payload: {id: "dev-001", name: "Sensor-A"}
+                }
+            };
+        case "computation_logic":
+            return {
+                tool: toolName,
+                input: {
+                    input: {values: [12, 7, 35]},
+                    options: {strategy: "avg"}
+                }
+            };
+        case "action_behavior":
+            return {
+                tool: toolName,
+                input: {
+                    action: "submit",
+                    payload: {formId: "deviceForm", mode: "create"},
+                    dryRun: false
+                }
+            };
+        default:
+            return {tool: toolName, input: {}};
+    }
+}
+
+function buildUniqueToolName(symbolName: string, category: CapabilityCategory, existingNames: Set<string>): string {
+    const baseName = `plugin_${category}_${toSnakeCase(symbolName) || "ability"}`;
+    if (!existingNames.has(baseName)) {
+        existingNames.add(baseName);
+        return baseName;
+    }
+
+    let suffix = 2;
+    let candidate = `${baseName}_${suffix}`;
+    while (existingNames.has(candidate)) {
+        suffix += 1;
+        candidate = `${baseName}_${suffix}`;
+    }
+    existingNames.add(candidate);
+    return candidate;
+}
+
+function analyzePluginCapabilities(rootPath: string, includePaths: string[]): CapabilityAnalysisResult {
+    const targetPaths = includePaths.length > 0 ? includePaths : DEFAULT_PLUGIN_ANALYSIS_PATHS;
+    const resolvedPaths = targetPaths.map((target) => resolve(rootPath, target));
+    const fileSet = new Set<string>();
+    const missingPaths: string[] = [];
+
+    resolvedPaths.forEach((targetPath) => {
+        if (!existsSync(targetPath)) {
+            missingPaths.push(toPosixPath(targetPath));
+            return;
+        }
+        collectAnalyzableFiles(targetPath, fileSet);
+    });
+
+    const candidates: CapabilityCandidate[] = [];
+    fileSet.forEach((filePath) => {
+        try {
+            const rawContent = readFileSync(filePath, "utf-8");
+            const businessContent = normalizeBusinessContent(filePath, rawContent);
+            if (!businessContent.trim()) {
+                return;
+            }
+
+            const sourceType = detectPluginSourceType(filePath);
+            const functionCandidates = extractFunctionCandidates(businessContent);
+
+            functionCandidates.forEach((candidate) => {
+                const category = pickCategory(candidate.name, candidate.snippet, sourceType);
+                if (!category) {
+                    return;
+                }
+
+                candidates.push({
+                    symbolName: candidate.name,
+                    category: category.category,
+                    score: category.score,
+                    sourceType,
+                    filePath,
+                    snippet: candidate.snippet
+                });
+            });
+        } catch (error) {
+            console.warn(`分析文件失败: ${filePath}`, error);
+        }
+    });
+
+    const deduped = new Map<string, CapabilityCandidate>();
+    candidates
+        .sort((left, right) => right.score - left.score)
+        .forEach((candidate) => {
+            const dedupeKey = `${toPosixPath(candidate.filePath)}:${candidate.symbolName}:${candidate.category}`;
+            if (!deduped.has(dedupeKey)) {
+                deduped.set(dedupeKey, candidate);
+            }
+        });
+
+    return {
+        capabilities: Array.from(deduped.values()).sort((left, right) => right.score - left.score),
+        scannedFiles: Array.from(fileSet).map((filePath) => toPosixPath(filePath)).sort(),
+        missingPaths
+    };
+}
+
+function buildPluginMcpJson(rootPath: string, includePaths: string[], maxTools: number): {mcpJson: PluginMcpJson; analysis: CapabilityAnalysisResult} {
+    const analysis = analyzePluginCapabilities(rootPath, includePaths);
+    const selectedCapabilities = analysis.capabilities.slice(0, maxTools);
+    const usedNames = new Set<string>();
+    const tools: GeneratedToolDefinition[] = selectedCapabilities.map((capability) => {
+        const toolName = buildUniqueToolName(capability.symbolName, capability.category, usedNames);
+        const normalizedFile = toPosixPath(capability.filePath);
+        return {
+            name: toolName,
+            description: buildToolDescription(capability.symbolName, capability.category, capability.sourceType),
+            input_schema: buildInputSchema(capability.category),
+            output_schema: buildOutputSchema(capability.category),
+            example_invocation: buildExampleInvocation(toolName, capability.category),
+            source: {
+                symbol: capability.symbolName,
+                file: normalizedFile,
+                type: capability.sourceType,
+                category: capability.category
+            }
+        };
+    });
+
+    const categorySummary: Record<CapabilityCategory, number> = {
+        data_fetching: 0,
+        state_management: 0,
+        computation_logic: 0,
+        action_behavior: 0
+    };
+    tools.forEach((tool) => {
+        const toolCategory = tool.source.category;
+        categorySummary[toolCategory] += 1;
+    });
+
+    const includedPaths = includePaths.length > 0 ? includePaths : DEFAULT_PLUGIN_ANALYSIS_PATHS;
+    const mcpJson: PluginMcpJson = {
+        server: {
+            name: "@jetlinks-web/mcp-server",
+            version: "1.0.0",
+            generatedAt: new Date().toISOString(),
+            rootPath: toPosixPath(rootPath)
+        },
+        objective: "把前端插件能力转化为可供 AI 调用的服务接口",
+        constraints: [
+            "禁止把 UI 样式作为 MCP",
+            "禁止把渲染逻辑作为 MCP",
+            "禁止把 JSX/Vue template 直接转换"
+        ],
+        analysis_scope: {
+            include_paths: includedPaths,
+            scanned_files: analysis.scannedFiles,
+            missing_paths: analysis.missingPaths
+        },
+        capability_summary: {
+            total: tools.length,
+            by_category: categorySummary
+        },
+        tools
+    };
+
+    return {mcpJson, analysis};
 }
 
 // 初始化 MCP 服务器
@@ -804,6 +1326,63 @@ server.registerTool(
                     hasExample: !!util.example,
                     hasContent: !!util.content
                 }
+            }
+        };
+    }
+);
+
+server.registerTool(
+    "generate_plugin_mcp_json",
+    {
+        title: "生成插件能力 MCP JSON",
+        description: "基于插件源码分析业务能力（数据获取、状态管理、计算逻辑、操作行为），输出完整 MCP tools JSON",
+        inputSchema: {
+            rootPath: z.string().optional().describe("插件项目根目录，默认当前工作目录"),
+            includePaths: z.array(z.string()).optional().describe("待分析路径，默认使用 111.md 中的 packages 结构"),
+            maxTools: z.number().int().min(1).max(200).optional().describe("最多输出的工具数量，默认 80")
+        },
+    },
+    async (args, _extra) => {
+        const { rootPath, includePaths, maxTools } = args as {
+            rootPath?: string;
+            includePaths?: string[];
+            maxTools?: number;
+        };
+
+        const analysisRoot = rootPath ? resolve(rootPath) : process.cwd();
+        const normalizedIncludePaths = (includePaths || []).map((item) => item.trim()).filter(Boolean);
+        const toolLimit = maxTools || 80;
+
+        console.log("\n=== 正在分析前端插件业务能力并生成 MCP JSON ===");
+        console.log(`分析根目录: ${analysisRoot}`);
+        console.log(`工具数量上限: ${toolLimit}`);
+        if (normalizedIncludePaths.length > 0) {
+            console.log(`自定义分析路径: ${normalizedIncludePaths.join(", ")}`);
+        }
+
+        const {mcpJson, analysis} = buildPluginMcpJson(analysisRoot, normalizedIncludePaths, toolLimit);
+
+        console.log(`已扫描文件: ${analysis.scannedFiles.length}`);
+        console.log(`识别能力: ${analysis.capabilities.length}`);
+        console.log(`生成工具: ${mcpJson.tools.length}`);
+        if (analysis.missingPaths.length > 0) {
+            console.log(`未找到路径: ${analysis.missingPaths.join(", ")}`);
+        }
+
+        return {
+            content: [
+                {
+                    type: "text",
+                    text: JSON.stringify(mcpJson, null, 2),
+                },
+            ],
+            metadata: {
+                success: true,
+                rootPath: analysisRoot,
+                scannedFileCount: analysis.scannedFiles.length,
+                capabilityCount: analysis.capabilities.length,
+                generatedToolCount: mcpJson.tools.length,
+                missingPaths: analysis.missingPaths
             }
         };
     }
