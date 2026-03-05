@@ -6,8 +6,8 @@
   "main": "index.js",
   "type": "module",
   "scripts": {
-    "dev": "pnpm esno ./src/dev.ts",
-    "build": "pnpm esno ./src/build.ts",
+    "dev": "pnpm esno ./src/dev.js",
+    "build": "pnpm esno ./src/build.js",
     "clean": "pnpm rimraf node_modules && pnpm rimraf dist && pnpm rimraf .turbo",
     "compile-es": "tsup"
   },

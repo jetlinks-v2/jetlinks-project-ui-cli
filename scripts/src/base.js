@@ -5,7 +5,7 @@ import {
   filterWorkspace,
   getWorkspacePackages,
 } from "./helper.js";
-import { DEFAULT_SELECT_TYPE } from "./constant.js.js";
+import { DEFAULT_SELECT_TYPE } from "./constant.js";
 import { isArray, isString } from "lodash-es";
 
 import prompts from "prompts";
