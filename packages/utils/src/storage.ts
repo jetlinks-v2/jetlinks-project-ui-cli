@@ -27,11 +27,38 @@ export const LocalStore = {
     localStorage.clear()
   },
 }
+
+export const getDomain = () => {
+  const domain = localStorage.getItem('X-Tenant-Domain')
+  const key = import.meta.env.VITE_APP_ENVIRONMENT ? `_${domain}` : ''
+  return {
+    domain,
+    key
+  }
+}
+
+const hasDomain = (str: string, key: string) => {
+  return str && key ? str.indexOf(key) : undefined
+}
+
 export const getToken = () => {
-  return LocalStore.get(VITE_STORE_TOKEN_KEY || TOKEN_KEY)
+  const token = LocalStore.get(VITE_STORE_TOKEN_KEY || TOKEN_KEY)
+  const {key} = getDomain()
+  const index = hasDomain(token, key)
+
+  if (import.meta.env.VITE_APP_ENVIRONMENT && index !== undefined && index !== -1 ) {
+    return token.substring(0, index)
+  }
+  return token
 }
 export const setToken = (value: string) => {
-  return LocalStore.set(VITE_STORE_TOKEN_KEY || TOKEN_KEY, value)
+  let _value = value
+  const {key} = getDomain()
+  const index = hasDomain(value, key)
+  if (import.meta.env.VITE_APP_ENVIRONMENT && index !== undefined && index === -1 ) {
+    _value += key
+  }
+  LocalStore.set(VITE_STORE_TOKEN_KEY || TOKEN_KEY, _value)
 }
 
 export const removeToken = () => {
