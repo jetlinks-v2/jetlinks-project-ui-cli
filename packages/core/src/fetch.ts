@@ -1,7 +1,6 @@
 import { getToken } from "@jetlinks-web/utils";
 import { BASE_API, TOKEN_KEY } from "@jetlinks-web/constants";
-import { isFunction, isObject } from "lodash-es";
-import { Observable, Subscriber } from 'rxjs';
+import { Observable, Subscriber } from "rxjs";
 
 /**
  * NdJson 配置选项
@@ -28,12 +27,30 @@ interface RequestContext {
   isActive: boolean;
 }
 
-type HttpMethod = 'GET' | 'POST';
+type HttpMethod = "GET" | "POST";
+type RequestData = BodyInit | Record<string, unknown>;
+
+const NDJSON_CONTENT_TYPE = "application/x-ndjson";
+
+const isObjectLike = (value: unknown): value is Record<string, unknown> =>
+  typeof value === "object" && value !== null;
+
+const isPlainObject = (value: unknown): value is Record<string, unknown> => {
+  if (!isObjectLike(value)) {
+    return false;
+  }
+
+  const proto = Object.getPrototypeOf(value);
+  return proto === Object.prototype || proto === null;
+};
+
+const isFunction = (value: unknown): value is (...args: unknown[]) => unknown =>
+  typeof value === "function";
 
 export class NdJson {
   private options: NdJsonOptions = {
     code: 200,
-    codeKey: 'status'
+    codeKey: "status"
   };
 
   private activeRequests = new Set<RequestContext>();
@@ -68,57 +85,58 @@ export class NdJson {
     context: RequestContext
   ): void {
     const decoder = new TextDecoder();
-    let buffer = '';
+    let buffer = "";
 
-    const read = (): void => {
-      if (!context.isActive) {
-        reader.cancel();
-        observer.complete();
-        return;
-      }
-
-      reader.read()
-        .then(({ done, value }) => {
+    const read = async (): Promise<void> => {
+      try {
+        while (context.isActive) {
+          const { done, value } = await reader.read();
           if (done) {
+            const finalText = decoder.decode();
+            if (finalText) {
+              buffer += finalText;
+            }
             this.flushBuffer(buffer, observer);
-            observer.complete();
+            if (!observer.closed) {
+              observer.complete();
+            }
             return;
           }
 
           buffer += decoder.decode(value, { stream: true });
           buffer = this.parseLines(buffer, observer);
-          read();
-        })
-        .catch(err => {
-          if (err.name !== 'AbortError') {
-            observer.error(err);
+          if (observer.closed) {
+            return;
           }
-        });
+        }
+      } catch (error) {
+        if (!this.isAbortError(error) && !observer.closed) {
+          observer.error(error);
+        }
+      }
     };
 
-    read();
+    void read();
   }
 
   /**
    * 解析缓冲区中的完整行
    */
   private parseLines<T>(buffer: string, observer: Subscriber<T>): string {
-    const lines = buffer.split('\n');
+    let start = 0;
+    let lineEnd = buffer.indexOf("\n");
 
-    for (let i = 0; i < lines.length - 1; i++) {
-      const line = lines[i].trim();
-      if (line.length > 0) {
-        try {
-          const data = line.startsWith('data:') ? line.slice(5) : line;
-          observer.next(JSON.parse(data));
-        } catch (e) {
-          observer.error(e);
-          return '';
-        }
+    while (lineEnd !== -1) {
+      const line = buffer.slice(start, lineEnd).trim();
+      if (line.length > 0 && !this.emitLine(line, observer)) {
+        return "";
       }
+
+      start = lineEnd + 1;
+      lineEnd = buffer.indexOf("\n", start);
     }
 
-    return lines[lines.length - 1];
+    return buffer.slice(start);
   }
 
   /**
@@ -127,11 +145,18 @@ export class NdJson {
   private flushBuffer<T>(buffer: string, observer: Subscriber<T>): void {
     const trimmed = buffer.trim();
     if (trimmed.length > 0) {
-      try {
-        observer.next(JSON.parse(trimmed));
-      } catch (e) {
-        observer.error(e);
-      }
+      this.emitLine(trimmed, observer);
+    }
+  }
+
+  private emitLine<T>(line: string, observer: Subscriber<T>): boolean {
+    const data = line.startsWith("data:") ? line.slice(5).trimStart() : line;
+    try {
+      observer.next(this.handleResponse(JSON.parse(data)));
+      return true;
+    } catch (error) {
+      observer.error(error);
+      return false;
     }
   }
 
@@ -141,7 +166,7 @@ export class NdJson {
   private request<T>(
     method: HttpMethod,
     url: string,
-    data?: BodyInit | Record<string, unknown>,
+    data?: RequestData,
     extra: RequestInit = {}
   ): Observable<T> {
     const fullUrl = this.getUrl(url);
@@ -155,25 +180,38 @@ export class NdJson {
 
       this.activeRequests.add(context);
 
-      const requestInit: RequestInit = {
-        method,
-        signal: controller.signal,
-        keepalive: true,
-        ...extra,
-        ...this.handleRequest(fullUrl, method)
-      };
+      const requestInit = this.mergeRequestInit(
+        {
+          method,
+          signal: controller.signal,
+          keepalive: true
+        },
+        this.handleRequest(fullUrl, method),
+        extra,
+        {
+          method,
+          signal: controller.signal
+        }
+      );
 
       // POST 请求添加 body
-      if (method === 'POST' && data !== undefined) {
-        requestInit.body = isObject(data) ? JSON.stringify(data) : data as BodyInit;
+      if (method === "POST" && data !== undefined) {
+        requestInit.body = isPlainObject(data) ? JSON.stringify(data) : (data as BodyInit);
       }
 
       fetch(fullUrl, requestInit)
         .then(resp => {
+          if (resp.status !== this.options.code) {
+            if (!this.isAbortError(resp)) {
+              observer.error(resp);
+            }
+            return
+          }
+
           const reader = resp.body?.getReader();
 
           if (!reader) {
-            observer.error(new Error('No readable stream available'));
+            observer.error(new Error("No readable stream available"));
             return;
           }
 
@@ -181,7 +219,9 @@ export class NdJson {
           this.processStream(reader, observer, context);
         })
         .catch(e => {
-          observer.error(e);
+          if (!this.isAbortError(e)) {
+            observer.error(e);
+          }
         });
 
       // 返回清理函数
@@ -193,26 +233,26 @@ export class NdJson {
     });
   }
 
-  get<T = unknown>(url: string, _data = '{}', extra: RequestInit = {}): Observable<T> {
-    return this.request<T>('GET', url, undefined, extra);
+  get<T = unknown>(url: string, _data = "{}", extra: RequestInit = {}): Observable<T> {
+    return this.request<T>("GET", url, undefined, extra);
   }
 
-  post<T = unknown>(url: string, data: BodyInit | Record<string, unknown> = {}, extra: RequestInit = {}): Observable<T> {
-    return this.request<T>('POST', url, data, extra);
+  post<T = unknown>(url: string, data: RequestData = {}, extra: RequestInit = {}): Observable<T> {
+    return this.request<T>("POST", url, data, extra);
   }
 
   private handleRequest(url: string, method: HttpMethod): RequestInit {
     const headers: Record<string, string> = {};
 
     // 只有 POST 请求才设置 Content-Type
-    if (method === 'POST') {
-      headers['Content-Type'] = 'application/x-ndjson';
+    if (method === "POST") {
+      headers["Content-Type"] = NDJSON_CONTENT_TYPE;
     }
 
     const config: RequestInit = { headers };
     const token = getToken();
 
-    if (!token && this.options.filter_url?.some(_url => url.includes(_url))) {
+    if (!token && !this.options.filter_url?.some(_url => url.includes(_url))) {
       this.options.tokenExpiration?.();
       return config;
     }
@@ -221,10 +261,10 @@ export class NdJson {
       headers[TOKEN_KEY] = token;
     }
 
-    if (this.options.requestOptions && isFunction(this.options.requestOptions)) {
+    if (isFunction(this.options.requestOptions)) {
       const extraOptions = this.options.requestOptions(config);
-      if (extraOptions && isObject(extraOptions)) {
-        Object.assign(config, extraOptions);
+      if (isObjectLike(extraOptions)) {
+        return this.mergeRequestInit(config, extraOptions as RequestInit);
       }
     }
 
@@ -232,10 +272,50 @@ export class NdJson {
   }
 
   handleResponse<T>(response: T): T {
-    if (this.options.handleResponse && isFunction(this.options.handleResponse)) {
+    if (isFunction(this.options.handleResponse)) {
       return this.options.handleResponse(response);
     }
     return response;
+  }
+
+  private mergeRequestInit(...configs: Array<RequestInit | undefined>): RequestInit {
+    const merged: RequestInit = {};
+    const mergedHeaders = new Headers();
+    let hasHeaders = false;
+
+    configs.forEach((config) => {
+      if (!config) {
+        return;
+      }
+
+      const { headers, ...rest } = config;
+      Object.assign(merged, rest);
+      hasHeaders = this.mergeHeaders(mergedHeaders, headers) || hasHeaders;
+    });
+
+    if (hasHeaders) {
+      merged.headers = mergedHeaders;
+    }
+
+    return merged;
+  }
+
+  private mergeHeaders(target: Headers, source?: HeadersInit): boolean {
+    if (!source) {
+      return false;
+    }
+
+    let merged = false;
+    new Headers(source).forEach((value, key) => {
+      target.set(key, value);
+      merged = true;
+    });
+
+    return merged;
+  }
+
+  private isAbortError(error: unknown): boolean {
+    return error instanceof Error && error.name === "AbortError";
   }
 
   /**
