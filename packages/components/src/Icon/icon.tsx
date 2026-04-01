@@ -3,9 +3,9 @@ import * as aIcon from '@ant-design/icons-vue';
 import { createFromIconfontCN } from '@ant-design/icons-vue';
 import {ComponentsEnum} from "../utils/constants";
 
-let MyIcon = createFromIconfontCN({
-    scriptUrl: '//at.alicdn.com/t/c/font_3183515_i7oma42he.js', // 在 iconfont.cn 上生成
-});
+let MyIcon = () => {
+  return () => {}
+}
 
 const AntdIcon = (props: { type: string }) => createVNode(aIcon[props.type]);
 
