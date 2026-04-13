@@ -28,39 +28,28 @@ export const LocalStore = {
   },
 }
 
-export const getDomain = () => {
-  const domain = localStorage.getItem('X-Tenant-Domain')
-  const key = import.meta.env.VITE_APP_ENVIRONMENT ? `_${domain}` : ''
-  return {
-    domain,
-    key
-  }
+export const getCloudProjectId = () => location.pathname.split('/')[1];
+
+const isEnvironmentEnabled = () => {
+  const env = `${import.meta.env.VITE_APP_ENVIRONMENT ?? ''}`.trim().toLowerCase()
+  return !!env && !['false', '0', 'null', 'undefined'].includes(env)
 }
 
-const hasDomain = (str: string, key: string) => {
-  return str && key ? str.indexOf(key) : undefined
+const getTokenKey = (key: string) => {
+    const domain = getCloudProjectId()
+  if (isEnvironmentEnabled() && key && domain) {
+    return `${key}_${domain}`
+  }
+  return key
 }
 
 export const getToken = () => {
-  const token = LocalStore.get(VITE_STORE_TOKEN_KEY || TOKEN_KEY)
-  const {key} = getDomain()
-  const index = hasDomain(token, key)
-
-  if (import.meta.env.VITE_APP_ENVIRONMENT && index !== undefined && index !== -1 ) {
-    return token.substring(0, index)
-  }
-  return token
+  return LocalStore.get(getTokenKey(VITE_STORE_TOKEN_KEY || TOKEN_KEY))
 }
 export const setToken = (value: string) => {
-  let _value = value
-  const {key} = getDomain()
-  const index = hasDomain(value, key)
-  if (import.meta.env.VITE_APP_ENVIRONMENT && index !== undefined && index === -1 ) {
-    _value += key
-  }
-  LocalStore.set(VITE_STORE_TOKEN_KEY || TOKEN_KEY, _value)
+  LocalStore.set(getTokenKey(VITE_STORE_TOKEN_KEY || TOKEN_KEY), value)
 }
 
 export const removeToken = () => {
-  LocalStore.remove(VITE_STORE_TOKEN_KEY || TOKEN_KEY)
+  LocalStore.remove(getTokenKey(VITE_STORE_TOKEN_KEY || TOKEN_KEY))
 }
