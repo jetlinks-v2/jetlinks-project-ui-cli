@@ -33,80 +33,83 @@ import { baseHeaderProps } from '../TopHeader';
 import Header, { headerViewProps } from './Header';
 import type { VueNode } from 'ant-design-vue/lib/_util/type';
 import useConfigInject from 'ant-design-vue/lib/config-provider/hooks/useConfigInject';
-import type { BreadcrumbProps, RouteContextProps } from '../RouteContext';
-import { pick } from 'lodash-es';
+import type { BreadcrumbProps, RouteContextProps } from '../RouteContext'
+import { pick, isObject } from 'lodash-es';
 import { defaultRouteContext, routeContextInjectKey } from '../RouteContext';
 import { getMenuFirstChildren, getSlot } from '../util';
 import { Layout, LayoutContent, Breadcrumb, Tabs } from 'ant-design-vue';
 import useProLayoutStyle from '../style'
 
 export const basicLayoutProps = {
-    ...defaultSettingProps,
-    ...siderMenuProps,
-    ...baseHeaderProps,
-    ...headerViewProps,
-
-    pure: Boolean,
-    loading: Boolean,
-    locale: {
-        type: [Function, Boolean] as PropType<WithFalse<FormatMessage>>,
-        default() {
-            return (s: string) => s;
-        },
+  ...defaultSettingProps,
+  ...siderMenuProps,
+  ...baseHeaderProps,
+  ...headerViewProps,
+  classNames: {
+    type: Object,
+    default: () => ({}),
+  },
+  pure: Boolean,
+  loading: Boolean,
+  locale: {
+    type: [Function, Boolean] as PropType<WithFalse<FormatMessage>>,
+    default() {
+      return (s: string) => s
     },
-    /**
-     * 是否禁用移动端模式，有的管理系统不需要移动端模式，此属性设置为true即可
-     */
-    disableMobile: {
-        type: Boolean,
-        required: false,
+  },
+  /**
+   * 是否禁用移动端模式，有的管理系统不需要移动端模式，此属性设置为true即可
+   */
+  disableMobile: {
+    type: Boolean,
+    required: false,
+  },
+  isChildrenLayout: {
+    type: Boolean,
+    required: false,
+  },
+  /**
+   * 兼用 content 的 margin
+   */
+  disableContentMargin: {
+    type: Boolean,
+    required: false,
+  },
+  colSize: {
+    type: Number,
+    required: false,
+  },
+  contentStyle: {
+    type: [String, Object] as PropType<CSSProperties>,
+    default: () => {
+      return null
     },
-    isChildrenLayout: {
-        type: Boolean,
-        required: false,
+  },
+  breadcrumb: {
+    type: [Object, Function] as PropType<BreadcrumbProps>,
+    default: () => null,
+  },
+  collapsedButtonRender: {
+    type: [Function, Object, Boolean] as PropType<
+      WithFalse<(collapsed?: boolean) => VueNode>
+    >,
+    default: () => undefined,
+  },
+  breadcrumbRender: {
+    type: [Object, Function, Boolean] as PropType<BreadcrumbRender>,
+    default() {
+      return null
     },
-    /**
-     * 兼用 content 的 margin
-     */
-    disableContentMargin: {
-        type: Boolean,
-        required: false,
-    },
-    colSize: {
-        type: Number,
-        required: false,
-    },
-    contentStyle: {
-        type: [String, Object] as PropType<CSSProperties>,
-        default: () => {
-            return null;
-        },
-    },
-    breadcrumb: {
-        type: [Object, Function] as PropType<BreadcrumbProps>,
-        default: () => null,
-    },
-    collapsedButtonRender: {
-        type: [Function, Object, Boolean] as PropType<
-            WithFalse<(collapsed?: boolean) => VueNode>
-        >,
-        default: () => undefined,
-    },
-    breadcrumbRender: {
-        type: [Object, Function, Boolean] as PropType<BreadcrumbRender>,
-        default() {
-            return null;
-        },
-    },
-    headerContentRender: {
-        type: [Function, Object, Boolean] as PropType<HeaderContentRender>,
-        default: () => undefined,
-    },
-    headerRender: {
-        type: [Object, Function, Boolean] as PropType<HeaderRender>,
-        default: () => undefined,
-    },
-};
+  },
+  headerContentRender: {
+    type: [Function, Object, Boolean] as PropType<HeaderContentRender>,
+    default: () => undefined,
+  },
+  headerRender: {
+    type: [Object, Function, Boolean] as PropType<HeaderRender>,
+    default: () => undefined,
+  },
+}
 
 export type BasicLayoutProps = Partial<
     ExtractPropTypes<typeof basicLayoutProps>
@@ -135,7 +138,11 @@ export default defineComponent({
         const { prefixCls } = useConfigInject('layout', {});
         const isTop = computed(() => props.layout === 'top');
         const hasSide = computed(
-            () => props.layout === 'mix' || props.layout === 'side' || false,
+            () =>
+                props.layout === 'mix' ||
+                props.layout === 'side' ||
+                props.layout === 'sider' ||
+                false,
         );
         const hasSplitMenu = computed(
             () => props.layout === 'mix' && props.splitMenus,
@@ -193,15 +200,17 @@ export default defineComponent({
         const baseClassName = computed(() => `${props.prefixCls}-basicLayout`);
 
         const className = computed(() => {
+
             return {
-                [baseClassName.value]: true,
-                [`${baseClassName.value}-top-menu`]: isTop.value,
-                [`${baseClassName.value}-is-children`]: props.isChildrenLayout,
-                [`${baseClassName.value}-fix-siderbar`]: props.fixSiderbar,
-                [`${baseClassName.value}-${props.layout}`]: props.layout,
-                [`${baseClassName.value}-${props.layoutType}`]: props.layoutType,
-                [hashId.value]: true
-            };
+              [baseClassName.value]: true,
+              [`${baseClassName.value}-top-menu`]: isTop.value,
+              [`${baseClassName.value}-is-children`]: props.isChildrenLayout,
+              [`${baseClassName.value}-fix-siderbar`]: props.fixSiderbar,
+              [`${baseClassName.value}-${props.layout}`]: props.layout,
+              [`${baseClassName.value}-${props.layoutType}`]: props.layoutType,
+              [hashId.value]: true,
+              ...(isObject(props.classNames) ? props.classNames || {} : {}),
+            }
         });
 
         const genLayoutStyle = reactive<CSSProperties>({
@@ -227,7 +236,7 @@ export default defineComponent({
             },
             matchMenuKeys?: string[],
         ): VueNode | null => {
-            if (p.headerRender === false || p.pure) {
+            if (p.headerRender === false || p.pure || p.layout === 'sider') {
                 return null;
             }
             return h(Header, { ...p, matchMenuKeys: matchMenuKeys || []})
@@ -284,9 +293,6 @@ export default defineComponent({
             flatMenu: hasFlatMenu,
             layoutType,
         });
-
-      console.log(toRefs(props))
-
 
         provide(routeContextInjectKey, routeContext);
 
@@ -382,7 +388,7 @@ export default defineComponent({
                   ...props,
                   menuItemRender,
                   subMenuItemRender,
-                  hasSiderMenu: !isTop.value,
+                  hasSiderMenu: hasSide.value,
                   menuData: props.menuData,
                   onCollapse,
                   onOpenKeys,
@@ -407,12 +413,17 @@ export default defineComponent({
                 props.matchMenuKeys,
               )
             });
-            routeContext.hasHeader = !!headerDom.value;
+            const hasHeader = computed(() => !!headerDom.value);
+            const siderHeaderHeight = computed(() =>
+              hasHeader.value ? props.headerHeight : 0,
+            );
+
+            routeContext.hasHeader = hasHeader.value;
 
             const contentClassName = computed(() => {
                 return {
                     [`${baseClassName.value}-content`]: true,
-                    [`${baseClassName.value}-has-header`]: headerDom,
+                    [`${baseClassName.value}-has-header`]: hasHeader.value,
                     [`${baseClassName.value}-content-disable-margin`]:
                         props.disableContentMargin,
                 };
@@ -442,11 +453,13 @@ export default defineComponent({
                           <SiderMenu
                             {...restProps}
                             logo={logoRender || restProps.logo}
+                            headerHeight={siderHeaderHeight.value}
                             menuHeaderRender={menuHeaderRender}
                             menuExtraRender={menuExtraRender}
                             menuContentRender={
                               menuContentRender
                             }
+                            linksRender={linksRender}
                             menuItemRender={menuItemRender}
                             subMenuItemRender={
                               subMenuItemRender

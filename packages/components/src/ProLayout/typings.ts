@@ -3,7 +3,7 @@ import type { BreadcrumbProps } from './RouteContext';
 import type { VueNode } from 'ant-design-vue/es/_util/type';
 
 export type Theme = 'dark' | 'light';
-export type LayoutType = 'side' | 'top' | 'mix';
+export type LayoutType = 'side' | 'top' | 'mix' | 'sider';
 export type TargetType = '_blank' | '_self' | unknown;
 export type ProProps = Record<never, never>;
 export type ContentWidth = 'Fluid' | 'Fixed';

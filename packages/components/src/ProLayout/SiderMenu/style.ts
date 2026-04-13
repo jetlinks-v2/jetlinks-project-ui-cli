@@ -19,6 +19,7 @@ export const genSiderMenuStyle = (config: any): CSSObject => {
       opacity: 1,
     }
   })
+
   return {
     [`${proLayoutSiderMenuCls}`]: {
       position: 'relative',
@@ -182,6 +183,13 @@ export const genSiderMenuStyle = (config: any): CSSObject => {
       },
       '.drawer .drawer-content': {
         background: `#001529`
+      },
+      [`${token.antCls}-layout-sider-children`]: {
+        [`${proLayoutSiderMenuCls}-logo`]: {
+          h1: {
+            color: '#333'
+          }
+        }
       }
     },
     // 修正菜单 collapsed 时，icon 与 title 的间距
@@ -201,6 +209,7 @@ export const genSiderMenuStyle = (config: any): CSSObject => {
       '&:hover': {
         backgroundColor: '#efefef',
       }
-    }
+    },
+
   }
 }

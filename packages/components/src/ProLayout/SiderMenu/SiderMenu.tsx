@@ -153,13 +153,17 @@ export const defaultRenderLogoAndTitle = (
     }
 
     const renderFunction = (props as Record<string, VueNode>)[renderKey || ''];
+    const showTitle = props.layout === 'sider' || !props.collapsed;
 
     if (layout === 'mix' && renderFunction === false) {
         return null;
     }
 
     const titleDom = <h1>{title}</h1>;
-    if (renderKey === 'menuHeaderRender') {
+    if (renderKey === 'menuHeaderRender' && layout !== 'sider') {
+        return null;
+    }
+    if (renderFunction === false) {
         return null;
     }
     // call menuHeaderRender
@@ -167,7 +171,7 @@ export const defaultRenderLogoAndTitle = (
         // @ts-ignore
         return renderFunction(
             logoDom,
-            props.collapsed ? null : titleDom,
+            showTitle ? titleDom : null,
             props,
         );
     }
@@ -178,7 +182,7 @@ export const defaultRenderLogoAndTitle = (
     return (
         <a>
             {logoDom}
-            {props.collapsed ? null : titleDom}
+            {showTitle ? titleDom : null}
         </a>
     );
 };

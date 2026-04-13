@@ -18,7 +18,7 @@ export interface DefaultSettingProps {
     /**
      *
      */
-    layout: 'side' | 'top' | 'mix';
+    layout: 'side' | 'top' | 'mix' | 'sider';
 
     contentWidth: ContentWidth;
     /**

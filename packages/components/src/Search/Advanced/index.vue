@@ -288,8 +288,8 @@ const reset = () => {
   expand.value = false
   initValues()
   if (props.type === 'advanced') {
-    q.value = null
-    target.value = null
+    q.value = undefined
+    target.value = undefined
   }
   emit('search', { terms: [] })
   emit('reset', { terms: [] })
@@ -359,8 +359,8 @@ const handleDefaultValues = (value) => {
  */
 const clearValue = () => {
   if (props.type === 'advanced' && props.target !== target.value) {
-    q.value = null
-    target.value = null
+    q.value = undefined
+    target.value = undefined
   }
 }
 
