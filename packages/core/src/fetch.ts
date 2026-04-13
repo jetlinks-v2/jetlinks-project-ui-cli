@@ -25,6 +25,7 @@ export interface NdJsonOptions {
 interface RequestContext {
   controller: AbortController;
   isActive: boolean;
+  reader?: ReadableStreamDefaultReader<Uint8Array>;
 }
 
 type HttpMethod = "GET" | "POST";
@@ -46,6 +47,9 @@ const isPlainObject = (value: unknown): value is Record<string, unknown> => {
 
 const isFunction = (value: unknown): value is (...args: unknown[]) => unknown =>
   typeof value === "function";
+
+const isAbortMessage = (message: unknown): boolean =>
+  typeof message === "string" && message.toLowerCase().includes("aborted");
 
 export class NdJson {
   private options: NdJsonOptions = {
@@ -110,7 +114,7 @@ export class NdJson {
           }
         }
       } catch (error) {
-        if (!this.isAbortError(error) && !observer.closed) {
+        if (!this.shouldIgnoreRequestError(error, context) && !observer.closed) {
           observer.error(error);
         }
       }
@@ -183,8 +187,7 @@ export class NdJson {
       const requestInit = this.mergeRequestInit(
         {
           method,
-          signal: controller.signal,
-          keepalive: true
+          signal: controller.signal
         },
         this.handleRequest(fullUrl, method),
         extra,
@@ -201,11 +204,15 @@ export class NdJson {
 
       fetch(fullUrl, requestInit)
         .then(resp => {
+          if (!context.isActive || controller.signal.aborted || observer.closed) {
+            return;
+          }
+
           if (resp.status !== this.options.code) {
             if (!this.isAbortError(resp)) {
               observer.error(resp);
             }
-            return
+            return;
           }
 
           const reader = resp.body?.getReader();
@@ -215,21 +222,23 @@ export class NdJson {
             return;
           }
 
+          context.reader = reader;
+          if (!context.isActive || controller.signal.aborted || observer.closed) {
+            this.cancelReader(context);
+            return;
+          }
+
           context.isActive = true;
           this.processStream(reader, observer, context);
         })
         .catch(e => {
-          if (!this.isAbortError(e)) {
+          if (!this.shouldIgnoreRequestError(e, context)) {
             observer.error(e);
           }
         });
 
       // 返回清理函数
-      return () => {
-        context.isActive = false;
-        controller.abort();
-        this.activeRequests.delete(context);
-      };
+      return () => this.cleanupRequest(context);
     });
   }
 
@@ -314,19 +323,53 @@ export class NdJson {
     return merged;
   }
 
+  private cancelReader(context: RequestContext): void {
+    const reader = context.reader;
+    if (!reader) {
+      return;
+    }
+
+    context.reader = undefined;
+    void reader.cancel().catch(() => undefined);
+  }
+
+  private shouldIgnoreRequestError(error: unknown, context: RequestContext): boolean {
+    return !context.isActive || context.controller.signal.aborted || this.isAbortError(error);
+  }
+
   private isAbortError(error: unknown): boolean {
-    return error instanceof Error && error.name === "AbortError";
+    if (!isObjectLike(error)) {
+      return false;
+    }
+
+    const name = error["name"];
+    const code = error["code"];
+    const message = error["message"];
+
+    return name === "AbortError" || code === "ABORT_ERR" || isAbortMessage(message);
+  }
+
+  private cleanupRequest(context: RequestContext): void {
+    if (!context.isActive && !this.activeRequests.has(context)) {
+      return;
+    }
+
+    context.isActive = false;
+    if (!context.controller.signal.aborted) {
+      context.controller.abort();
+    }
+    this.cancelReader(context);
+
+    this.activeRequests.delete(context);
   }
 
   /**
    * 取消所有活跃的请求
    */
   cancelAll(): void {
-    this.activeRequests.forEach(context => {
-      context.isActive = false;
-      context.controller.abort();
+    Array.from(this.activeRequests).forEach(context => {
+      this.cleanupRequest(context);
     });
-    this.activeRequests.clear();
   }
 }
 
