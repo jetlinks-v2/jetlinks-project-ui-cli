@@ -1,4 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/vue3';
+import { computed, ref, watch } from 'vue';
 import JAutoComplete from '../../../packages/components/src/AutoComplete/AutoComplete.vue';
 
 /**
@@ -66,8 +67,9 @@ JAutoComplete 是一个增强版的自动完成输入组件，基于Ant Design V
       control: 'boolean',
       description: '是否禁用'
     },
-    onSelect: {
-      action: 'select'
+    multiple: {
+      control: 'boolean',
+      description: '是否支持多选'
     }
   },
   args: {
@@ -96,7 +98,8 @@ export const 基础使用: Story = {
       { label: 'C#', value: 'csharp' }
     ],
     placeholder: '请输入编程语言',
-    style: { width: '300px' }
+    style: { width: '300px' },
+    multiple: false
   },
   parameters: {
     docs: {
@@ -485,6 +488,76 @@ const getUserEmail = (value: string) => {
   color: #999;
 }
 </style>`
+      }
+    }
+  }
+};
+
+/**
+ * Dynamic mode switch + custom option
+ * Toggle single/multiple mode and input values not in options.
+ */
+export const ToggleModeWithCustomOption: Story = {
+  render: () => ({
+    components: { JAutoComplete },
+    setup() {
+      const multiple = ref(false);
+      const modelValue = ref<string | string[] | undefined>(undefined);
+      const baseOptions = ref([
+        { label: 'JavaScript', value: 'javascript' },
+        { label: 'TypeScript', value: 'typescript' },
+        { label: 'Vue', value: 'vue' },
+        { label: 'React', value: 'react' }
+      ]);
+
+      const modeText = computed(() =>
+        multiple.value ? 'multiple(tags)' : 'single(auto-complete)'
+      );
+
+      watch(multiple, (enabled) => {
+        if (enabled) {
+          if (modelValue.value === undefined || modelValue.value === '') {
+            modelValue.value = [];
+          } else if (!Array.isArray(modelValue.value)) {
+            modelValue.value = [modelValue.value];
+          }
+        } else if (Array.isArray(modelValue.value)) {
+          modelValue.value = modelValue.value[modelValue.value.length - 1];
+        }
+      });
+
+      return {
+        multiple,
+        modelValue,
+        baseOptions,
+        modeText
+      };
+    },
+    template: `
+      <div style="width: 420px; display: flex; flex-direction: column; gap: 12px;">
+        <label style="display: flex; align-items: center; gap: 8px;">
+          <input v-model="multiple" type="checkbox" />
+          <span>multiple: {{ multiple }}</span>
+        </label>
+
+        <JAutoComplete
+          v-model:value="modelValue"
+          :multiple="multiple"
+          :options="baseOptions"
+          placeholder="Type value and press Enter (or blur) to auto add"
+          style="width: 100%"
+        />
+
+        <div style="font-size: 12px; color: #999;">Current mode: {{ modeText }}</div>
+        <pre style="margin: 0; background: #f7f7f7; padding: 8px; border-radius: 4px;">{{ modelValue }}</pre>
+      </div>
+    `
+  }),
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'Supports both single and multiple modes. Input values not in options are automatically added by the component.'
       }
     }
   }
