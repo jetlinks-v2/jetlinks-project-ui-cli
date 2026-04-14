@@ -33,7 +33,7 @@
                   @change="(v) => itemValueChange(v, 1)"
               />
               <SearchItem
-                  v-if="expand"
+                  v-show="expand"
                   :expand="expand"
                   :index="2"
                   :columns="searchItems"
@@ -42,7 +42,7 @@
                   @change="(v) => itemValueChange(v, 2)"
               />
               <SearchItem
-                  v-if="expand"
+                  v-show="expand"
                   :expand="expand"
                   :index="3"
                   :columns="searchItems"
@@ -52,7 +52,7 @@
               />
             </div>
           </div>
-          <div v-if="expand" class="center">
+          <div v-show="expand" class="center">
             <Select
                 v-model:value="termsData.terms[1].type"
                 class="center-select"
@@ -60,7 +60,7 @@
                 :options="typeOptions(contextLocale)"
             />
           </div>
-          <div v-if="expand" class="right">
+          <div v-show="expand" class="right">
             <div class="right-items">
               <SearchItem
                   v-for="item in [4, 5, 6]"
@@ -272,14 +272,6 @@ const emit = defineEmits<Emit>();
 
 const expandChange = () => {
   expand.value = !expand.value;
-  if (!expand.value) {
-    // 收起
-    const firstItem = termsData.terms[0].terms[0];
-    termsData.terms = [
-      {terms: [firstItem, null, null]},
-      {type: 'or', terms: [null, null, null]},
-    ];
-  }
 };
 
 const itemValueChange = (value: SearchItemData, index: number) => {
