@@ -138,38 +138,22 @@ import {
   useAttrs,
   inject,
   computed,
-  toRefs,
 } from 'vue'
 import SaveHistory from './SaveHistory.vue'
 import History from './History.vue'
-import type { Terms, JColumnsProps } from '../typing'
-import {
-  compatibleOldTerms,
-  getItemDefaultValue,
-  hasExpand,
-  termsParamsFormat,
-} from '../util'
+import type { Terms, JColumnsProps, SearchItemData } from '../typing'
+import { compatibleOldTerms, getItemDefaultValue, termsParamsFormat } from '../util'
 import { Select, Button, Form, FormItemRest } from 'ant-design-vue'
 import { AIcon } from '../../components'
 import { useLocaleReceiver } from '../../LocaleReciver'
 import { SearchConfig } from '../../utils/constants'
-import { isObject } from 'lodash-es'
+import { cloneDeep, isObject } from 'lodash-es'
 import useSearchStyle from '../style'
 
 defineOptions({
   name: 'JAdvancedSearch',
   inheritAttrs: false,
 })
-
-type UrlParam = {
-  q: string | null
-  target: string | null
-}
-
-interface Emit {
-  (e: 'search', data: Terms): void
-  (e: 'reset'): void
-}
 
 const props = defineProps({
   columns: {
@@ -220,6 +204,7 @@ const expand = ref(false)
 const layout = ref('horizontal')
 const compatible = ref(false)
 const screenSize = ref(true)
+const expandedTermsCache = ref<SearchItemData[]>([])
 
 const context = inject(SearchConfig)
 
@@ -238,25 +223,40 @@ const { initValues, columnsMap, defaultCacheValues } = useHandleColumns(
 
 useOptionMapContent(columnsOptionMap)
 
-const expandChange = () => {
-  expand.value = !expand.value
-  terms.terms.length = 1
-  if (expand.value) {
-    // 展开
-    let arr = Object.values(columnsMap.value)
-    const mergeArr = []
+const getExpandedTerms = () => {
+  if (expandedTermsCache.value.length) {
+    const cacheTerms = cloneDeep(expandedTermsCache.value)
 
-    for (let i = 1; i < 6; i++) {
-      const indexIn = i % arr.length
-      const obj = getItemDefaultValue(arr[indexIn], defaultCacheValues.value)
-      if (i === 3) {
-        obj.type = 'and'
-      }
-      mergeArr.push(obj)
+    if (terms.terms[0]) {
+      cacheTerms[0] = cloneDeep(terms.terms[0] as SearchItemData)
     }
 
-    terms.terms = [...terms.terms, ...mergeArr]
+    return cacheTerms
   }
+
+  const arr = Object.values(columnsMap.value)
+  const mergeArr = []
+
+  for (let i = 1; i < 6; i++) {
+    const indexIn = i % arr.length
+    const obj = getItemDefaultValue(arr[indexIn], defaultCacheValues.value)
+    if (i === 3) {
+      obj.type = 'and'
+    }
+    mergeArr.push(obj)
+  }
+
+  return [...terms.terms, ...mergeArr]
+}
+
+const expandChange = () => {
+  if (expand.value) {
+    expandedTermsCache.value = cloneDeep(terms.terms as SearchItemData[])
+    terms.terms = terms.terms.slice(0, 1)
+  } else {
+    terms.terms = getExpandedTerms()
+  }
+  expand.value = !expand.value
 }
 
 const addUrlParams = () => {
@@ -286,6 +286,7 @@ const searchSubmit = () => {
  */
 const reset = () => {
   expand.value = false
+  expandedTermsCache.value = []
   initValues()
   if (props.type === 'advanced') {
     q.value = undefined
@@ -308,6 +309,9 @@ const historyItemClick = (content: string) => {
     )
     terms.terms = object.terms || []
     expand.value = object.expand
+    expandedTermsCache.value = object.expand
+      ? cloneDeep((object.terms || []) as SearchItemData[])
+      : []
     searchSubmit()
   } catch (e) {
     console.warn(`Search组件中han.dleUrlParams处理JSON时异常：【${e}】`)
