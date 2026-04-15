@@ -12,7 +12,7 @@ export const genSearchStyle = (config: any): CSSObject => {
           flex: '1 1 auto',
           '.left': {
             minWidth: '380px',
-            maxWidth: '580px'
+            maxWidth: '610px'
           }
         }
       },
