@@ -263,7 +263,11 @@ const windowChange = () => {
 watch(
   () => props.params,
   (newValue) => {
-    _debounceFn(newValue || {});
+    _debounceFn({
+      ...(newValue || {}),
+      pageSize: page.pageSize || 12,
+      pageIndex: 0,
+    });
   },
   {deep: true, immediate: true},
 );
@@ -297,4 +301,3 @@ onUnmounted(() => {
 
 defineExpose({reload, dataSource: _dataSource})
 </script>
-
