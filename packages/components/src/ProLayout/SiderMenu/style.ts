@@ -104,6 +104,11 @@ export const genSiderMenuStyle = (config: any): CSSObject => {
             background: 'rgba(255, 255, 255, 0.2)',
             borderRadius: '3px',
             boxShadow: 'inset 0 0 5px rgba(255, 255, 255, 0.05)',
+        },
+        [`${proLayoutSiderMenuCls}-logo`]: {
+          h1: {
+            color: '#333'
+          }
         }
       },
       [`&${token.antCls}-layout-sider-collapsed`]: {
@@ -184,13 +189,6 @@ export const genSiderMenuStyle = (config: any): CSSObject => {
       '.drawer .drawer-content': {
         background: `#001529`
       },
-      [`${token.antCls}-layout-sider-children`]: {
-        [`${proLayoutSiderMenuCls}-logo`]: {
-          h1: {
-            color: '#333'
-          }
-        }
-      }
     },
     // 修正菜单 collapsed 时，icon 与 title 的间距
     [`${token.antCls}-pro-menu-item`]: {
