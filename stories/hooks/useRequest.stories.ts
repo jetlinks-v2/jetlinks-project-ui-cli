@@ -22,6 +22,7 @@ useRequest 是一个用于管理异步请求的 Vue Hook，提供了数据获取
 - 支持立即执行或手动触发
 - 提供成功、错误、警告回调
 - 支持数据格式化和默认值
+- 支持通过 \`pollingInterval\` 配置轮询
 - 组件卸载时自动清理
 
 ### 返回值
@@ -29,6 +30,11 @@ useRequest 是一个用于管理异步请求的 Vue Hook，提供了数据获取
 - \`loading\`: 加载状态
 - \`run\`: 手动执行请求
 - \`reload\`: 重新加载（使用默认参数）
+- \`stopPolling\`: 手动关闭当前 Hook 的轮询
+
+### 轮询配置
+- \`pollingInterval\`: 轮询间隔，单位毫秒。配置后会在每次请求完成后，按最近一次执行参数继续请求。
+- \`stopPolling\`: 调用后会立即清理定时器，并阻止后续请求再次挂起轮询。
 
 ### 基本用法
 
@@ -432,6 +438,101 @@ const handleRunWithNewParams = () => {
             <p>• reload() 使用 defaultParams 重新执行</p>
             <p>• run() 可以传入新参数执行</p>
           </div>
+        </a-card>
+      </div>
+    `
+  })
+};
+
+export const PollingRequest: Story = {
+  name: '轮询请求',
+  parameters: {
+    docs: {
+      source: {
+        code: `
+import { useRequest } from '@jetlinks-web/hooks';
+
+const fetchDashboardData = () => {
+  return Promise.resolve({
+    success: true,
+    result: {
+      updatedAt: new Date().toLocaleTimeString(),
+    }
+  });
+};
+
+const { data, loading, stopPolling } = useRequest(fetchDashboardData, {
+  immediate: true,
+  formatName: 'result',
+  pollingInterval: 2000
+});
+
+const handleStopPolling = () => {
+  stopPolling();
+};
+        `
+      }
+    }
+  },
+  render: () => ({
+    setup() {
+      const requestCount = ref(0);
+      const pollingStopped = ref(false);
+
+      const mockPollingRequest = (): Promise<any> => {
+        return new Promise((resolve) => {
+          setTimeout(() => {
+            requestCount.value += 1;
+            resolve({
+              success: true,
+              result: {
+                count: requestCount.value,
+                updatedAt: new Date().toLocaleTimeString()
+              }
+            });
+          }, 300);
+        });
+      };
+
+      const { data, loading, reload, stopPolling } = useRequest(mockPollingRequest, {
+        immediate: true,
+        formatName: 'result',
+        pollingInterval: 2000
+      });
+
+      const handleStopPolling = () => {
+        stopPolling();
+        pollingStopped.value = true;
+      };
+
+      return { data, loading, reload, handleStopPolling, pollingStopped };
+    },
+    template: `
+      <div style="text-align: left;">
+        <a-card title="轮询请求示例" style="width: 420px;">
+          <div style="margin-bottom: 16px;">
+            <a-space>
+              <a-tag :color="pollingStopped ? 'default' : 'processing'">
+                {{ pollingStopped ? '轮询已关闭' : '每 2 秒轮询一次' }}
+              </a-tag>
+              <a-button @click="reload" :loading="loading">
+                立即刷新
+              </a-button>
+              <a-button danger @click="handleStopPolling">
+                停止轮询
+              </a-button>
+            </a-space>
+          </div>
+
+          <a-spin :spinning="loading">
+            <div v-if="data" style="padding: 16px; border: 1px solid #d9d9d9; border-radius: 6px;">
+              <p><strong>请求次数:</strong> {{ data.count }}</p>
+              <p><strong>最近更新时间:</strong> {{ data.updatedAt }}</p>
+            </div>
+            <div v-else style="padding: 20px; text-align: center; color: #999;">
+              等待轮询结果...
+            </div>
+          </a-spin>
         </a-card>
       </div>
     `

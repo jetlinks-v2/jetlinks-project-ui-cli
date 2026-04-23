@@ -8,6 +8,7 @@ export interface UseRequestResult<S> {
   loading: Ref<boolean>,
   run: (...args: any[]) => Promise<S>,
   reload: Reload,
+  stopPolling: StopPolling,
 }
 
 export interface RequestOptions<T, S, U = any> {
@@ -30,14 +31,21 @@ export interface RequestOptions<T, S, U = any> {
   defaultParams: S | any | any[]
 
   defaultValue?: S
+
+  /**
+   * 轮询间隔，单位毫秒，小于等于 0 时不启用
+   */
+  pollingInterval?: number
 }
 
 export const defaultOptions: any = {
   immediate: true,
-  formatName: 'result'
+  formatName: 'result',
+  pollingInterval: 0,
 }
 
 type Reload = () => void
+type StopPolling = () => void
 
 export const useRequest = <T = any, S = any>(
   request: (...args: any[]) => Promise<AxiosResponseRewrite<T>>,
@@ -50,44 +58,94 @@ export const useRequest = <T = any, S = any>(
 
   const loading = ref(false)
   const data = ref<S>(_options.defaultValue)
+  let pollingTimer: ReturnType<typeof setTimeout> | undefined
+  let lastRunArgs: any[] = []
+  let hasLastRunArgs = false
+  let isUnmounted = false
+  let isPollingStopped = false
 
-  function run(...arg: any[]): Promise<S> {
-    return new Promise(async ( resolve, reject) => {
-      if (request && isFunction(request)) {
-        loading.value = true
-        try {
-          // @ts-ignore
-          const resp = await request.apply(this, arg)
+  const clearPollingTimer = () => {
+    if (pollingTimer) {
+      clearTimeout(pollingTimer)
+      pollingTimer = undefined
+    }
+  }
 
-          loading.value = false
+  const resolveDefaultArgs = (): any[] => {
+    if (_options.defaultParams === undefined) {
+      return []
+    }
 
-          if (resp?.success) {
-            const successData = await _options.onSuccess?.(resp)
-            data.value = successData ?? get(resp, _options.formatName!)
-            // console.log(data.value)
-            resolve(data.value as S)
-          } else {
-            _options.onError?.(resp)
-            reject(resp)
-          }
-        } catch (e) {
-          console.warn(e)
-          reject(e)
-          loading.value = false
-          _options.onWarn?.(e)
-        }
-      } else {
-        reject('request is not a function')
+    return isArray(_options.defaultParams) ? _options.defaultParams : [_options.defaultParams]
+  }
+
+  const resolvePollingArgs = (): any[] => {
+    return hasLastRunArgs ? lastRunArgs : resolveDefaultArgs()
+  }
+
+  const schedulePolling = () => {
+    clearPollingTimer()
+
+    const interval = Number(_options.pollingInterval ?? 0)
+
+    if (isUnmounted || isPollingStopped || !Number.isFinite(interval) || interval <= 0) {
+      return
+    }
+
+    pollingTimer = setTimeout(() => {
+      if (isUnmounted) {
+        return
       }
-    })
+
+      void run(...resolvePollingArgs()).catch(() => undefined)
+    }, interval)
+  }
+
+  async function run(...arg: any[]): Promise<S> {
+    if (!request || !isFunction(request)) {
+      return Promise.reject('request is not a function')
+    }
+
+    hasLastRunArgs = true
+    lastRunArgs = arg
+    clearPollingTimer()
+    loading.value = true
+
+    try {
+      // @ts-ignore
+      const resp = await request.apply(this, arg)
+
+      if (resp?.success) {
+        const successData = await _options.onSuccess?.(resp)
+        data.value = successData ?? get(resp, _options.formatName!)
+        return data.value as S
+      }
+
+      _options.onError?.(resp)
+      return Promise.reject(resp)
+    } catch (e) {
+      console.warn(e)
+      _options.onWarn?.(e)
+      throw e
+    } finally {
+      loading.value = false
+      schedulePolling()
+    }
   }
 
   function reload () { // 重新触发
-    if (_options.defaultParams) {
-      isArray(_options.defaultParams) ? run(..._options.defaultParams) : run(_options.defaultParams)
+    const args = resolveDefaultArgs()
+
+    if (args.length) {
+      void run(...args).catch(() => undefined)
     } else {
-      run()
+      void run().catch(() => undefined)
     }
+  }
+
+  function stopPolling() {
+    isPollingStopped = true
+    clearPollingTimer()
   }
 
   if (_options.immediate) { // 主动触发
@@ -95,11 +153,8 @@ export const useRequest = <T = any, S = any>(
   }
 
   onUnmounted(() => {
-    // 销毁时，撤销该请求
-    if (request && isFunction(request)) {
-
-    }
-    // request()
+    isUnmounted = true
+    stopPolling()
   })
 
   return {
@@ -107,5 +162,6 @@ export const useRequest = <T = any, S = any>(
     loading,
     run,
     reload,
+    stopPolling,
   }
 }
