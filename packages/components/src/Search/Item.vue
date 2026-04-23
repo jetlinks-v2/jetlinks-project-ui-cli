@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import {computed, defineOptions, ref, reactive, watch, isRef, nextTick} from 'vue'
+import {computed, defineOptions, ref, reactive, watch, isRef} from 'vue'
 import { Select, DatePicker, RangePicker } from 'ant-design-vue'
 import {componentProps, componentType, typeOptions} from "./setting";
 import { getTermOptions, getItemDefaultValue} from "./util";
@@ -64,10 +64,10 @@ const valueOptions = ref()
 const btwKeys = computed(() => {
   const record = findItemByColumn()
   if (record.search.isBtw && Array.isArray(record.search.isBtw)) {
-    return [...record.search.isBtw, 'in', 'nin']
+    return [...record.search.isBtw, 'in', 'nin', 'btw', 'nbtw']
   }
 
-  return ['in', 'nin']
+  return ['in', 'nin', 'btw', 'nbtw']
 })
 
 const prefixCls = computed(() => 'JSearch')
@@ -132,18 +132,24 @@ const onColumnChange = () => {
   onValueChange()
 }
 
-const onTermTypeChange = () => {
+const normalizeTermsModelValue = () => {
   const isBtw = btwKeys.value.includes(termsModel.termType);
 
-  if (!isBtw && termsModel.value && Array.isArray(termsModel.value)) {
-    termsModel.value = termsModel.value[0]
-    onValueChange()
-  } else if (isBtw && termsModel.value && !Array.isArray(termsModel.value)) {
-    termsModel.value = [termsModel.value]
-    onValueChange()
+  if ([componentType.treeSelect, componentType.select].includes(targetComponents.value.type as any)) {
+    handleTermsModelValue(isBtw)
+    return
   }
 
+  if (targetComponents.value.type === componentType.date) {
+    const isDateRange = ['btw', 'between'].includes(termsModel.termType);
+    termsModel.value = isDateRange ? [] : Array.isArray(termsModel.value) ? termsModel.value[0] : termsModel.value
+  }
+}
+
+const onTermTypeChange = () => {
+  normalizeTermsModelValue()
   emit('update:termType', termsModel.termType)
+  onValueChange()
 }
 
 const onValueChange = () => {
@@ -183,12 +189,12 @@ watch(() => [targetComponents.value.name, termsModel.termType], () => {
   } else if (targetComponents.value.type === componentType.date && ['btw', 'between'].includes(termsModel.termType)) {
     // 当日期类型选择了 btw 时，切换到 RangePicker 组件
     targetComponents.value.name = RangePicker
-    termsModel.value = []
   } else if (targetComponents.value.type === componentType.date && !['btw', 'between'].includes(termsModel.termType)) {
     // 当 RangePicker 取消 btw 时，切换回 DatePicker 组件
     targetComponents.value.name = DatePicker
-    termsModel.value = undefined
   }
+
+  normalizeTermsModelValue()
 }, { immediate: true, deep: true })
 
 watch(() => [termsModel.column, columnsMap.value], async () => {
