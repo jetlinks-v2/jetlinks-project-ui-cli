@@ -1,7 +1,7 @@
 import type { CSSObject } from "ant-design-vue";
 import { Keyframes } from "ant-design-vue";
 
-export const genSiderMenuStyle = (config: any): CSSObject => {
+export const genSiderMenuStyle = (config: any): Array<CSSObject | string> => {
   const { token } = config;
   const proLayoutSiderMenuCls = `${token.antCls}-pro-sider`
   const proLayoutHeaderHeight = '48px'
@@ -20,16 +20,24 @@ export const genSiderMenuStyle = (config: any): CSSObject => {
     }
   })
 
-  return {
-    [`${proLayoutSiderMenuCls}`]: {
-      position: 'relative',
-      backgroundColor: '#001529',
-      borderRight: 0,
-      // FIXME: 临时修正(可能不会做兼容)
-      zIndex: 20,
-      [`${token.antCls}-menu`]: {
-        background: 'transparent',
-      },
+  return [
+    `
+      ${proLayoutSiderMenuCls} > ${token.antCls}-layout-sider-children {
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+      }
+    `,
+    {
+      [`${proLayoutSiderMenuCls}`]: {
+        position: 'relative',
+        backgroundColor: '#001529',
+        borderRight: 0,
+        // FIXME: 临时修正(可能不会做兼容)
+        zIndex: 20,
+        [`${token.antCls}-menu`]: {
+          background: 'transparent',
+        },
       [`&${token.antCls}-layout-sider-light`]: {
         [`${token.antCls}-menu-item a`]: {
           color: token.colorTextHeading
@@ -137,7 +145,7 @@ export const genSiderMenuStyle = (config: any): CSSObject => {
           }
         }
       },
-      [`${proLayoutSiderMenuCls}-light`]: {
+      [`&${proLayoutSiderMenuCls}-light`]: {
         backgroundColor: token.colorBgContainer,
         boxShadow: '2px 0 8px 0 rgba(29, 35, 41, 0.05)',
         [`${token.antCls}-layout-sider-children`]: {
@@ -170,7 +178,7 @@ export const genSiderMenuStyle = (config: any): CSSObject => {
         width: '14px',
         verticalAlign: 'baseline',
       },
-      [`${proLayoutSiderMenuCls}-link`]: {
+      [`${proLayoutSiderMenuCls}-links`]: {
         width: '100%',
         [`ul${token.antCls}-menu-root`]: {
           height: 'auto',
@@ -208,6 +216,6 @@ export const genSiderMenuStyle = (config: any): CSSObject => {
         backgroundColor: '#efefef',
       }
     },
-
-  }
+    },
+  ]
 }
