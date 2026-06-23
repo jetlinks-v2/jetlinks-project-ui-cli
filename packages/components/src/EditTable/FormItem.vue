@@ -22,7 +22,7 @@ import { onBeforeUnmount, computed, shallowReactive, watch, provide, toRaw, onMo
 import { get, isArray } from 'lodash-es'
 import { useProvideFormItemContext } from 'ant-design-vue/lib/form/FormItemContext'
 import Schema from 'async-validator'
-import { useInjectError, useInjectForm } from "./hooks";
+import { useInjectError, useInjectForm, useTableWrapper } from "./hooks";
 import { TABLE_FORM_ITEM_ERROR } from "./consts";
 import genEditTableStyle from './style'
 import { fieldPool } from './fieldPool'
@@ -53,6 +53,7 @@ const visible = ref(false)
 
 const context = useInjectForm()
 const globalErrorMessage = useInjectError()
+const tableWrapperRef = useTableWrapper() as any
 
 let hideTimer: ReturnType<typeof setTimeout> | null = null
 
@@ -111,7 +112,7 @@ const errorState = shallowReactive({
 // 向下提供错误状态
 provide(TABLE_FORM_ITEM_ERROR, errorState)
 
-const popContainer = (e: HTMLElement) => e
+const popContainer = (e: HTMLElement) => tableWrapperRef?.value || e.parentElement || document.body
 
 const removeTimer = () => {
   if (hideTimer) {
