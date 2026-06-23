@@ -1,5 +1,5 @@
 import { getToken } from "@jetlinks-web/utils";
-import { BASE_API, TOKEN_KEY } from "@jetlinks-web/constants";
+import { BASE_API, LOCAL_BASE_API, TOKEN_KEY } from "@jetlinks-web/constants";
 import { Observable, Subscriber } from "rxjs";
 
 /**
@@ -20,6 +20,8 @@ export interface NdJsonOptions {
   handleResponse?: <T>(response: T) => T;
   /** 基础 API 地址，默认使用 BASE_API 常量 */
   baseURL?: string;
+  /** 语言字段名 */
+  langKey?: string;
 }
 
 interface RequestContext {
@@ -30,6 +32,21 @@ interface RequestContext {
 
 type HttpMethod = "GET" | "POST";
 type RequestData = BodyInit | Record<string, unknown>;
+
+export interface NdJsonRequestConfig {
+  url: string;
+  method: HttpMethod;
+  data?: RequestData;
+  config: RequestInit;
+}
+
+export type NdJsonInterceptorFulfilled<T> = (value: T) => T | Promise<T>;
+export type NdJsonInterceptorRejected = (error: unknown) => unknown | Promise<unknown>;
+
+interface NdJsonInterceptorHandler<T> {
+  fulfilled?: NdJsonInterceptorFulfilled<T>;
+  rejected?: NdJsonInterceptorRejected;
+}
 
 const NDJSON_CONTENT_TYPE = "application/x-ndjson";
 
@@ -51,10 +68,55 @@ const isFunction = (value: unknown): value is (...args: unknown[]) => unknown =>
 const isAbortMessage = (message: unknown): boolean =>
   typeof message === "string" && message.toLowerCase().includes("aborted");
 
+export class NdJsonInterceptorManager<T> {
+  private handlers: Array<NdJsonInterceptorHandler<T> | null> = [];
+
+  use(
+    fulfilled?: NdJsonInterceptorFulfilled<T>,
+    rejected?: NdJsonInterceptorRejected
+  ): number {
+    this.handlers.push({ fulfilled, rejected });
+    return this.handlers.length - 1;
+  }
+
+  eject(id: number): void {
+    if (this.handlers[id]) {
+      this.handlers[id] = null;
+    }
+  }
+
+  clear(): void {
+    this.handlers = [];
+  }
+
+  run(value: T): Promise<T> {
+    let chain: Promise<T> = Promise.resolve(value) as Promise<T>;
+
+    for (const handler of this.handlers) {
+      if (!handler) {
+        continue;
+      }
+
+      chain = chain.then(
+        handler.fulfilled,
+        handler.rejected as ((error: unknown) => T | Promise<T>) | undefined
+      );
+    }
+
+    return chain;
+  }
+}
+
 export class NdJson {
   private options: NdJsonOptions = {
     code: 200,
-    codeKey: "status"
+    codeKey: "status",
+    langKey: "lang"
+  };
+
+  interceptors = {
+    request: new NdJsonInterceptorManager<NdJsonRequestConfig>(),
+    response: new NdJsonInterceptorManager<unknown>()
   };
 
   private activeRequests = new Set<RequestContext>();
@@ -76,7 +138,7 @@ export class NdJson {
    * 获取完整 URL
    */
   private getUrl(url: string): string {
-    const baseURL = this.options.baseURL ?? BASE_API;
+    const baseURL = this.options.baseURL ?? this.getLocalBaseApi() ?? BASE_API;
     return baseURL + url;
   }
 
@@ -100,7 +162,7 @@ export class NdJson {
             if (finalText) {
               buffer += finalText;
             }
-            this.flushBuffer(buffer, observer);
+            await this.flushBuffer(buffer, observer);
             if (!observer.closed) {
               observer.complete();
             }
@@ -108,7 +170,7 @@ export class NdJson {
           }
 
           buffer += decoder.decode(value, { stream: true });
-          buffer = this.parseLines(buffer, observer);
+          buffer = await this.parseLines(buffer, observer);
           if (observer.closed) {
             return;
           }
@@ -126,13 +188,13 @@ export class NdJson {
   /**
    * 解析缓冲区中的完整行
    */
-  private parseLines<T>(buffer: string, observer: Subscriber<T>): string {
+  private async parseLines<T>(buffer: string, observer: Subscriber<T>): Promise<string> {
     let start = 0;
     let lineEnd = buffer.indexOf("\n");
 
     while (lineEnd !== -1) {
       const line = buffer.slice(start, lineEnd).trim();
-      if (line.length > 0 && !this.emitLine(line, observer)) {
+      if (line.length > 0 && !await this.emitLine(line, observer)) {
         return "";
       }
 
@@ -146,17 +208,18 @@ export class NdJson {
   /**
    * 刷新剩余缓冲区
    */
-  private flushBuffer<T>(buffer: string, observer: Subscriber<T>): void {
+  private async flushBuffer<T>(buffer: string, observer: Subscriber<T>): Promise<void> {
     const trimmed = buffer.trim();
     if (trimmed.length > 0) {
-      this.emitLine(trimmed, observer);
+      await this.emitLine(trimmed, observer);
     }
   }
 
-  private emitLine<T>(line: string, observer: Subscriber<T>): boolean {
+  private async emitLine<T>(line: string, observer: Subscriber<T>): Promise<boolean> {
     const data = line.startsWith("data:") ? line.slice(5).trimStart() : line;
     try {
-      observer.next(this.handleResponse(JSON.parse(data)));
+      const intercepted = await this.interceptors.response.run(JSON.parse(data));
+      observer.next(this.handleResponse(intercepted) as T);
       return true;
     } catch (error) {
       observer.error(error);
@@ -184,26 +247,35 @@ export class NdJson {
 
       this.activeRequests.add(context);
 
-      const requestInit = this.mergeRequestInit(
-        {
-          method,
-          signal: controller.signal
-        },
-        this.handleRequest(fullUrl, method),
+      const requestConfig = this.createRequestConfig(
+        fullUrl,
+        method,
+        data,
         extra,
-        {
-          method,
-          signal: controller.signal
-        }
+        controller.signal
       );
 
-      // POST 请求添加 body
-      if (method === "POST" && data !== undefined) {
-        requestInit.body = isPlainObject(data) ? JSON.stringify(data) : (data as BodyInit);
-      }
+      this.interceptors.request.run(requestConfig)
+        .then(interceptedConfig => {
+          if (!context.isActive || controller.signal.aborted || observer.closed) {
+            return;
+          }
 
-      fetch(fullUrl, requestInit)
+          const requestInit = this.mergeRequestInit(
+            interceptedConfig.config,
+            {
+              method: interceptedConfig.method,
+              signal: controller.signal
+            }
+          );
+
+          return fetch(interceptedConfig.url, requestInit);
+        })
         .then(resp => {
+          if (!resp) {
+            return;
+          }
+
           if (!context.isActive || controller.signal.aborted || observer.closed) {
             return;
           }
@@ -250,6 +322,39 @@ export class NdJson {
     return this.request<T>("POST", url, data, extra);
   }
 
+  private createRequestConfig(
+    url: string,
+    method: HttpMethod,
+    data: RequestData | undefined,
+    extra: RequestInit,
+    signal: AbortSignal
+  ): NdJsonRequestConfig {
+    const config = this.mergeRequestInit(
+      {
+        method,
+        signal
+      },
+      this.handleRequest(url, method),
+      extra,
+      {
+        method,
+        signal
+      }
+    );
+
+    // POST 请求添加 body
+    if (method === "POST" && data !== undefined && config.body === undefined) {
+      config.body = isPlainObject(data) ? JSON.stringify(data) : (data as BodyInit);
+    }
+
+    return {
+      url,
+      method,
+      data,
+      config
+    };
+  }
+
   private handleRequest(url: string, method: HttpMethod): RequestInit {
     const headers: Record<string, string> = {};
 
@@ -260,6 +365,12 @@ export class NdJson {
 
     const config: RequestInit = { headers };
     const token = getToken();
+    const langKey = this.options.langKey || "lang";
+    const lang = this.getLocalStorageItem(langKey);
+
+    if (lang) {
+      headers[langKey] = lang;
+    }
 
     if (!token && !this.options.filter_url?.some(_url => url.includes(_url))) {
       this.options.tokenExpiration?.();
@@ -278,6 +389,22 @@ export class NdJson {
     }
 
     return config;
+  }
+
+  private getLocalBaseApi(): string | undefined {
+    return this.getLocalStorageItem(LOCAL_BASE_API);
+  }
+
+  private getLocalStorageItem(key: string): string | undefined {
+    if (typeof localStorage === "undefined") {
+      return undefined;
+    }
+
+    try {
+      return localStorage.getItem(key) || undefined;
+    } catch {
+      return undefined;
+    }
   }
 
   handleResponse<T>(response: T): T {
@@ -370,6 +497,13 @@ export class NdJson {
     Array.from(this.activeRequests).forEach(context => {
       this.cleanupRequest(context);
     });
+  }
+
+  /**
+   * 兼容旧示例中的取消方法
+   */
+  cancel(): void {
+    this.cancelAll();
   }
 }
 
