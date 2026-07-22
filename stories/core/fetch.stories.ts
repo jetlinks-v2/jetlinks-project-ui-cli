@@ -1,5 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/vue3';
 import { ndJson, NdJson } from '../../packages/core/src/fetch';
+import NdJsonLiveTester from './NdJsonLiveTester.vue';
 
 /**
  * 核心模块
@@ -504,5 +505,53 @@ const handleCustomInstance = () => {
         </p>
       </div>
     `
+  })
+};
+
+export const LiveInterfaceDebug: Story = {
+  name: '真实接口联调',
+  parameters: {
+    layout: 'fullscreen',
+    docs: {
+      description: {
+        story: `
+Postman 风格的真实后端 NDJSON 接口联调面板，可配置完整 URL、method、lang、HTTP code、filter_url、body 和表格化 Headers。鉴权信息直接在 Headers 表格中添加。
+
+注意：当前 NdJson 实现中的 code 用于判断 HTTP status；codeKey 不参与响应体状态判断。
+        `
+      },
+      source: {
+        code: `
+import { createNdJson } from '@jetlinks-web/core';
+
+const client = createNdJson({
+  baseURL: '',
+  code: 200,
+  langKey: 'lang',
+  filter_url: ['/api/public'],
+  handleRequest: config => ({
+    ...config,
+    headers: {
+      ...config.headers,
+      Accept: 'application/x-ndjson'
+    }
+  })
+});
+
+const subscription = client.post('https://api.example.com/api/stream', body).subscribe({
+  next: data => console.log(data),
+  error: error => console.error(error),
+  complete: () => console.log('complete')
+});
+
+subscription.unsubscribe();
+client.cancelAll();
+        `
+      }
+    }
+  },
+  render: () => ({
+    components: { NdJsonLiveTester },
+    template: '<NdJsonLiveTester />',
   })
 };
