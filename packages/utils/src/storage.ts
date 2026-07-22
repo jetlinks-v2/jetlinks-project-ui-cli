@@ -1,4 +1,34 @@
-import { TOKEN_KEY, VITE_STORE_TOKEN_KEY } from '@jetlinks-web/constants'
+import { TOKEN_KEY } from '@jetlinks-web/constants'
+
+export interface ProjectStorageInfo {
+  domain?: string
+  apiUrl?: string
+  token?: string
+  name?: string
+  runtime?: string
+}
+
+export const PROJECT_STORAGE_PREFIX = 'project_'
+
+const PROJECT_RESERVED_PATHS = new Set([
+  'api',
+  'assets',
+  'static',
+  'public',
+  'dist',
+  'login',
+  'console',
+  'application',
+  'developer',
+  'account',
+  'docs',
+  'oauth',
+  'share',
+  'identity-result',
+  'init-home',
+  'edge',
+  'weixin',
+])
 
 export const LocalStore = {
   set(key: string, data: any) {
@@ -28,28 +58,103 @@ export const LocalStore = {
   },
 }
 
-export const getCloudProjectId = () => location.pathname.split('/')[1];
+export const isProjectStorageEnabled = () => !!import.meta.env.VITE_APP_ENVIRONMENT
 
-const isEnvironmentEnabled = () => {
-  const env = `${import.meta.env.VITE_APP_ENVIRONMENT ?? ''}`.trim().toLowerCase()
-  return !!env && !['false', '0', 'null', 'undefined'].includes(env)
+const isProjectStorageInfo = (value: unknown): value is ProjectStorageInfo => {
+  return !!value && typeof value === 'object' && !Array.isArray(value)
 }
 
-const getTokenKey = (key: string) => {
-    const domain = getCloudProjectId()
-  if (isEnvironmentEnabled() && key && domain) {
-    return `${key}_${domain}`
+export const getProjectStorageKey = (projectCode: string) => {
+  return `${PROJECT_STORAGE_PREFIX}${normalizeProjectCode(projectCode)}`
+}
+
+const normalizeProjectCode = (projectCode: unknown) => {
+  return typeof projectCode === 'string' ? projectCode.trim() : ''
+}
+
+const normalizeSegment = (value: unknown) => {
+  if (typeof value !== 'string') return ''
+  return decodeURIComponent(value).trim()
+}
+
+export const getProjectStorage = (projectCode?: string): ProjectStorageInfo | undefined => {
+  const code = normalizeProjectCode(projectCode)
+  if (!code || typeof localStorage === 'undefined') {
+    return undefined
   }
-  return key
+
+  const raw = localStorage.getItem(getProjectStorageKey(code))
+  if (!raw) {
+    return undefined
+  }
+
+  try {
+    const parsed = JSON.parse(raw)
+    return isProjectStorageInfo(parsed) ? parsed : undefined
+  } catch {
+    return undefined
+  }
+}
+
+export const getProjectIdFromPathname = (
+  pathname = typeof window === 'undefined' ? '' : window.location.pathname,
+) => {
+  const [first] = pathname.split('/').filter(Boolean)
+  const projectId = normalizeSegment(first)
+
+  if (!projectId || PROJECT_RESERVED_PATHS.has(projectId)) {
+    return ''
+  }
+
+  return projectId
+}
+
+export const getProjectToken = () => {
+  if (isProjectStorageEnabled()) { // saas环境
+    const projectId = getProjectIdFromPathname()
+    if (projectId) {
+      return getProjectStorage(projectId)?.token
+    } else {
+      return LocalStore.get(TOKEN_KEY)
+    }
+  }
+  return LocalStore.get(TOKEN_KEY);
 }
 
 export const getToken = () => {
-  return LocalStore.get(getTokenKey(VITE_STORE_TOKEN_KEY || TOKEN_KEY))
+  return getProjectToken()
 }
 export const setToken = (value: string) => {
-  LocalStore.set(getTokenKey(VITE_STORE_TOKEN_KEY || TOKEN_KEY), value)
+  if (isProjectStorageEnabled()) { // saas环境,先获取当前环境token
+    const projectId = getProjectIdFromPathname()
+    if (!projectId) {
+      LocalStore.set(TOKEN_KEY, value)
+      return
+    }
+
+    const obj = getProjectStorage(projectId) || {}
+    obj.token = value
+    localStorage.setItem(getProjectStorageKey(projectId), JSON.stringify(obj))
+    return
+  }
+
+  LocalStore.set(TOKEN_KEY, value)
 }
 
 export const removeToken = () => {
-  LocalStore.remove(getTokenKey(VITE_STORE_TOKEN_KEY || TOKEN_KEY))
+  if (isProjectStorageEnabled()) { // saas环境,先获取当前环境token
+    const projectId = getProjectIdFromPathname()
+    if (!projectId) {
+      LocalStore.remove(TOKEN_KEY)
+      return
+    }
+
+    const obj = getProjectStorage(projectId)
+    if (obj) {
+      delete obj.token
+      localStorage.setItem(getProjectStorageKey(projectId), JSON.stringify(obj))
+    }
+    return
+  }
+  LocalStore.remove(TOKEN_KEY)
 }
