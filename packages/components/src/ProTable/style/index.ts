@@ -60,7 +60,7 @@ const genProTableStyle = (config: any): CSSObject => {
         overflowY: 'auto',
         '.jtable-card-items': {
           display: 'grid',
-          gridGap: '26px',
+          gridGap: '18px',
           '.jtable-card-item': {
             display: 'flex',
             minWidth: 0,
