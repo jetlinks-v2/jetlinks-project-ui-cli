@@ -16,8 +16,10 @@ export interface NdJsonOptions {
   tokenExpiration?: () => void;
   /** 自定义请求配置 */
   requestOptions?: (config: RequestInit) => Record<string, unknown>;
+  /** 自定义请求处理 */
+  handleRequest?: NdJsonInterceptorFulfilled<NdJsonRequestConfig>;
   /** 自定义响应处理 */
-  handleResponse?: <T>(response: T) => T;
+  handleResponse?: <T>(response: T) => T | Promise<T>;
   /** 基础 API 地址，默认使用 BASE_API 常量 */
   baseURL?: string;
   /** 语言字段名 */
@@ -33,11 +35,12 @@ interface RequestContext {
 type HttpMethod = "GET" | "POST";
 type RequestData = BodyInit | Record<string, unknown>;
 
-export interface NdJsonRequestConfig {
+export interface NdJsonRequestConfig extends Omit<RequestInit, "method"> {
   url: string;
-  method: HttpMethod;
+  baseURL?: string;
+  method: string;
   data?: RequestData;
-  config: RequestInit;
+  [key: string]: unknown;
 }
 
 export type NdJsonInterceptorFulfilled<T> = (value: T) => T | Promise<T>;
@@ -134,12 +137,20 @@ export class NdJson {
     this.options = { ...this.options, ...options };
   }
 
-  /**
-   * 获取完整 URL
-   */
-  private getUrl(url: string): string {
-    const baseURL = this.options.baseURL ?? this.getLocalBaseApi() ?? BASE_API;
-    return baseURL + url;
+  private getBaseURL(): string {
+    return this.options.baseURL ?? this.getLocalBaseApi() ?? BASE_API;
+  }
+
+  private resolveRequestUrl(url: string, baseURL?: string): string {
+    if (this.isAbsoluteUrl(url) || !baseURL) {
+      return url;
+    }
+
+    return `${baseURL}${url.startsWith("/") ? url : `/${url}`}`;
+  }
+
+  private isAbsoluteUrl(url: string): boolean {
+    return /^([a-z][a-z\d+\-.]*:)?\/\//i.test(url);
   }
 
   /**
@@ -219,7 +230,7 @@ export class NdJson {
     const data = line.startsWith("data:") ? line.slice(5).trimStart() : line;
     try {
       const intercepted = await this.interceptors.response.run(JSON.parse(data));
-      observer.next(this.handleResponse(intercepted) as T);
+      observer.next(await this.handleResponse(intercepted) as T);
       return true;
     } catch (error) {
       observer.error(error);
@@ -236,7 +247,7 @@ export class NdJson {
     data?: RequestData,
     extra: RequestInit = {}
   ): Observable<T> {
-    const fullUrl = this.getUrl(url);
+    const baseURL = this.getBaseURL();
 
     return new Observable<T>(observer => {
       const controller = new AbortController();
@@ -248,28 +259,35 @@ export class NdJson {
       this.activeRequests.add(context);
 
       const requestConfig = this.createRequestConfig(
-        fullUrl,
+        url,
+        baseURL,
         method,
         data,
         extra,
         controller.signal
       );
 
-      this.interceptors.request.run(requestConfig)
+      this.handleRequest(requestConfig)
+        .then(config => this.interceptors.request.run(config))
         .then(interceptedConfig => {
           if (!context.isActive || controller.signal.aborted || observer.closed) {
             return;
           }
 
-          const requestInit = this.mergeRequestInit(
-            interceptedConfig.config,
-            {
-              method: interceptedConfig.method,
-              signal: controller.signal
-            }
-          );
+          const {
+            url: requestUrl,
+            baseURL: requestBaseURL,
+            data: requestData,
+            ...requestInit
+          } = interceptedConfig;
+          requestInit.signal = this.mergeAbortSignals(controller.signal, requestInit.signal);
 
-          return fetch(interceptedConfig.url, requestInit);
+          if (this.shouldAttachBody(requestInit.method, requestData) && requestInit.body === undefined) {
+            requestInit.body = isPlainObject(requestData) ? JSON.stringify(requestData) : (requestData as BodyInit);
+          }
+          requestInit.headers = this.normalizeHeaders(requestInit.headers);
+
+          return fetch(this.resolveRequestUrl(requestUrl, requestBaseURL), requestInit);
         })
         .then(resp => {
           if (!resp) {
@@ -324,17 +342,18 @@ export class NdJson {
 
   private createRequestConfig(
     url: string,
+    baseURL: string,
     method: HttpMethod,
     data: RequestData | undefined,
     extra: RequestInit,
     signal: AbortSignal
   ): NdJsonRequestConfig {
-    const config = this.mergeRequestInit(
+    const requestInit = this.mergeRequestInit(
       {
         method,
         signal
       },
-      this.handleRequest(url, method),
+      this.handleRequestOptions(url, method),
       extra,
       {
         method,
@@ -343,19 +362,49 @@ export class NdJson {
     );
 
     // POST 请求添加 body
-    if (method === "POST" && data !== undefined && config.body === undefined) {
-      config.body = isPlainObject(data) ? JSON.stringify(data) : (data as BodyInit);
+    if (this.shouldAttachBody(method, data) && requestInit.body === undefined) {
+      requestInit.body = isPlainObject(data) ? JSON.stringify(data) : (data as BodyInit);
     }
 
     return {
+      ...requestInit,
+      headers: this.normalizeHeaders(requestInit.headers),
       url,
+      baseURL,
       method,
-      data,
-      config
+      data
     };
   }
 
-  private handleRequest(url: string, method: HttpMethod): RequestInit {
+  private shouldAttachBody(method: string | undefined, data: RequestData | undefined): boolean {
+    if (data === undefined) {
+      return false;
+    }
+
+    const normalizedMethod = method?.toUpperCase();
+    return normalizedMethod !== "GET" && normalizedMethod !== "HEAD";
+  }
+
+  private mergeAbortSignals(controllerSignal: AbortSignal, requestSignal?: AbortSignal | null): AbortSignal {
+    if (!requestSignal || requestSignal === controllerSignal) {
+      return controllerSignal;
+    }
+
+    const linkedController = new AbortController();
+    const abortLinked = () => linkedController.abort();
+
+    if (controllerSignal.aborted || requestSignal.aborted) {
+      linkedController.abort();
+      return linkedController.signal;
+    }
+
+    controllerSignal.addEventListener("abort", abortLinked, { once: true });
+    requestSignal.addEventListener("abort", abortLinked, { once: true });
+
+    return linkedController.signal;
+  }
+
+  private handleRequestOptions(url: string, method: HttpMethod): RequestInit {
     const headers: Record<string, string> = {};
 
     // 只有 POST 请求才设置 Content-Type
@@ -407,7 +456,14 @@ export class NdJson {
     }
   }
 
-  handleResponse<T>(response: T): T {
+  private handleRequest(config: NdJsonRequestConfig): Promise<NdJsonRequestConfig> {
+    if (isFunction(this.options.handleRequest)) {
+      return Promise.resolve(this.options.handleRequest(config));
+    }
+    return Promise.resolve(config);
+  }
+
+  handleResponse<T>(response: T): T | Promise<T> {
     if (isFunction(this.options.handleResponse)) {
       return this.options.handleResponse(response);
     }
@@ -448,6 +504,31 @@ export class NdJson {
     });
 
     return merged;
+  }
+
+  private normalizeHeaders(headers?: HeadersInit): Record<string, string> {
+    const headerMap = new Map<string, { key: string; value: string }>();
+
+    if (!headers) {
+      return {};
+    }
+
+    new Headers(headers).forEach((value, key) => {
+      headerMap.set(key.toLowerCase(), { key, value });
+    });
+
+    if (isObjectLike(headers)) {
+      Object.entries(headers).forEach(([key, value]) => {
+        if (typeof value !== "undefined") {
+          headerMap.set(key.toLowerCase(), { key, value: String(value) });
+        }
+      });
+    }
+
+    return Array.from(headerMap.values()).reduce<Record<string, string>>((result, item) => {
+      result[item.key] = item.value;
+      return result;
+    }, {});
   }
 
   private cancelReader(context: RequestContext): void {
