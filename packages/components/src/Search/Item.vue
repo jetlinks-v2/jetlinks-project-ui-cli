@@ -246,20 +246,28 @@ watch(() => [props.value, props.termType, props.column, props.type], () => {
           {{ index === 1 ? contextLocale.item.firstGroup :  contextLocale.item.secondGroup }}
         </span>
       </div>
-      <Select
-        v-model:value="termsModel.column"
-        :placeholder="contextLocale.item.placeholder"
+      <div
         class="JSearch-item--column"
-        :options="columnOptions"
-        @change="onColumnChange"
-      />
-      <Select
-        v-model:value="termsModel.termType"
-        :placeholder="contextLocale.item.placeholder"
-        class="JSearch-item--termType"
-        :options="termTypeOptions"
-        @change="onTermTypeChange"
-      />
+      >
+        <Select
+          v-model:value="termsModel.column"
+          :placeholder="contextLocale.item.placeholder"
+          :options="columnOptions"
+          style="width: 100%"
+          @change="onColumnChange"
+        />
+      </div>
+      <div
+          class="JSearch-item--termType"
+      >
+        <Select
+          v-model:value="termsModel.termType"
+          :placeholder="contextLocale.item.placeholder"
+          :options="termTypeOptions"
+          style="width: 100%"
+          @change="onTermTypeChange"
+        />
+      </div>
     </template>
     <div class="JSearch-item--value">
       <component

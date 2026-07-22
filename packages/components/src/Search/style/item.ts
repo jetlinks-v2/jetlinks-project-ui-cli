@@ -13,7 +13,7 @@ export const genItemStyle = (config: any): CSSObject => {
         '> span': {
           lineHeight: '34px',
           fontWeight: 'bold',
-        }
+        },
       },
       [`${componentCls}-item--column`]: {
         width: '130px',
@@ -30,7 +30,7 @@ export const genItemStyle = (config: any): CSSObject => {
         display: 'flex',
         width: '0',
         flexGrow: 1,
-      }
+      },
     },
   }
 }
