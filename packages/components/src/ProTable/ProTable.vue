@@ -290,13 +290,12 @@ watch(
 
 onMounted(() => {
   windowChange(); // 初始化
-  window.onresize = () => {
-    windowChange();
-  };
+
+  window.addEventListener('resize', windowChange);
 });
 
 onUnmounted(() => {
-  window.onresize = null;
+  window.removeEventListener('resize', windowChange);
 });
 
 defineExpose({reload, dataSource: _dataSource})
