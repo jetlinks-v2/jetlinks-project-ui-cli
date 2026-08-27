@@ -10,8 +10,8 @@ const genCardSelectStyle = (config: any): CSSObject => {
       gap: '12px',
       [`${componentCls}-item`]: {
         padding: '12px',
-        border: '1px solid #e6e6e6',
-        borderRadius: '@border-radius-base',
+        border: `${token.lineWidth}px solid ${token.colorBorderSecondary}`,
+        borderRadius: token.borderRadius,
         cursor: 'pointer',
         '&.active': {
           borderColor: token.colorPrimary,
@@ -21,7 +21,7 @@ const genCardSelectStyle = (config: any): CSSObject => {
           opacity: 0.7
         },
         [`${componentCls}-describe`]: {
-          color: token.textColorSubtitle
+          color: token.colorTextDescription
         }
       }
     },

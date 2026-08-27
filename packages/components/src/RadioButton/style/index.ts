@@ -13,11 +13,12 @@ const genRadioButtonStyle = (config: any): CSSObject => {
         textAlign: 'center',
         height: '100%',
         borderRadius: '2px',
-        backgroundColor: '#f5f5f5',
+        backgroundColor: token.colorFillTertiary,
+        color: token.colorText,
         cursor: 'pointer',
 
         '&.active': {
-          color: '#fff',
+          color: token.colorTextLightSolid,
           backgroundColor: token.colorPrimary,
         }
       }

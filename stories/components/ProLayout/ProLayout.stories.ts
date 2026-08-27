@@ -1,6 +1,7 @@
-import type { Meta, StoryObj } from '@storybook/vue3';
-import { computed, ref, watch } from 'vue';
-import JProLayout from '../../../packages/components/src/ProLayout';
+import type { Meta, StoryObj } from '@storybook/vue3'
+import { computed, ref, watch } from 'vue'
+import { theme } from 'ant-design-vue'
+import JProLayout from '../../../packages/components/src/ProLayout'
 
 /**
  * ProLayout 管理后台布局组件
@@ -51,55 +52,55 @@ ProLayout 的 \`theme\` 只控制菜单明暗模式，可选值为 \`light\` 或
   </JProLayout>
 </template>
 \`\`\`
-        `
-      }
-    }
+        `,
+      },
+    },
   },
   tags: ['autodocs'],
   argTypes: {
     title: {
       control: 'text',
-      description: '系统标题，显示在 logo 区域'
+      description: '系统标题，显示在 logo 区域',
     },
     theme: {
       control: 'select',
       options: ['light', 'dark'],
-      description: '菜单明暗模式，仅支持 light / dark'
+      description: '菜单明暗模式，仅支持 light / dark',
     },
     layout: {
       control: 'select',
       options: ['side', 'top', 'mix', 'sider'],
-      description: '整体布局模式'
+      description: '整体布局模式',
     },
     layoutType: {
       control: 'select',
       options: ['list', 'pad', 'card'],
-      description: 'JetLinks 扩展布局类型'
+      description: 'JetLinks 扩展布局类型',
     },
     collapsed: {
       control: 'boolean',
-      description: '侧边栏是否折叠'
+      description: '侧边栏是否折叠',
     },
     siderWidth: {
       control: 'number',
-      description: '侧边栏展开宽度'
+      description: '侧边栏展开宽度',
     },
     collapsedWidth: {
       control: 'number',
-      description: '侧边栏折叠宽度'
+      description: '侧边栏折叠宽度',
     },
     fixedHeader: {
       control: 'boolean',
-      description: '是否固定头部'
+      description: '是否固定头部',
     },
     fixSiderbar: {
       control: 'boolean',
-      description: '是否固定侧边栏'
+      description: '是否固定侧边栏',
     },
     menuData: {
       control: 'object',
-      description: '菜单数据，path 作为菜单 key，meta.title 作为菜单标题'
-    }
+      description: '菜单数据，path 作为菜单 key，meta.title 作为菜单标题',
+    },
   },
   args: {
     title: 'JetLinks',
@@ -110,12 +111,12 @@ ProLayout 的 \`theme\` 只控制菜单明暗模式，可选值为 \`light\` 或
     siderWidth: 208,
     collapsedWidth: 48,
     fixedHeader: true,
-    fixSiderbar: true
-  }
-};
+    fixSiderbar: true,
+  },
+}
 
-export default meta;
-type Story = StoryObj<typeof meta>;
+export default meta
+type Story = StoryObj<typeof meta>
 
 const menuData = [
   {
@@ -123,107 +124,107 @@ const menuData = [
     meta: {
       title: '工作台',
       icon: 'DashboardOutlined',
-      target: '_self'
-    }
+      target: '_self',
+    },
   },
   {
     path: 'https://example.com/device',
     meta: {
       title: '设备管理',
       icon: 'AppstoreOutlined',
-      target: '_self'
+      target: '_self',
     },
     children: [
       {
         path: 'https://example.com/device/instance',
         meta: {
           title: '设备实例',
-          target: '_self'
-        }
+          target: '_self',
+        },
       },
       {
         path: 'https://example.com/device/product',
         meta: {
           title: '产品管理',
-          target: '_self'
-        }
-      }
-    ]
+          target: '_self',
+        },
+      },
+    ],
   },
   {
     path: 'https://example.com/rule-engine',
     meta: {
       title: '规则引擎',
       icon: 'NodeIndexOutlined',
-      target: '_self'
+      target: '_self',
     },
     children: [
       {
         path: 'https://example.com/rule-engine/scene',
         meta: {
           title: '场景联动',
-          target: '_self'
-        }
+          target: '_self',
+        },
       },
       {
         path: 'https://example.com/rule-engine/alarm',
         meta: {
           title: '告警配置',
-          target: '_self'
-        }
-      }
-    ]
+          target: '_self',
+        },
+      },
+    ],
   },
   {
     path: 'https://example.com/system',
     meta: {
       title: '系统管理',
       icon: 'SettingOutlined',
-      target: '_self'
-    }
-  }
-];
+      target: '_self',
+    },
+  },
+]
 
 const historyRoutes = [
   { name: 'dashboard', label: '工作台' },
   { name: 'device-instance', label: '设备实例' },
-  { name: 'rule-scene', label: '场景联动' }
-];
+  { name: 'rule-scene', label: '场景联动' },
+]
 
 const logo =
-  'data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%2232%22 height=%2232%22 viewBox=%220 0 32 32%22%3E%3Crect width=%2232%22 height=%2232%22 rx=%226%22 fill=%22%231677ff%22/%3E%3Ctext x=%2216%22 y=%2221%22 text-anchor=%22middle%22 font-family=%22Arial%2C sans-serif%22 font-size=%2216%22 font-weight=%22700%22 fill=%22white%22%3EJ%3C/text%3E%3C/svg%3E';
+  'data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%2232%22 height=%2232%22 viewBox=%220 0 32 32%22%3E%3Crect width=%2232%22 height=%2232%22 rx=%226%22 fill=%22%231677ff%22/%3E%3Ctext x=%2216%22 y=%2221%22 text-anchor=%22middle%22 font-family=%22Arial%2C sans-serif%22 font-size=%2216%22 font-weight=%22700%22 fill=%22white%22%3EJ%3C/text%3E%3C/svg%3E'
 
 const createLayoutState = () => {
-  const openKeys = ref<string[]>(['https://example.com/device']);
-  const selectedKeys = ref<string[]>(['https://example.com/dashboard']);
-  const activeKey = ref('dashboard');
+  const openKeys = ref<string[]>(['https://example.com/device'])
+  const selectedKeys = ref<string[]>(['https://example.com/dashboard'])
+  const activeKey = ref('dashboard')
 
   const handleSelect = (keys: string[]) => {
-    selectedKeys.value = keys;
-  };
+    selectedKeys.value = keys
+  }
 
   return {
     openKeys,
     selectedKeys,
     activeKey,
-    handleSelect
-  };
-};
+    handleSelect,
+  }
+}
 
 const contentTemplate = `
-  <div style="padding: 24px; min-height: 520px; background: #f5f7fa;">
+  <div :style="contentStyle">
     <div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; margin-bottom: 16px;">
       <a-card size="small" title="在线设备">
         <div style="font-size: 28px; font-weight: 600; color: #1677ff;">1,248</div>
-        <div style="color: #6b7280; margin-top: 4px;">较昨日 +8.2%</div>
+        <div :style="descriptionStyle">较昨日 +8.2%</div>
       </a-card>
       <a-card size="small" title="今日告警">
         <div style="font-size: 28px; font-weight: 600; color: #faad14;">32</div>
-        <div style="color: #6b7280; margin-top: 4px;">待处理 6 条</div>
+        <div :style="descriptionStyle">待处理 6 条</div>
       </a-card>
       <a-card size="small" title="规则触发">
         <div style="font-size: 28px; font-weight: 600; color: #52c41a;">9,615</div>
-        <div style="color: #6b7280; margin-top: 4px;">近 24 小时</div>
+        <div :style="descriptionStyle">近 24 小时</div>
       </a-card>
     </div>
     <a-card title="运行概览">
@@ -236,45 +237,60 @@ const contentTemplate = `
       />
     </a-card>
   </div>
-`;
+`
 
-const layoutSetup = (args: Record<string, unknown>, initialCollapsed?: boolean) => {
-  const state = createLayoutState();
-  const collapsed = ref(initialCollapsed ?? Boolean(args.collapsed));
+const layoutSetup = (
+  args: Record<string, unknown>,
+  initialCollapsed?: boolean,
+) => {
+  const state = createLayoutState()
+  const { token } = theme.useToken()
+  const collapsed = ref(initialCollapsed ?? Boolean(args.collapsed))
+  const contentStyle = computed(() => ({
+    padding: '24px',
+    minHeight: '520px',
+    background: token.value.colorBgLayout,
+  }))
+  const descriptionStyle = computed(() => ({
+    color: token.value.colorTextDescription,
+    marginTop: '4px',
+  }))
   const columns = [
     { title: '模块', dataIndex: 'module', key: 'module' },
     { title: '状态', dataIndex: 'status', key: 'status' },
-    { title: '更新时间', dataIndex: 'time', key: 'time' }
-  ];
+    { title: '更新时间', dataIndex: 'time', key: 'time' },
+  ]
   const dataSource = [
     { id: 1, module: '设备接入', status: '运行中', time: '2026-05-13 09:30' },
     { id: 2, module: '规则引擎', status: '运行中', time: '2026-05-13 09:28' },
-    { id: 3, module: '告警中心', status: '待处理', time: '2026-05-13 09:25' }
-  ];
+    { id: 3, module: '告警中心', status: '待处理', time: '2026-05-13 09:25' },
+  ]
 
   watch(
     () => args.collapsed,
     (value) => {
-      collapsed.value = Boolean(value);
-    }
-  );
+      collapsed.value = Boolean(value)
+    },
+  )
 
   const layoutArgs = computed(() => ({
     ...args,
     menuData,
     historyRoutes,
     logo,
-    collapsed: collapsed.value
-  }));
+    collapsed: collapsed.value,
+  }))
 
   return {
     layoutArgs,
     ...state,
     collapsed,
+    contentStyle,
+    descriptionStyle,
     columns,
-    dataSource
-  };
-};
+    dataSource,
+  }
+}
 
 /**
  * 基础布局
@@ -285,11 +301,11 @@ export const 基础布局: Story = {
     theme: 'dark',
     layout: 'mix',
     layoutType: 'list',
-    collapsed: false
+    collapsed: false,
   },
   render: (args) => ({
     setup() {
-      return layoutSetup(args);
+      return layoutSetup(args)
     },
     template: `
       <JProLayout
@@ -302,7 +318,7 @@ export const 基础布局: Story = {
       >
         ${contentTemplate}
       </JProLayout>
-    `
+    `,
   }),
   parameters: {
     docs: {
@@ -320,11 +336,11 @@ export const 基础布局: Story = {
   >
     <RouterView />
   </JProLayout>
-</template>`
-      }
-    }
-  }
-};
+</template>`,
+      },
+    },
+  },
+}
 
 /**
  * 浅色侧边栏
@@ -335,11 +351,11 @@ export const 浅色侧边栏: Story = {
     theme: 'light',
     layout: 'mix',
     layoutType: 'list',
-    collapsed: false
+    collapsed: false,
   },
   render: (args) => ({
     setup() {
-      return layoutSetup(args);
+      return layoutSetup(args)
     },
     template: `
       <JProLayout
@@ -352,14 +368,14 @@ export const 浅色侧边栏: Story = {
       >
         ${contentTemplate}
       </JProLayout>
-    `
+    `,
   }),
   parameters: {
     backgrounds: {
-      default: 'grey'
-    }
-  }
-};
+      default: 'grey',
+    },
+  },
+}
 
 /**
  * 折叠状态
@@ -370,11 +386,11 @@ export const 折叠状态: Story = {
     theme: 'dark',
     layout: 'mix',
     layoutType: 'list',
-    collapsed: true
+    collapsed: true,
   },
   render: (args) => ({
     setup() {
-      return layoutSetup(args, true);
+      return layoutSetup(args, true)
     },
     template: `
       <JProLayout
@@ -387,9 +403,9 @@ export const 折叠状态: Story = {
       >
         ${contentTemplate}
       </JProLayout>
-    `
-  })
-};
+    `,
+  }),
+}
 
 /**
  * 卡片式侧边栏
@@ -401,11 +417,11 @@ export const 卡片式侧边栏: Story = {
     layout: 'mix',
     layoutType: 'card',
     cardSiderWidth: 64,
-    collapsed: false
+    collapsed: false,
   },
   render: (args) => ({
     setup() {
-      return layoutSetup(args);
+      return layoutSetup(args)
     },
     template: `
       <JProLayout
@@ -418,9 +434,9 @@ export const 卡片式侧边栏: Story = {
       >
         ${contentTemplate}
       </JProLayout>
-    `
-  })
-};
+    `,
+  }),
+}
 
 /**
  * 插槽扩展
@@ -431,11 +447,11 @@ export const 插槽扩展: Story = {
     theme: 'dark',
     layout: 'mix',
     layoutType: 'list',
-    collapsed: false
+    collapsed: false,
   },
   render: (args) => ({
     setup() {
-      return layoutSetup(args);
+      return layoutSetup(args)
     },
     template: `
       <JProLayout
@@ -464,7 +480,7 @@ export const 插槽扩展: Story = {
 
         ${contentTemplate}
       </JProLayout>
-    `
+    `,
   }),
   parameters: {
     docs: {
@@ -483,8 +499,8 @@ export const 插槽扩展: Story = {
 
     <RouterView />
   </JProLayout>
-</template>`
-      }
-    }
-  }
-};
+</template>`,
+      },
+    },
+  },
+}

@@ -11,8 +11,8 @@ export const genEditTableGroupStyle = (config: any): CSSObject => {
           position: 'relative'
         },
         ['.ant-tabs-tab-active']: {
-          backgroundColor: '#BAE0FF !important',
-          borderColor: '#91CAFF !important',
+          backgroundColor: `${token.colorPrimaryBg} !important`,
+          borderColor: `${token.colorPrimaryBorder} !important`,
         },
         ['.ant-tabs-nav-add']: {
           border: 'none',
@@ -20,7 +20,7 @@ export const genEditTableGroupStyle = (config: any): CSSObject => {
       }
     },
     ['.jetlinks-table-group-error-wrap']: {
-      color: '#1a1a1a !important',
+      color: `${token.colorText} !important`,
       ['.table-group-error-target']: {
         position: 'absolute',
         right: 0,

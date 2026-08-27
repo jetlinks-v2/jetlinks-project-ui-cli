@@ -13,7 +13,7 @@ export const genEditTableHeaderStyle = (config: any): CSSObject => {
         float: 'left',
         overflow: 'visible',
         position: 'absolute',
-        background: '#fafafa',
+        background: token.colorFillQuaternary,
         top: 0,
         ['.jetlinks-edit-table-header-cell-box']: {
           padding: '0 12px',
@@ -46,7 +46,7 @@ export const genEditTableHeaderStyle = (config: any): CSSObject => {
             width: '1px',
             height: '1.6em',
             pointerEvents: 'none',
-            backgroundColor: 'rgba(0,0,0,.06)',
+            backgroundColor: token.colorSplit,
             transform: 'translateY(-50%)',
             transition: 'background-color .3s',
             content: '""',
@@ -69,7 +69,7 @@ export const genEditTableHeaderStyle = (config: any): CSSObject => {
         },
 
         ['.jetlinks-table-search-result-total']: {
-          color: '@primary-color',
+          color: token.colorPrimary,
         }
       }
     }

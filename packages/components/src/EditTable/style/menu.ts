@@ -5,12 +5,12 @@ export const genMenuStyle = (config: any): CSSObject => {
   return {
     '.jetlinks-edit-table-context-menu': {
       position: 'fixed',
-      boxShadow: '0 0 12px rgba(0, 0, 0 ,.2)',
       borderRadius: '4px',
       overflow: 'hidden',
       width: '192px',
       padding: '4px',
-      backgroundColor: '#fff',
+      backgroundColor: token.colorBgElevated,
+      boxShadow: token.boxShadowSecondary,
       '.ant-menu': {
         borderRight: 'none',
 
@@ -24,7 +24,7 @@ export const genMenuStyle = (config: any): CSSObject => {
         },
       },
       '.ant-menu-item-active': {
-        backgroundColor: 'var(--ant-primary-1)',
+        backgroundColor: token.colorPrimaryBg,
       },
     }
   }

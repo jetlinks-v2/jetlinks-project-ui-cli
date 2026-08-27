@@ -15,31 +15,31 @@ const genCheckButtonStyle = (config: any): CSSObject => {
         minWidth: 0,
         padding: '8px',
         borderRadius: token.borderRadius,
-        backgroundColor: '#f2f3f5',
+        backgroundColor: token.colorFillTertiary,
         transition: 'all 0.3s',
-        color: '#333',
+        color: token.colorText,
         textAlign: 'center',
         cursor: 'pointer',
         
         '&:hover': {
-          backgroundColor: token.colorPrimary,
+          backgroundColor: token.colorPrimaryHover,
           opacity: 0.85,
-          color: '#fff'
+          color: token.colorTextLightSolid
         },
         
         '&.selected': {
           backgroundColor: token.colorPrimary,
-          color: '#fff'
+          color: token.colorTextLightSolid
         },
         
         '&.disabled': {
-          backgroundColor: '#f5f5f5',
-          color: '#ccc',
+          backgroundColor: token.colorBgContainerDisabled,
+          color: token.colorTextDisabled,
           cursor: 'not-allowed',
           
           '&:hover': {
-            backgroundColor: '#f5f5f5',
-            color: '#ccc',
+            backgroundColor: token.colorBgContainerDisabled,
+            color: token.colorTextDisabled,
             opacity: 1
           }
         }

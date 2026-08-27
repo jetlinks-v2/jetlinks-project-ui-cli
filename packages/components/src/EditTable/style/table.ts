@@ -4,7 +4,7 @@ export const genTableStyle = (config: any): CSSObject => {
   const { token } = config;
   return {
     '.jetlinks-edit-table-wrapper': {
-      background: '#fff',
+      background: token.colorBgContainer,
       height: '100%',
       position: 'relative',
       '&.table-full-screen': {
@@ -15,7 +15,7 @@ export const genTableStyle = (config: any): CSSObject => {
         flexDirection: 'column',
         flexGrow: 0,
         flexShrink: 0,
-        background: '#fafafa',
+        background: token.colorFillQuaternary,
         transition: 'background-color .3s ease',
         overflow: 'auto hidden',
         '.jetlinks-edit-table-header': {
@@ -24,7 +24,7 @@ export const genTableStyle = (config: any): CSSObject => {
           position:'relative'
         },
         '.jetlinks-edit-table-body': {
-          backgroundColor: '#fff',
+          backgroundColor: token.colorBgContainer,
           overflowY: 'hidden',
           position: 'relative',
           height: '100%',

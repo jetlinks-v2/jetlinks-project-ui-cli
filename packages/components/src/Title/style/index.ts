@@ -12,7 +12,7 @@ const genTitleStyle = (config: any): CSSObject => {
       [`${componentCls}-content`]: {
         position: 'relative',
         paddingLeft: '10px',
-        color: 'rgba(0, 0, 0, 0.8)',
+        color: token.colorTextHeading,
         fontWeight: 600,
         lineHeight: 1,
         '&::before': {
@@ -21,7 +21,7 @@ const genTitleStyle = (config: any): CSSObject => {
           left: 0,
           width: 4,
           height: '100%',
-          background: '#1890ff',
+          background: token.colorPrimary,
           borderRadius: '0 3px 3px 0',
           content: '""',
         }

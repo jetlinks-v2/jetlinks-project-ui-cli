@@ -1,14 +1,13 @@
-import type { CSSObject } from "ant-design-vue";
-import genCompoentStyle from "../../style/styleRegister";
+import type { CSSObject } from 'ant-design-vue'
+import genCompoentStyle from '../../style/styleRegister'
+import { genTokenScrollbarStyle } from '../../style/scrollbar'
 
-const scrollbarBgColor = '#909399';
-const scrollbarHoverBgColor = '#909399';
-const scrollbarHoverOpacity = 0.5;
-const scrollbarOpacity = 0.3;
-const transitionDuration = '0.3s';
+const scrollbarHoverOpacity = 0.5
+const scrollbarOpacity = 0.3
+const transitionDuration = '0.3s'
 
 const genScrollbarStyle = (config: any): CSSObject => {
-  const { componentCls, token } = config;
+  const { componentCls, token } = config
   return {
     [componentCls]: {
       overflow: 'hidden',
@@ -17,12 +16,13 @@ const genScrollbarStyle = (config: any): CSSObject => {
       [`${componentCls}__wrap`]: {
         overflow: 'auto',
         height: '100%',
+        ...genTokenScrollbarStyle(token),
         [`${componentCls}--hidden-default`]: {
           scrollbarWidth: 'none',
           '&::-webkit-scrollbar': {
             display: 'none',
-          }
-        }
+          },
+        },
       },
       [`${componentCls}__thumb`]: {
         position: 'relative',
@@ -31,13 +31,13 @@ const genScrollbarStyle = (config: any): CSSObject => {
         height: 0,
         cursor: 'pointer',
         borderRadius: 'inherit',
-        backgroundColor: scrollbarBgColor,
+        backgroundColor: token.colorFillSecondary,
         transition: `${transitionDuration} background-color`,
         opacity: scrollbarOpacity,
         '&:hover': {
-          backgroundColor: scrollbarHoverBgColor,
-          opacity: scrollbarOpacity,
-        }
+          backgroundColor: token.colorFill,
+          opacity: scrollbarHoverOpacity,
+        },
       },
       [`${componentCls}__bar`]: {
         position: 'absolute',
@@ -49,29 +49,29 @@ const genScrollbarStyle = (config: any): CSSObject => {
           width: '6px',
           top: '2px',
           '> div': {
-            width: '100%'
-          }
+            width: '100%',
+          },
         },
         [`${componentCls}--horizontal`]: {
           height: '6px',
           left: '2px',
           '> div': {
-            height: '100%'
-          }
-        }
-      }
+            height: '100%',
+          },
+        },
+      },
     },
     [`${componentCls}-fade`]: {
       [`${componentCls}-fade-enter-active`]: {
-        transition: 'opacity 340ms ease-out'
+        transition: 'opacity 340ms ease-out',
       },
       [`${componentCls}-fade-leave-active`]: {
-        transition: 'opacity 120ms ease-out'
+        transition: 'opacity 120ms ease-out',
       },
       [`${componentCls}-fade-enter-from,${componentCls}-fade-leave-active`]: {
-        opacity: 0
-      }
-    }
+        opacity: 0,
+      },
+    },
   }
 }
 

@@ -5,7 +5,7 @@ export const genSearchStyle = (config: any): CSSObject => {
   return {
     [`${componentCls}-warp`]: {
       padding: '24px',
-      backgroundColor: '#fff',
+      backgroundColor: token.colorBgContainer,
       marginBottom: '24px',
       '.pack-up': {
         [`${componentCls}-items`]: {
@@ -97,7 +97,7 @@ export const genSearchStyle = (config: any): CSSObject => {
       },
       '.no-radius': {
         borderRadius: 0,
-        borderColor: '#f1f1f1',
+        borderColor: token.colorBorderSecondary,
       },
       '.search-history-warp': {
         position: 'relative',
@@ -110,7 +110,7 @@ export const genSearchStyle = (config: any): CSSObject => {
           height: '18px',
           right: '6px',
           top: '8px',
-          color: '#fff',
+          color: token.colorTextLightSolid,
           lineHeight: '18px',
           textAlign: 'center',
           fontWeight: 'bold',
@@ -122,7 +122,7 @@ export const genSearchStyle = (config: any): CSSObject => {
     },
     '.search-history-empty': {
       padding: '12px 12px 6px 12px',
-      backgroundColor: '#fff',
+      backgroundColor: token.colorBgElevated,
     },
     '.search-history-items': {
       width: '120px',
@@ -134,7 +134,7 @@ export const genSearchStyle = (config: any): CSSObject => {
         alignItems: 'center',
         gap: '4px',
         '&:hover': {
-          backgroundColor: '#f1f1f1',
+          backgroundColor: token.colorFillTertiary,
         },
         '.history-item--title': {
           width: 'calc(100% - 30px)',

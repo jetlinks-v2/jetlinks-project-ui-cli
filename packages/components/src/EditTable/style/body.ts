@@ -1,7 +1,8 @@
-import type { CSSObject } from 'ant-design-vue';
+import type { CSSObject } from 'ant-design-vue'
+import { genTokenScrollbarStyle } from '../../style/scrollbar'
 
 export const genEditTableBodyStyle = (config?: any): CSSObject => {
-  const { componentCls, token } = config;
+  const { componentCls, token } = config
 
   return {
     // 兼容旧版虚拟滚动样式
@@ -10,16 +11,17 @@ export const genEditTableBodyStyle = (config?: any): CSSObject => {
       width: '100%',
       overflow: 'hidden auto',
       position: 'relative',
+      ...genTokenScrollbarStyle(token),
       ['.jetlinks-edit-scrollbar']: {
         position: 'absolute',
         left: 0,
         top: 0,
         right: 0,
-        zIndex: -1
+        zIndex: -1,
       },
       ['.jetlinks-edit-table-body-container']: {
         overflow: 'hidden',
-        height: '100%'
+        height: '100%',
       },
       ['.jetlinks-edit-table-center']: {
         position: 'relative',
@@ -31,21 +33,21 @@ export const genEditTableBodyStyle = (config?: any): CSSObject => {
           display: 'flex',
           alignItems: 'center',
           transition: 'top .2s, height .2s, background-color .1s',
-          borderBottom: '1px solid #eebebeb',
+          borderBottom: `${token.lineWidth}px solid ${token.colorBorderSecondary}`,
           ['.jetlinks-edit-table-cell']: {
             position: 'absolute',
-            minWidth: 0
+            minWidth: 0,
           },
           ['&:hover']: {
-            backgroundColor: 'rgb(248, 248, 248)',
+            backgroundColor: token.colorFillQuaternary,
           },
           ['&.jetlinks-edit-table-row-selected']: {
-            backgroundColor: 'var(--ant-primary-1)'
+            backgroundColor: token.colorPrimaryBg,
           },
           ['.body-cell-box']: {
             padding: '0 12px',
             position: 'relative',
-          }
+          },
         },
         ['.readonly-mask']: {
           position: 'absolute',
@@ -53,9 +55,9 @@ export const genEditTableBodyStyle = (config?: any): CSSObject => {
           left: 0,
           right: 0,
           bottom: 0,
-          zIndex: 4
-        }
-      }
+          zIndex: 4,
+        },
+      },
     },
     ['.jetlinks-edit-table-body-empty']: {
       display: 'flex',
@@ -68,11 +70,11 @@ export const genEditTableBodyStyle = (config?: any): CSSObject => {
       ['.virtual-table-wrapper']: {
         height: '100%',
         ['.virtual-table-header']: {
-          display: 'none' // 使用 EditTable 自己的 Header
+          display: 'none', // 使用 EditTable 自己的 Header
         },
         ['.virtual-table-body']: {
-          height: '100%'
-        }
+          height: '100%',
+        },
       },
       ['.readonly-mask']: {
         position: 'absolute',
@@ -80,8 +82,8 @@ export const genEditTableBodyStyle = (config?: any): CSSObject => {
         left: 0,
         right: 0,
         bottom: 0,
-        zIndex: 4
-      }
-    }
-  };
-};
+        zIndex: 4,
+      },
+    },
+  }
+}

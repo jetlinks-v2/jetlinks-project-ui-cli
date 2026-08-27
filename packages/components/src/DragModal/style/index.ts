@@ -16,19 +16,19 @@ const genDragModalStyle = (config: any): CSSObject => {
         flexDirection: 'column',
         overflow: 'hidden',
         zIndex: 23456765435,
-        backgroundColor: '#ffffff',
+        backgroundColor: token.colorBgElevated,
         borderRadius: 4,
-        border: '1px solid #91CAFF',
-        boxShadow: '0 3px 8px 0 rgba(22, 119, 255, 0.24)',
+        border: `${token.lineWidth}px solid ${token.colorPrimaryBorder}`,
+        boxShadow: token.boxShadowSecondary,
           header: {
           padding: '5px 15px',
           fontSize: 18,
           fontWeight: 700,
-          color: '#333',
+          color: token.colorTextHeading,
           display: 'flex',
           justifyContent: 'space-between',
           alignItems: 'center',
-          borderBottom: '1px solid #f0f0f0',
+          borderBottom: `${token.lineWidth}px solid ${token.colorSplit}`,
           cursor: 'move',
         },
         [`${componentCls}-body`]: {
@@ -38,7 +38,7 @@ const genDragModalStyle = (config: any): CSSObject => {
           padding: '24px 20px',
         },
         [`${componentCls}-footer`]: {
-          borderTop: '1px solid #f0f0f0',
+          borderTop: `${token.lineWidth}px solid ${token.colorSplit}`,
           padding: '5px 15px',
         }
       },

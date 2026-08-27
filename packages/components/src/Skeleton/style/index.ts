@@ -6,9 +6,6 @@ const JSkeletonSizeLg = '36px';
 const JSkeletonSizeSm = '16px';
 const JSkeletonSize = '24px';
 const JSkeletonBorderRadius = '8px';
-const JSkeletonBg = '#f0f2f5';
-const JSkeletonBg1 = '#e6e8eb';
-const JSkeletonBorder = `4px solid ${JSkeletonBg}`
 const JSkeletonFlex = {
   display: 'flex',
   gap: '24px',
@@ -26,6 +23,11 @@ const waveKeyframes = new Keyframes('wave', {
 })
 const genSkeletonStyle = (config: any): CSSObject => {
   const { componentCls, token } = config;
+  const JSkeletonBg = token.colorFillQuaternary;
+  const JSkeletonBg1 = token.colorFillSecondary;
+  const JSkeletonBorder = `${token.lineWidth * 4}px solid ${JSkeletonBg}`;
+  const JSkeletonCardBorder = `${token.lineWidth * 2}px solid ${token.colorBorderSecondary}`;
+
   return {
     [`${componentCls}-flex`]: JSkeletonFlex,
     [`${componentCls}-flex-between`]: {
@@ -40,6 +42,11 @@ const genSkeletonStyle = (config: any): CSSObject => {
     },
     [`${componentCls}`]: {
       height: '100%',
+      '--j-skeleton-bg': JSkeletonBg,
+      '--j-skeleton-bg-active': JSkeletonBg1,
+      '--j-skeleton-border': JSkeletonBorder,
+      '--j-skeleton-card-border': JSkeletonCardBorder,
+      '--j-skeleton-table-header-bg': token.colorFillTertiary,
       [`${componentCls}-item`]: {
         background: `linear-gradient(90deg, ${JSkeletonBg} 25%, ${JSkeletonBg1} 50%, ${JSkeletonBg} 75%)`,
         backgroundSize: '400% 100%',
@@ -100,7 +107,7 @@ const genSkeletonStyle = (config: any): CSSObject => {
         borderRadius: '8px',
       },
       [`${componentCls}-table-header`]: {
-        backgroundColor: 'lightgrey',
+        backgroundColor: token.colorFillTertiary,
       },
       [`${componentCls}-table-action`]: {
         width: '200px',
@@ -117,7 +124,7 @@ const genSkeletonStyle = (config: any): CSSObject => {
         [`${componentCls}-card-content`]: {
           display: 'flex',
           gap: '16px',
-          border: '2px solid #f0f2f5',
+          border: JSkeletonCardBorder,
           borderRadius: '8px',
           padding: '24px',
           marginBottom: '16px',

@@ -2,9 +2,11 @@
 @j-skeleton-size-sm: 16px;
 @j-skeleton-size: 24px;
 @j-skeleton-border-radius: 8px;
-@j-skeleton-bg: #f0f2f5;
-@j-skeleton-bg-1: #e6e8eb;
-@j-skeleton-border: 4px solid @j-skeleton-bg;
+@j-skeleton-bg: var(--j-skeleton-bg);
+@j-skeleton-bg-1: var(--j-skeleton-bg-active);
+@j-skeleton-border: var(--j-skeleton-border);
+@j-skeleton-card-border: var(--j-skeleton-card-border);
+@j-skeleton-table-header-bg: var(--j-skeleton-table-header-bg);
 
 .j-skeleton-flex {
   display: flex;
@@ -98,7 +100,7 @@
   }
 
   &-table-header {
-    background-color: lightgrey;
+    background-color: @j-skeleton-table-header-bg;
   }
 
   &-table-action {
@@ -118,7 +120,7 @@
     .j-skeleton-card-content {
       display: flex;
       gap: 16px;
-      border: 2px solid #f0f2f5;
+      border: @j-skeleton-card-border;
       border-radius: 8px;
       padding: 24px;
       margin-bottom: 16px;

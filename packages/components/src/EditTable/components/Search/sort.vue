@@ -41,7 +41,8 @@
 
 <script setup>
 import {useTableTool, useTableWrapper} from "../../context";
-import { defineProps, defineOptions, defineEmits, ref, reactive} from 'vue'
+import { computed, defineProps, defineOptions, defineEmits, ref, reactive} from 'vue'
+import { theme } from 'ant-design-vue';
 import {useLocaleReceiver} from "../../../LocaleReciver";
 
 defineOptions({
@@ -75,10 +76,13 @@ const emit = defineEmits(['click'])
 const [contextLocale] = useLocaleReceiver('EditTable');
 const tableWrapperRef = useTableWrapper()
 const tableTool = useTableTool()
+const { token } = theme.useToken()
 
 const visible = ref(false)
 const dataSource = ref([])
 const mySelectedRowKeys = ref([])
+const sortIconColor = computed(() => token.value.colorTextDisabled)
+const sortIconActiveColor = computed(() => token.value.colorPrimary)
 
 const columns = reactive([
   {
@@ -149,11 +153,11 @@ const onDesc = () => {
 }
 
 .table-sort-icon {
-  color: rgba(0,0,0, 0.25);
+  color: v-bind(sortIconColor);
   font-size: 16px;
 
   &.active {
-    color: @primary-color;
+    color: v-bind(sortIconActiveColor);
   }
 }
 </style>

@@ -1,5 +1,6 @@
-import type { CSSObject } from "ant-design-vue";
-import genCompoentStyle from "../../style/styleRegister";
+import type { CSSObject } from 'ant-design-vue'
+import genCompoentStyle from '../../style/styleRegister'
+import { genTokenScrollbarStyle } from '../../style/scrollbar'
 
 const genProTableStyle = (config: any): CSSObject => {
   const { token } = config
@@ -7,12 +8,12 @@ const genProTableStyle = (config: any): CSSObject => {
     '.jtable-body-spin': {
       height: '100%',
       width: '100%',
-      backgroundColor: '#fff',
+      backgroundColor: token.colorBgContainer,
       '.ant-spin-nested-loading': {
         height: '100%',
         '.ant-spin-container': {
-          height: '100%'
-        }
+          height: '100%',
+        },
       },
       '.jtable-body': {
         width: '100%',
@@ -20,7 +21,7 @@ const genProTableStyle = (config: any): CSSObject => {
         height: '100%',
         display: 'flex',
         flexDirection: 'column',
-      }
+      },
     },
     '.jtable-body-header': {
       display: 'flex',
@@ -41,16 +42,16 @@ const genProTableStyle = (config: any): CSSObject => {
           width: '62px',
           '.right-button-icon': {
             fontSize: '16px',
-            color: '#d9d9d9',
+            color: token.colorTextDisabled,
           },
           '.ant-radio-button-wrapper': {
             padding: '0 8px',
           },
           '.ant-radio-button-wrapper-checked': {
             color: token.colorPrimary,
-          }
-        }
-      }
+          },
+        },
+      },
     },
     '.jtable-box': {
       flex: 1,
@@ -58,17 +59,18 @@ const genProTableStyle = (config: any): CSSObject => {
       '.jtable-card': {
         height: '100%',
         overflowY: 'auto',
+        ...genTokenScrollbarStyle(token),
         '.jtable-card-items': {
           display: 'grid',
           gridGap: '18px',
           '.jtable-card-item': {
             display: 'flex',
             minWidth: 0,
-          }
+          },
         },
         [`j-table-empty`]: {
           marginTop: '100px',
-        }
+        },
       },
       '.ant-table-wrapper': {
         height: '100%',
@@ -77,22 +79,23 @@ const genProTableStyle = (config: any): CSSObject => {
           '.ant-table-container': {
             height: '100%',
             '.ant-table-content': {
-              height: '100%'
-            }
-          }
-        }
+              height: '100%',
+            },
+          },
+        },
       },
       '.j-table-scroll': {
         '.ant-table-container': {
           display: 'flex',
-          flexDirection: 'column'
+          flexDirection: 'column',
         },
         '.ant-table-body': {
           flex: 1,
           minHeight: 0,
-          overflowY: 'auto'
-        }
-      }
+          overflowY: 'auto',
+          ...genTokenScrollbarStyle(token),
+        },
+      },
     },
     '.jtable-alert': {
       marginBottom: '16px',
@@ -103,11 +106,12 @@ const genProTableStyle = (config: any): CSSObject => {
       justifyContent: 'flex-end',
       marginTop: '16px',
       '.hide-content': {
-        [`${token.antCls}-pagination-item,& ${token.antCls}-pagination-jump-prev, & ${token.antCls}-pagination-jump-next`]: {
-          display: 'none'
-        }
-      }
-    }
+        [`${token.antCls}-pagination-item,& ${token.antCls}-pagination-jump-prev, & ${token.antCls}-pagination-jump-next`]:
+          {
+            display: 'none',
+          },
+      },
+    },
   }
 }
 
