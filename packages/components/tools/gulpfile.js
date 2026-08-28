@@ -150,6 +150,9 @@ function compile(modules) {
   const assets = gulp
     .src(['src/**/*.@(png|svg)'])
     .pipe(gulp.dest(modules === false ? esDir : libDir));
+  const docs = gulp
+    .src(['src/**/*.md'])
+    .pipe(gulp.dest(modules === false ? esDir : libDir));
   let error = 0;
 
     // =============================== FILE ===============================
@@ -253,6 +256,7 @@ function compile(modules) {
             tsFilesStream,
             tsd,
             assets,
+            docs,
             sourceVueStream,
             transformFileStream,
         ].filter((s) => s),
