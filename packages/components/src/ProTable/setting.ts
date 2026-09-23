@@ -131,4 +131,8 @@ export const proTableProps = {
     type: Object, // Boolean,
     default: () => ({}),
   },
+  columnEmpty: {
+    type: String,
+    default: '',
+  }
 }

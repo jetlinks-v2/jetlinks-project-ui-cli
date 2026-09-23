@@ -1,17 +1,14 @@
 <template>
-  <Badge
-    :color="_color"
-    :text="text"
-  ></Badge>
+  <Badge :class="classNames" :color="_color" :text="text"></Badge>
 </template>
 
 <script setup lang="ts">
 import { computed, defineProps, defineOptions } from 'vue'
 import { getHexColor } from './color'
-import {Badge} from 'ant-design-vue'
+import { Badge } from 'ant-design-vue'
 
 defineOptions({
-  name: 'JBadgeStatus'
+  name: 'JBadgeStatus',
 })
 
 const props = defineProps({
@@ -32,13 +29,18 @@ const props = defineProps({
   statusNames: {
     type: Object,
     default: () => ({
-      'success': 'success',
-      'warning': 'warning',
-      'error': 'error',
-      'default': 'default',
-    })
+      success: 'success',
+      warning: 'warning',
+      error: 'error',
+      default: 'default',
+    }),
   },
-});
+})
+
+const classNames = computed(() => ({
+  'j-badge-status': true,
+  [props.statusNames[props.status]]: true,
+}))
 
 const _color = computed(() => {
   return getHexColor(props.statusNames[props.status], 1)

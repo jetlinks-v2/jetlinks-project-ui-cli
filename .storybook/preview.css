@@ -1,0 +1,28 @@
+.jetlinks-story-theme,
+.jetlinks-story-theme * {
+  scrollbar-width: thin;
+  scrollbar-color: var(--j-story-scrollbar-thumb) var(--j-story-scrollbar-track);
+}
+
+.jetlinks-story-theme ::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+.jetlinks-story-theme ::-webkit-scrollbar-track {
+  background: var(--j-story-scrollbar-track);
+}
+
+.jetlinks-story-theme ::-webkit-scrollbar-thumb {
+  background-color: var(--j-story-scrollbar-thumb);
+  border: 2px solid var(--j-story-scrollbar-track);
+  border-radius: 8px;
+}
+
+.jetlinks-story-theme ::-webkit-scrollbar-thumb:hover {
+  background-color: var(--j-story-scrollbar-thumb-hover);
+}
+
+.jetlinks-story-theme ::-webkit-scrollbar-corner {
+  background: var(--j-story-scrollbar-track);
+}
