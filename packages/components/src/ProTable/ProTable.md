@@ -41,6 +41,7 @@
 | headerTitle | `PAGE` / `TREE` 模式顶部左侧 |
 | rightExtraRender | `PAGE` / `TREE` 模式顶部右侧 |
 | paginationRender | 分页自定义 |
+| emptyText | 当前 ProTable 的空状态，优先于 ConfigProvider 的全局 `renderEmpty` |
 | 其余 | 透传 ant-design-vue Table 插槽 |
 
 #### 用法
