@@ -23,6 +23,13 @@ const JConfigProvider = defineComponent({
   },
   setup(props, { slots }) {
 
+    // 作为 prop 传入 Ant Design Vue，确保其组件与 ProTable 共享同一个全局空状态。
+    const renderEmpty = (componentName?: string) => (
+      props.renderEmpty?.(componentName)
+      || slots.renderEmpty?.({ componentName })
+      || <Empty />
+    )
+
     const _iconConfig = reactive(props.IconConfig || {})
     const _mapConfig = reactive<MapConfigType>(props.MapConfig || {})
     const _searchConfig = reactive<SearchConfigType>(props.SearchConfig || {})
@@ -46,15 +53,25 @@ const JConfigProvider = defineComponent({
 
       return h(
         ConfigProvider,
-        {...omit(props, ['IconConfig', 'MapConfig', 'SearchConfig'])},
-        [h(
-          LocaleProvider,
-          {locale: props.componentsLocale || zh},
-          {
-            default: slots.default,
-            renderEmpty: () => (slots.renderEmpty?.() || <Empty />),
-          }
-        )]
+        {
+          ...omit(props, [
+            'IconConfig',
+            'MapConfig',
+            'SearchConfig',
+            'PermissionButtonConfig',
+            'FullPageConfig',
+            'TableConfig',
+            'componentsLocale',
+          ]),
+          renderEmpty,
+        },
+        {
+          default: () => h(
+            LocaleProvider,
+            {locale: props.componentsLocale || zh},
+            {default: slots.default}
+          )
+        }
       )
     }
   }

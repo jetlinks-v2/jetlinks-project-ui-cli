@@ -20,13 +20,16 @@
 | 名称 | 说明 |
 | --- | --- |
 | default | 应用内容 |
-| renderEmpty | 自定义全局空状态渲染（默认使用 `JEmpty`） |
+| renderEmpty | 自定义全局空状态渲染（默认使用 `JEmpty`），作用域参数为 `componentName` |
 
 #### 用法
 
 ```vue
 <template>
   <JConfigProvider :locale="zhCN" :theme="{ token: { colorPrimary: '#1677ff' } }">
+    <template #renderEmpty>
+      <ProjectEmpty />
+    </template>
     <router-view />
   </JConfigProvider>
 </template>
@@ -35,6 +38,7 @@
 #### Rules
 
 - 通过 Vue `provide` 注入以下配置，供全组件体系消费：Icon / Map / Search / PermissionButton / FullPage / ProTable（Table）。
-- 空状态统一由内置 `JEmpty` 兜底，可通过 `renderEmpty` 插槽覆盖。
+- 空状态统一由内置 `JEmpty` 兜底，可通过 `renderEmpty` 插槽覆盖；该配置同时作用于 ProTable 及 Provider 下支持 `renderEmpty` 的 ant-design-vue 组件。
+- 组件自身的 `emptyText`、`notFoundContent` 等局部配置优先于全局 `renderEmpty`。
 - 内部自动包装 `JLocaleProvider`，`componentsLocale` 缺省使用内置中文语言包。
 - 兼容 `ConfigProvider.config()` 静态方法（如 `Message` 主题配置）。

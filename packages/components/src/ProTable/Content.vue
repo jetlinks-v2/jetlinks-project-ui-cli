@@ -29,7 +29,7 @@
         </div>
         <div class="j-table-empty" v-else>
           <slot name="emptyText">
-            <Empty />
+            <EmptyRenderer />
           </slot>
         </div>
       </div>
@@ -86,7 +86,7 @@
           </template>
           <template #emptyText>
             <slot name="emptyText">
-              <Empty />
+              <EmptyRenderer />
             </slot>
           </template>
         </JVirtualTable>
@@ -143,7 +143,7 @@
           </template>
           <template #emptyText>
             <slot name="emptyText">
-              <Empty />
+              <EmptyRenderer />
             </slot>
           </template>
         </Table>
@@ -156,8 +156,8 @@
 import { useSlots, computed } from 'vue'
 import { _contentProps } from './setting'
 import { Table } from 'ant-design-vue'
+import useConfigInject from 'ant-design-vue/es/config-provider/hooks/useConfigInject'
 import { get, omit } from 'lodash-es'
-import Empty from '../Empty'
 import { useTableInject } from './hooks'
 import useProTableStyle from './style'
 import { useLocaleReceiver } from '../LocaleReciver'
@@ -175,6 +175,8 @@ const props = defineProps({
   },
 })
 const slots = useSlots()
+const { renderEmpty } = useConfigInject('table', props)
+const EmptyRenderer = () => renderEmpty('Table')
 const [contextLocale] = useLocaleReceiver('ProTable')
 const prefixCls = computed(() => 'pro-table')
 const [wrapSSR, hashId] = useProTableStyle(prefixCls)
