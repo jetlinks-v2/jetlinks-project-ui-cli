@@ -1,6 +1,5 @@
 <template>
   <div :class="['jtable-body-spin', hashId]" :style="bodyStyle" id="jtable-body-spin">
-    <Spin :spinning="loading">
       <div class="jtable-body">
         <Header :initMode="mode" :mode="_mode" :modeValue="modeValue" @change="onCheck">
           <template #headerLeftRender>
@@ -13,6 +12,7 @@
         <Alert v-if="showAlert" :rowSelection="rowSelection || _rowSelection" @close="onClose">
           <slot name="alertRender" :rowSelection="rowSelection || _rowSelection" :onClose="onClose"></slot>
         </Alert>
+        <Spin :spinning="loading" wrapperClassName="jtable-content-spin">
         <Content v-bind="props" :mode="_mode" :dataSource="_dataSource" :column="column">
           <template v-for="(_, key) in slots" :key="key" v-slot:[key]="slotProps">
             <template v-if="!extraSlots.includes(key)">
@@ -20,6 +20,7 @@
             </template>
           </template>
         </Content>
+        </Spin>
         <Pagination @change="onPageChange" v-if="showPagination" v-bind="myPagination" :total="page.total" :pageIndex="page.pageIndex" :pageSize="page.pageSize" :totalLoading="page.loading" :totalRequest="totalRequest">
           <slot
               name="paginationRender"
@@ -30,7 +31,6 @@
           ></slot>
         </Pagination>
       </div>
-    </Spin>
   </div>
 </template>
 
@@ -42,12 +42,12 @@ import Alert from './Alert.vue';
 import Content from './Content.vue';
 import Pagination from './Pagination.vue';
 import {useSlots, watch, onMounted, onUnmounted, computed, ref, reactive, inject} from "vue";
-import {debounce} from 'lodash-es';
 import {TableConfig} from "../utils/constants";
 import {useTableInject} from "./hooks";
 import useProTableStyle from "./style";
 import {onlyMessage} from "@jetlinks-web/utils";
 import {useLocaleReceiver} from "../LocaleReciver";
+import {useProTableRequest} from './hooks/useProTableRequest';
 
 defineOptions({
   name: 'JProTable'
@@ -61,6 +61,7 @@ const props = defineProps({
   ...proTableProps
 })
 const slots = useSlots()
+const emit = defineEmits<{ (event: 'requestError', error: unknown): void }>()
 
 const myPagination = computed(() => {
   const globalPagination = tableConfig.pagination || {}
@@ -90,7 +91,6 @@ const page = reactive({
 const prefixCls = computed(() => 'pro-table')
 const [wrapSSR, hashId] = useProTableStyle(prefixCls)
 const [contextLocale] = useLocaleReceiver('ProTable');
-let currentRequestId = 0;
 const extraSlots = ['headerRightRender', 'headerLeftRender', 'paginationRender', 'alertRender']
 
 const _rowSelection = useTableInject()
@@ -106,96 +106,11 @@ const onCheck = (e) => {
   _mode.value = e.target.value;
 }
 
-const handleData = (result: any, _params: any) => {
-  if (props.type === 'PAGE') {
-    // 判断如果是最后一页且最后一页为空，就跳转到前一页
-    // 判断条件：如果是total分开查询，判断result的长度；如果不分开查询就判断result.data的长度
-    if(props.totalRequest){
-      if(result.length === 0){
-        return true
-      } else {
-        _dataSource.value = result || [];
-        page.pageIndex = _params?.pageIndex || 0;
-        page.pageSize = _params?.pageSize || 12;
-        page.total = page.pageSize * (page.pageIndex + 1) + 1
-      }
-    } else {
-      if (
-          result?.total &&
-          result?.pageSize &&
-          result?.pageIndex &&
-          result?.data?.length === 0
-      ) {
-        return true
-      } else {
-        _dataSource.value = result?.data || [];
-        page.pageIndex = result?.pageIndex || 0;
-        page.pageSize = result?.pageSize || 12;
-        page.total = result?.total || 0;
-      }
-    }
-  } else {
-    _dataSource.value = result || [];
-  }
-  return false
-}
-const handleSearch = async (_params?: Record<string, any>) => {
-  if (Array.isArray(props.dataSource)) {
-    _dataSource.value = props.dataSource
-  } else if (props.request) {
-    const __params = {
-      pageIndex: page.pageIndex,
-      pageSize: Number(page.pageSize),
-      ...props.defaultParams,
-      ..._params,
-      terms: [
-        ...(props.defaultParams?.terms || []),
-        ...(_params?.terms || []),
-      ],
-    }
-    loading.value = true
-    const resp = await props.request(__params).finally(() => {
-      loading.value = false;
-    });
-    if (resp.success) {
-      const flag = handleData(resp.result || {}, _params)
-      if (flag) { // 判断如果是最后一页且最后一页为空，就跳转到前一页
-        if(props.totalRequest){
-          onlyMessage(contextLocale.value.pagination?.lastPage || '', 'error')
-          // 置灰下一页
-          page.total = page.pageSize * (page.pageIndex > 0 ? page.pageIndex : 1)
-        } else {
-          page.pageIndex = page.pageIndex > 0 ? page.pageIndex - 1 : 0;
-          handleSearch({
-            ..._params,
-            pageSize: page.pageSize,
-            pageIndex: page.pageIndex,
-          });
-        }
-      }
-    } else {
-      _dataSource.value = [];
-    }
-    if(props.totalRequest){
-      currentRequestId++;
-      const requestId = currentRequestId;
-      page.loading = true
-      props.totalRequest(__params).then((res) => {
-        if(res.success){
-          page.total = res.result || 0;
-        }
-      }).finally(() => {
-        if (requestId === currentRequestId) {
-          page.loading = false
-        }
-      })
-    }
-  } else {
-    _dataSource.value = []
-  }
-}
-
-const _debounceFn = debounce(handleSearch, 300);
+const { handleSearch } = useProTableRequest(
+  props, page, loading, _dataSource,
+  () => onlyMessage(contextLocale.value.pagination?.lastPage || '', 'error'),
+  (error) => emit('requestError', error),
+)
 
 const onPageChange = (_page, size) => {
   handleSearch({
@@ -263,7 +178,7 @@ const windowChange = () => {
 watch(
   () => props.params,
   (newValue) => {
-    _debounceFn({
+    handleSearch({
       ...(newValue || {}),
       pageSize: page.pageSize || 12,
       pageIndex: 0,
@@ -281,7 +196,7 @@ watch(props.modeValue, (newValue) => {
 watch(
   () => props.dataSource,
   (newVal) => {
-    if (newVal && !props.request) {
+    if (Array.isArray(newVal) || !props.request) {
       handleSearch(props.params);
     }
   },

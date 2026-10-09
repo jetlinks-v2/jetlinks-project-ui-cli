@@ -37,6 +37,9 @@ export interface Options {
 
 export interface ExpandRequestConfig extends InternalAxiosRequestConfig {
   __requestKey?: string
+  __requestController?: AbortController
+  __requestExternalSignal?: InternalAxiosRequestConfig['signal']
+  __requestCleanup?: () => void
   _retry?: boolean
 }
 

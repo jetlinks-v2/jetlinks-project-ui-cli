@@ -5,3 +5,4 @@ ProTable.install = function (app: App) {
     app.component(ProTable.name, ProTable)
 }
 export default ProTable;
+export type { ProTableQueryParams, ProTableRequest, ProTableRequestContext } from './hooks/useProTableRequest'
