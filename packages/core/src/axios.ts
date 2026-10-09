@@ -140,10 +140,36 @@ export class AxiosService {
     }
 
     const controller = new AbortController()
+    // Retries must retain the original caller signal rather than an old internal controller.
+    const externalSignal = config.__requestController?.signal === config.signal
+      ? config.__requestExternalSignal
+      : config.signal
+    config.__requestCleanup?.()
+    const onAbort = () => controller.abort()
+    const cleanup = () => {
+      externalSignal?.removeEventListener?.('abort', onAbort)
+      controller.signal.removeEventListener('abort', cleanup)
+    }
+    controller.signal.addEventListener('abort', cleanup, { once: true })
+    if (externalSignal?.aborted) controller.abort()
+    else externalSignal?.addEventListener?.('abort', onAbort, { once: true })
     config.signal = controller.signal
     config.__requestKey = key
+    config.__requestController = controller
+    config.__requestExternalSignal = externalSignal
+    config.__requestCleanup = cleanup
 
     this.pendingRequests.set(key, controller)
+  }
+
+  /** A replaced request may settle after its successor; only remove its own record. */
+  private clearRequestRecord(config?: ExpandRequestConfig): void {
+    config?.__requestCleanup?.()
+    if (config) delete config.__requestCleanup
+    const key = config?.__requestKey
+    if (key && this.pendingRequests.get(key) === config?.__requestController) {
+      this.pendingRequests.delete(key)
+    }
   }
 
   /**
@@ -190,10 +216,7 @@ export class AxiosService {
    * 响应拦截器处理
    */
   private handleResponse(response: ExpandAxiosResponse): any {
-    const __key = response.config?.__requestKey
-    if (__key) {
-      this.pendingRequests.delete(__key)
-    }
+    this.clearRequestRecord(response.config)
 
     if (this.options.handleResponse && isFunction(this.options.handleResponse)) {
       return this.options.handleResponse(response)
@@ -263,10 +286,7 @@ export class AxiosService {
    */
   private async errorHandler(err: ExpandAxiosError<any>): Promise<any> {
     // 清理请求记录
-    const __key = err.config?.__requestKey
-    if (__key) {
-      this.pendingRequests.delete(__key)
-    }
+    this.clearRequestRecord(err.config)
 
     // 如果是用户主动取消的请求，不做错误处理
     if (axios.isCancel(err as any)) {

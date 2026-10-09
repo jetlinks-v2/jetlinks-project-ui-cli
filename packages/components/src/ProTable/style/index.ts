@@ -9,10 +9,17 @@ const genProTableStyle = (config: any): CSSObject => {
       height: '100%',
       width: '100%',
       backgroundColor: token.colorBgContainer,
-      '.ant-spin-nested-loading': {
-        height: '100%',
+      '.jtable-content-spin': {
+        flex: 1,
+        minHeight: 0,
+        // Ant Table owns another Spin; keep its percentage height inside the data region.
+        '.ant-spin-nested-loading': {
+          height: '100%',
+        },
         '.ant-spin-container': {
           height: '100%',
+          display: 'flex',
+          flexDirection: 'column',
         },
       },
       '.jtable-body': {

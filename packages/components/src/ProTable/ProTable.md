@@ -69,3 +69,27 @@
 - `request` 模式由组件内部管理 loading 与分页状态；`dataSource` 模式为受控本地数据。
 - 卡片网格形态（`gridColumns` / `gridColumn`）下通过 `card` 插槽渲染卡片。
 - 搜索联动：配合 `Search` 组件时，`params` 变化自动重新请求。
+
+#### Loading and request lifecycle
+
+The shared Spin covers only Content (table/card/empty state); headers, filters,
+selection tools and pagination remain usable. Confirmed `params` query immediately.
+Continuous input debouncing belongs to the filter component, not ProTable.
+
+Each table owns one query generation. Params changes, page changes, reload and
+unmount abort the previous generation. Both callbacks receive
+`(params, { signal: AbortSignal })`; forward the signal to the HTTP client.
+Existing single-argument callbacks remain valid, and generation checks protect
+rows, totals, pagination and loading even when a callback ignores cancellation.
+The optional total request shares the data request's generation and signal.
+Cancellation preserves existing rows and emits no error. Genuine request failures
+emit `requestError`; the API layer continues to own user-facing error messages.
+
+```ts
+const fetchList = (params, { signal }) => request.post('/example/_query', params, { signal })
+```
+
+Implementation: `hooks/useProTableRequest.ts`, `ProTable.vue`, `style/index.ts`.
+Spin uses `wrapperClassName`; its container and the nested Ant Table Spin keep
+the Content height so rows and cards scroll internally without covering pagination.
+The regression entry is `tests/sharedRequestLifecycle.test.cjs`.

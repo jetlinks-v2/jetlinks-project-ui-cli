@@ -3,6 +3,7 @@ import {PropType} from "vue";
 import {TableProps} from "ant-design-vue/es/table";
 import {paginationProps} from 'ant-design-vue/es/pagination/Pagination'
 import { omit } from 'lodash-es'
+import type { ProTableQueryParams, ProTableRequest } from './hooks/useProTableRequest'
 
 export const _headerProps = {
   mode: {
@@ -89,7 +90,7 @@ export const _paginationProps = {
     default: false
   },
   totalRequest: {
-    type: Function,
+    type: Function as PropType<ProTableRequest<number>>,
     default: undefined,
   },
 }
@@ -104,15 +105,15 @@ export const proTableProps = {
     })
   },
   request: {
-    type: Function,
+    type: Function as PropType<ProTableRequest>,
     default: undefined,
   },
   totalRequest: {
-    type: Function,
+    type: Function as PropType<ProTableRequest<number>>,
     default: undefined,
   },
   params: {
-    type: Object,
+    type: Object as PropType<ProTableQueryParams>,
     default: () => ({})
   },
   type: {
@@ -120,7 +121,7 @@ export const proTableProps = {
     default: 'PAGE',
   },
   defaultParams: {
-    type: Object,
+    type: Object as PropType<ProTableQueryParams>,
     default: () => ({})
   },
   noPagination: {
