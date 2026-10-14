@@ -83,7 +83,12 @@ const _mode = ref<'TABLE' | 'CARD'>(props.mode || props.modeValue || 'CARD')
 const column = ref<number>(4)
 const page = reactive({
   pageIndex: 0,
-  pageSize: tableConfig.pagination?.pageSize || 12 ,
+  // 组件分页配置优先于全局默认值，确保首次请求与分页显示使用相同的条数。
+  pageSize: props.pagination.pageSize
+      ?? props.pagination.defaultPageSize
+      ?? tableConfig.pagination?.pageSize
+      ?? tableConfig.pagination?.defaultPageSize
+      ?? 12,
   total: 0,
   loading: false
 })

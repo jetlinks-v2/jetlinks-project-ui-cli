@@ -18,6 +18,7 @@
 | gridColumn | 每行展示的卡片数量 | `number` | - |
 | alertRender | 是否展示上方选择提示框 | `boolean` | `true` |
 | defaultParams | 默认参数 | `object` | `{}` |
+| pagination | 分页配置（ant-design-vue Pagination）；`pageSize` 或 `defaultPageSize` 设置初始每页条数 | `object` | `{}` |
 | bodyStyle | 内容区域自定义样式 | `object` | - |
 
 #### Column 扩展
@@ -67,6 +68,7 @@
 
 - 表格主体属性与 `Column` 均参考 ant-design-vue `Table`，其余扩展字段见上表。
 - `request` 模式由组件内部管理 loading 与分页状态；`dataSource` 模式为受控本地数据。
+- 初始每页条数依次读取 `pagination.pageSize`、`pagination.defaultPageSize`、全局 `TableConfig.pagination.pageSize`、全局 `TableConfig.pagination.defaultPageSize`，均未配置时使用 `12`；切换每页条数后，搜索和刷新沿用当前值。
 - 卡片网格形态（`gridColumns` / `gridColumn`）下通过 `card` 插槽渲染卡片。
 - 搜索联动：配合 `Search` 组件时，`params` 变化自动重新请求。
 
