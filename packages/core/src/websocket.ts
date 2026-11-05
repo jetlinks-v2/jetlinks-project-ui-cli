@@ -20,6 +20,7 @@ type WS_Options = {
 interface WebSocketSubscription {
   subject: Subject<WebSocketMessage>
   request: WebSocketMessage
+  consumers: number
 }
 
 export type WebSocketConnectionEventType =
@@ -177,7 +178,19 @@ export class WebSocketClient {
         },
       },
       closeObserver: {
-        next: () => {
+        next: (event) => {
+          if (this.ws !== socket) return
+          // 策略/鉴权拒绝需要用户重新认证，不进入自动重连循环。
+          if ([1008, 4001, 4003, 4401, 4403].includes(event.code)) {
+            this.shouldReconnect = false
+            this.tempQueue = []
+            this.endSubscriptions({
+              type: 'error',
+              code: event.code,
+              status: [4001, 4401].includes(event.code) ? 401 : 403,
+              message: event.reason || 'WebSocket authorization rejected',
+            })
+          }
           this.handleSocketClose(socket)
         },
       },
@@ -186,7 +199,9 @@ export class WebSocketClient {
     this.ws = socket
     this.startConnectionTimeout(socket)
     socket.subscribe({
-      next: (message) => this.handleMessage(message),
+      next: (message) => {
+        if (this.ws === socket) this.handleMessage(message)
+      },
       error: (error) => {
         console.error('WebSocket error:', error)
         this.handleSocketClose(socket)
@@ -283,6 +298,14 @@ export class WebSocketClient {
     }
 
     if (message.type === 'error') {
+      const id = message.requestId || message.id || ''
+      const subscription = this.subscriptions.get(id)
+      if (subscription) {
+        // 先删除注册，避免 error 回调中的重新订阅被旧 teardown 取消。
+        this.subscriptions.delete(id)
+        subscription.subject.error(message)
+        return
+      }
       if (this.options.onError) {
         this.options.onError(message)
       } else {
@@ -360,14 +383,24 @@ export class WebSocketClient {
     const wasConnected = this.isConnected
     this.isConnected = false
     this.stopHeartbeat()
-    this.subscriptions.clear()
     this.tempQueue = []
+    this.endSubscriptions()
     socket?.complete()
     if (wasConnected) {
       this.connectionEventSubject.next({
         type: 'disconnected',
         timestamp: Date.now(),
       })
+    }
+  }
+
+  /** 显式退出/身份切换结束旧消费者，清空注册后再通知，隔离同步回调。 */
+  private endSubscriptions(error?: WebSocketMessage) {
+    const subscriptions = [...this.subscriptions.values()]
+    this.subscriptions.clear()
+    for (const subscription of subscriptions) {
+      if (error) subscription.subject.error(error)
+      else subscription.subject.complete()
     }
   }
 
@@ -392,26 +425,38 @@ export class WebSocketClient {
       return this.wsClient.getWebSocket(id, topic, parameter)
     }
 
-    const subject = new Subject<WebSocketMessage>()
     const request: WebSocketMessage = {
       id,
       topic,
       parameter,
       type: 'sub',
     }
-    this.subscriptions.set(id, { subject, request })
+    let entry: WebSocketSubscription | undefined
 
-    if (this.ws && this.isConnected) {
-      this.ws.next(request)
-    }
-
+    // 创建 Observable 本身不声明主题；同一个流的多个消费者共享一次服务端订阅。
     return new Observable((subscriber) => {
-      const subscription = subject.subscribe(subscriber)
+      let register = false
+      if (!entry || entry.subject.isStopped || entry.consumers === 0) {
+        const previous = this.subscriptions.get(id)
+        entry = { subject: new Subject<WebSocketMessage>(), request, consumers: 0 }
+        this.subscriptions.set(id, entry)
+        if (previous) {
+          if (this.ws && this.isConnected) this.ws.next({ id, type: 'unsub' })
+          previous.subject.complete()
+        }
+        register = true
+      }
+      const current = entry
+      current.consumers++
+      const subscription = current.subject.subscribe(subscriber)
+      if (register && this.subscriptions.get(id) === current && this.ws && this.isConnected) {
+        this.ws.next(request)
+      }
 
       return () => {
         subscription.unsubscribe()
-        const activeSubscription = this.subscriptions.get(id)
-        if (activeSubscription?.subject !== subject) return
+        current.consumers--
+        if (current.consumers > 0 || this.subscriptions.get(id) !== current) return
         this.subscriptions.delete(id)
         if (this.ws && this.isConnected) {
           this.ws.next({ id, type: 'unsub' })
