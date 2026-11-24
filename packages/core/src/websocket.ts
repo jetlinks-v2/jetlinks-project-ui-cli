@@ -17,10 +17,16 @@ type WS_Options = {
   onError?: (message: WebSocketMessage) => void
 }
 
+export interface WebSocketSubscriptionOptions {
+  /** Parse a result's original JSON text; preserve its type and requestId. */
+  deserializer?: (text: string) => unknown
+}
+
 interface WebSocketSubscription {
   subject: Subject<WebSocketMessage>
   request: WebSocketMessage
   consumers: number
+  deserializer?: WebSocketSubscriptionOptions['deserializer']
 }
 
 export type WebSocketConnectionEventType =
@@ -172,6 +178,7 @@ export class WebSocketClient {
 
     const socket = webSocket<WebSocketMessage>({
       url: this.url,
+      deserializer: event => this.ws === socket ? this.deserializeMessage(event.data) : { type: 'ignored' },
       openObserver: {
         next: () => {
           this.handleSocketOpen(socket)
@@ -283,6 +290,27 @@ export class WebSocketClient {
     if (this.heartbeatSubscription) {
       this.heartbeatSubscription.unsubscribe()
       this.heartbeatSubscription = null
+    }
+  }
+
+  private deserializeMessage(text: string): WebSocketMessage {
+    const message: WebSocketMessage = JSON.parse(text)
+    const id = message.requestId || ''
+    const subscription = this.subscriptions.get(id)
+    if (message.type !== 'result' || !subscription?.deserializer) return message
+    try {
+      // Routing uses the envelope; the selected parser always receives the untouched text.
+      const parsed = subscription.deserializer(text)
+      if (!parsed || typeof parsed !== 'object' || !('type' in parsed) || parsed.type !== 'result' ||
+          !('requestId' in parsed) || parsed.requestId !== message.requestId) {
+        throw new Error('WebSocket deserializer must preserve type and requestId')
+      }
+      return parsed as WebSocketMessage
+    } catch (error) {
+      this.subscriptions.delete(id)
+      if (this.ws && this.isConnected) this.ws.next({ id, type: 'unsub' })
+      subscription.subject.error(error)
+      return { type: 'ignored' }
     }
   }
 
@@ -420,9 +448,10 @@ export class WebSocketClient {
     id: string,
     topic: string,
     parameter: Record<string, any> = {},
+    options: WebSocketSubscriptionOptions = {},
   ): Observable<WebSocketMessage> {
     if (isApp && this.wsClient) {
-      return this.wsClient.getWebSocket(id, topic, parameter)
+      return this.wsClient.getWebSocket(id, topic, parameter, options)
     }
 
     const request: WebSocketMessage = {
@@ -438,7 +467,7 @@ export class WebSocketClient {
       let register = false
       if (!entry || entry.subject.isStopped || entry.consumers === 0) {
         const previous = this.subscriptions.get(id)
-        entry = { subject: new Subject<WebSocketMessage>(), request, consumers: 0 }
+        entry = { subject: new Subject<WebSocketMessage>(), request, consumers: 0, deserializer: options.deserializer }
         this.subscriptions.set(id, entry)
         if (previous) {
           if (this.ws && this.isConnected) this.ws.next({ id, type: 'unsub' })

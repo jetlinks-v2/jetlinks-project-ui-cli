@@ -20,6 +20,10 @@ export interface NdJsonOptions {
   handleRequest?: NdJsonInterceptorFulfilled<NdJsonRequestConfig>;
   /** 自定义响应处理 */
   handleResponse?: <T>(response: T) => T | Promise<T>;
+  /** Parse each original JSON line before response interceptors. Defaults to JSON.parse. */
+  deserializer?: (text: string) => unknown;
+  /** Validate the HTTP response before status dispatch and reader acquisition. */
+  validateResponse?: (response: Response) => void | Promise<void>;
   /** 基础 API 地址，默认使用 BASE_API 常量 */
   baseURL?: string;
   /** 语言字段名 */
@@ -227,11 +231,14 @@ export class NdJson {
   }
 
   private async emitLine<T>(line: string, observer: Subscriber<T>): Promise<boolean> {
+    if (observer.closed) return false;
     const data = line.startsWith("data:") ? line.slice(5).trimStart() : line;
     try {
-      const intercepted = await this.interceptors.response.run(JSON.parse(data));
+      const parsed = this.options.deserializer ? this.options.deserializer(data) : JSON.parse(data);
+      const intercepted = await this.interceptors.response.run(parsed);
+      if (observer.closed) return false;
       observer.next(await this.handleResponse(intercepted) as T);
-      return true;
+      return !observer.closed;
     } catch (error) {
       observer.error(error);
       return false;
@@ -289,7 +296,7 @@ export class NdJson {
 
           return fetch(this.resolveRequestUrl(requestUrl, requestBaseURL), requestInit);
         })
-        .then(resp => {
+        .then(async resp => {
           if (!resp) {
             return;
           }
@@ -298,6 +305,8 @@ export class NdJson {
             return;
           }
 
+          await this.options.validateResponse?.(resp);
+          if (!context.isActive || controller.signal.aborted || observer.closed) return;
           if (resp.status !== this.options.code) {
             if (!this.isAbortError(resp)) {
               observer.error(resp);
@@ -538,7 +547,7 @@ export class NdJson {
     }
 
     context.reader = undefined;
-    void reader.cancel().catch(() => undefined);
+    void reader.cancel().catch(() => undefined).finally(() => reader.releaseLock());
   }
 
   private shouldIgnoreRequestError(error: unknown, context: RequestContext): boolean {

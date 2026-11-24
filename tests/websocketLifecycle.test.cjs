@@ -17,7 +17,8 @@ function harness(t, filename) {
     constructor(url) { this.url = url; sockets.push(this) }
     send(value) { this.sent.push(JSON.parse(value)) }
     open() { this.readyState = 1; this.onopen?.({}) }
-    receive(value) { this.onmessage?.({ data: JSON.stringify(value) }) }
+    receive(value) { this.receiveText(JSON.stringify(value)) }
+    receiveText(data) { this.onmessage?.({ data }) }
     close(code = 1000, reason = '') { this.readyState = 3; this.onclose?.({ code, reason, wasClean: code === 1000 }) }
   }
   Object.defineProperty(globalThis, 'window', { configurable: true, value: { navigator: network,
@@ -25,9 +26,17 @@ function harness(t, filename) {
     addEventListener(name, callback) { if (!events.has(name)) events.set(name, []); events.get(name).push(callback) },
   } })
   Object.defineProperty(globalThis, 'WebSocket', { configurable: true, value: Socket })
-  const module = { exports: {} }
-  new Function('require', 'module', 'exports', transformSync(readFileSync(filename, 'utf8'), { loader: filename.endsWith('.ts') ? 'ts' : 'js', format: 'cjs' }).code)(id => id === 'ant-design-vue' ? { notification: { error: value => notices.push(value) } } : deps(id), module, module.exports)
-  const client = new module.exports.WebSocketClient()
+  const createClient = (clientWindow = window) => {
+    const module = { exports: {} }
+    new Function('require', 'module', 'exports', 'window', transformSync(readFileSync(filename, 'utf8'), { loader: filename.endsWith('.ts') ? 'ts' : 'js', format: 'cjs' }).code)(id => {
+      if (id === 'ant-design-vue') return { notification: { error: value => notices.push(value) } }
+      if (id === '@jetlinks-web/constants') return { TOKEN_KEY: 'token', BASE_API: '/', LOCAL_BASE_API: 'base' }
+      if (id === '@jetlinks-web/utils') return { getToken: () => '', randomString: () => 'test' }
+      return deps(id)
+    }, module, module.exports, clientWindow)
+    return new module.exports.WebSocketClient()
+  }
+  const client = createClient()
   t.after(() => {
     client.disconnect(); t.mock.timers.reset()
     for (const name of ['window', 'WebSocket']) if (original[name]) Object.defineProperty(globalThis, name, original[name]); else delete globalThis[name]
@@ -35,12 +44,55 @@ function harness(t, filename) {
   client.initWebSocket('ws://localhost/monitor')
   const online = value => { network.onLine = value; events.get(value ? 'online' : 'offline')?.forEach(callback => callback()) }
   const topics = socket => socket.sent.filter(message => message.type === 'sub')
-  return { client, sockets, notices, online, topics }
+  return { client, sockets, notices, online, topics, delegated: () => createClient({ ...window, __MICRO_APP_ENVIRONMENT__: true, microApp: { addGlobalDataListener(listener) { listener({ wsClient: client }) } } }) }
 }
 
 const targets = [['source', resolve(root, 'packages/core/src/websocket.ts')]]
 if (process.env.JETLINKS_WS_BUNDLE) targets.push(['bundle', process.env.JETLINKS_WS_BUNDLE])
 for (const [name, filename] of targets) {
+  const { parse, isSafeNumber } = deps('lossless-json')
+  const precise = text => parse(text, undefined, value => isSafeNumber(value) ? Number(value) : value)
+  const raw = id => `{"type":"result","requestId":"${id}","payload":{"value":18446744073709551615,"nested":[0.1234567890123456789,0,false],"timestamp":1700000000000}}`
+
+  test(`${name}: a subscription parses original text independently of ids and sibling number types`, t => {
+    const h = harness(t, filename), values = []
+    h.client.getWebSocket('arbitrary:a', '/renamed/topic', { x: 1 }, { deserializer: precise }).subscribe(value => values.push(value))
+    h.client.getWebSocket('arbitrary:b', '/renamed/topic').subscribe(value => values.push(value))
+    h.client.connect(); h.sockets[0].open()
+    h.sockets[0].receiveText(raw('arbitrary:a')); h.sockets[0].receiveText(raw('arbitrary:b'))
+    assert.equal(values[0].payload.value, '18446744073709551615')
+    assert.deepEqual(values[0].payload.nested, ['0.1234567890123456789', 0, false])
+    assert.equal(values[0].payload.timestamp, 1700000000000)
+    assert.equal(typeof values[1].payload.value, 'number')
+    assert.deepEqual(h.topics(h.sockets[0])[0], { type: 'sub', id: 'arbitrary:a', topic: '/renamed/topic', parameter: { x: 1 } })
+  })
+
+  test(`${name}: reconnect and delegated micro-app subscriptions preserve their parser`, t => {
+    const h = harness(t, filename), child = h.delegated(), values = []
+    const subscription = child.getWebSocket('child', '/data', {}, { deserializer: precise }).subscribe(value => values.push(value.payload.value))
+    h.client.connect(); h.sockets[0].open(); h.sockets[0].receiveText(raw('child'))
+    h.online(false); h.online(true); t.mock.timers.tick(0)
+    h.sockets[1].open(); h.sockets[1].receiveText(raw('child'))
+    assert.deepEqual(values, ['18446744073709551615', '18446744073709551615'])
+    subscription.unsubscribe(); h.online(false); h.online(true); t.mock.timers.tick(0); h.sockets[2].open()
+    assert.deepEqual(h.topics(h.sockets[2]), [])
+  })
+
+  test(`${name}: parser failures retire only their owner and cannot cancel a synchronous replacement`, t => {
+    const h = harness(t, filename), failures = [], values = []
+    h.client.getWebSocket('a', '/data', {}, { deserializer: () => { throw new Error('Invalid value') } }).subscribe({ error: error => {
+      failures.push(error.message)
+      h.client.getWebSocket('a', '/replacement', {}, { deserializer: precise }).subscribe(value => values.push(value.payload.value))
+    } })
+    h.client.getWebSocket('b', '/sibling').subscribe(value => values.push(value.payload.value))
+    h.client.connect(); h.sockets[0].open(); h.sockets[0].receiveText(raw('a')); h.sockets[0].receiveText(raw('a')); h.sockets[0].receiveText(raw('b'))
+    assert.deepEqual(failures, ['Invalid value']); assert.deepEqual(values, ['18446744073709551615', Number('18446744073709551615')])
+    assert.equal(h.sockets.length, 1); assert.equal(h.notices.length, 0)
+    h.client.getWebSocket('invalid', '/invalid', {}, { deserializer: () => ({ type: 'result', requestId: 'b' }) }).subscribe({ error: error => failures.push(error.message) })
+    h.sockets[0].receiveText(raw('invalid'))
+    assert.match(failures[1], /preserve type and requestId/)
+  })
+
   test(`${name}: lazy subscription shares one topic until the last consumer leaves`, t => {
     const h = harness(t, filename), values = [], stream = h.client.getWebSocket('a', '/a', { node: 1 })
     h.client.connect(); h.sockets[0].open(); assert.equal(h.topics(h.sockets[0]).length, 0)
