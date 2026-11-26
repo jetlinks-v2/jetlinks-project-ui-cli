@@ -20,6 +20,9 @@
 | defaultParams | 默认参数 | `object` | `{}` |
 | pagination | 分页配置（ant-design-vue Pagination）；`pageSize` 或 `defaultPageSize` 设置初始每页条数 | `object` | `{}` |
 | bodyStyle | 内容区域自定义样式 | `object` | - |
+| scroll | 表格横向／纵向滚动设置；`false` 关闭自动滚动，`x:false`／`y:false` 单独关闭 | `object \| false` | `{ x:'max-content', y:'100%' }` |
+
+自动横向尺寸按列内容展开，在主区窄于固定列宽总和时保留未指定宽度的名称等列，通过表格内部横滚查看其余列。需要强制沿容器宽度压缩的宿主可显式设置 `scroll.x='100%'`，数字、其他 CSS 尺寸及已有纵向设置继续透传；长内容仍应按业务配置列宽与 ellipsis，不以整页溢出承载宽表格。
 
 #### Column 扩展
 

@@ -198,7 +198,7 @@ const _scroll = computed(() => {
   }
 
   return {
-    x: props.scroll.x === false ? undefined : props.scroll.x || '100%',
+    x: props.scroll.x === false ? undefined : props.scroll.x || 'max-content',
     y: props.scroll.y === false ? undefined : props.scroll.y || '100%',
   }
 })
